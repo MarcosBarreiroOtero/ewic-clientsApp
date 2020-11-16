@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ewic</string>
+    <string name="warning">Warning</string>
+    <string name="google_login_button">Log in</string>
+    <string name="login_cancelled_message">In order to use this application, you need to log in with a Google account.</string>
+    <string name="cancel">Cancel</string>
+    <string name="toolbar_menu_my_data">My Data</string>
+    <string name="firstName">Name</string>
+    <string name="lastName">Last Name</string>
+    <string name="notification_email">Notification email</string>
+    <string name="update_my_data">Update my data</string>
+    <string name="delete_accout">Delete account</string>
+    <string name="email_invalid_format">Invalid email format</string>
+    <string name="update_data_successfully">The data has been updated correctly</string>
+    <string name="pre_delete_message">Are you sure you want to delete your account? Your data cannot be recovered</string>
+    <string name="delete">Delete</string>
+    <string name="account_delete_successfully">Account delete successfully</string>
+    <string name="state">State</string>
+    <string name="SUPERMARKET">Supermarket</string>
+    <string name="location_needed_message">The location is used to show the nearby stores and the distance to them.</string>
+    <string name="request">Request</string>
+</resources>

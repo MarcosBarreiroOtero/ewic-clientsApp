@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Ewic</string>
+    <string name="warning">Aviso</string>
+    <string name="google_login_button">Iniciar Sesión</string>
+    <string name="login_cancelled_message">Para poder utilizar esta aplicación es necesario iniciar sesión con una cuenta de Google.</string>
+    <string name="cancel">Cancelar</string>
+    <string name="toolbar_menu_my_data">Mis Datos</string>
+    <string name="firstName">Nombre</string>
+    <string name="lastName">Apellidos</string>
+    <string name="notification_email">Email de notificación</string>
+    <string name="update_my_data">Actualizar mis datos</string>
+    <string name="delete_accout">Borrar cuenta</string>
+    <string name="email_invalid_format">Formato de email no válido</string>
+    <string name="update_data_successfully">Los datos se han actualizado correctamente</string>
+    <string name="pre_delete_message">¿Esta seguro de que quiere eliminar su cuenta? No se podrán recuperar sus datos</string>
+    <string name="delete">Eliminar</string>
+    <string name="account_delete_successfully">Cuenta eliminada correctamente</string>
+    <string name="state">Estado</string>
+    <string name="SUPERMARKET">Supermercado</string>
+    <string name="location_needed_message">La ubicación se utilza para mostrar las tiendas proximas y la distancia a ellas.</string>
+    <string name="request">Solicitar</string>
+</resources>
