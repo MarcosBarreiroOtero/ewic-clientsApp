@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -39,6 +40,7 @@ import java.util.Map;
 
 import es.ewic.clients.utils.BackEndEndpoints;
 import es.ewic.clients.utils.FormUtils;
+import es.ewic.clients.utils.RequestUtils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -122,16 +124,13 @@ public class MyDataFragment extends Fragment {
 
         Button update_button = parent.findViewById(R.id.button_update_data);
         update_button.setOnClickListener(v -> {
-            Log.w("Update account", "click");
             updateClientData(parent);
         });
 
         Button delete_button = parent.findViewById(R.id.button_delete_account);
         delete_button.setOnClickListener(v -> {
-            Log.w("Update accouent", "click");
             showPreDeleteDialog(parent);
         });
-        // Inflate the layout for this fragment
         return parent;
     }
 
@@ -141,8 +140,11 @@ public class MyDataFragment extends Fragment {
         FormUtils.showLoadingPanel(getActivity().getWindow(), loadingPanel);
 
         TextInputEditText til_name = parent.findViewById(R.id.my_data_name_input);
+        til_name.clearFocus();
         TextInputEditText til_last_name = parent.findViewById(R.id.my_data_lastname_input);
+        til_last_name.clearFocus();
         TextInputEditText til_email = parent.findViewById(R.id.my_data_email_input);
+        til_email.clearFocus();
 
         TextInputLayout til_email_label = parent.findViewById(R.id.my_data_email_label);
         if (!FormUtils.isValidEmail(til_email.getText())) {
@@ -160,26 +162,21 @@ public class MyDataFragment extends Fragment {
 
             String url = BackEndEndpoints.UPDATE_DELETE_CLIENT + "/" + clientData.get("idGoogleLogin");
 
-            RequestQueue queue = Volley.newRequestQueue(getContext());
-
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.PUT, url, clientData, response -> {
-                Log.i("Update account", response.toString());
-                mCallback.onUpdateClientAccount(response);
-                FormUtils.hideLoadingPanel(getActivity().getWindow(), loadingPanel);
-                Snackbar.make(parent, getString(R.string.update_data_successfully), Snackbar.LENGTH_LONG)
-                        .show();
-
-            }, error -> Log.e("HTTP", "error")) {
+            RequestUtils.sendJsonObjectRequest(getContext(), Request.Method.PUT, url, clientData, new Response.Listener<JSONObject>() {
                 @Override
-                public Map<String, String> getHeaders() {
-                    Map<String, String> params = new HashMap<>();
-                    params.put("Content-Type", "application/json");
-                    return params;
+                public void onResponse(JSONObject response) {
+                    mCallback.onUpdateClientAccount(response);
+                    FormUtils.hideLoadingPanel(getActivity().getWindow(), loadingPanel);
+                    Snackbar.make(parent, getString(R.string.update_data_successfully), Snackbar.LENGTH_LONG)
+                            .show();
+
                 }
-            };
-
-            queue.add(jsonObjectRequest);
-
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e("HTTP", "error");
+                }
+            });
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -204,37 +201,21 @@ public class MyDataFragment extends Fragment {
         try {
             String url = BackEndEndpoints.UPDATE_DELETE_CLIENT + "/" + clientData.get("idClient") + "/" + clientData.get("idGoogleLogin");
 
-            RequestQueue queue = Volley.newRequestQueue(getContext());
+            RequestUtils.sendStringRequest(getContext(), Request.Method.DELETE, url, response -> {
+                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestEmail()
+                        .build();
 
-            StringRequest jsonObjectRequest = new StringRequest(Request.Method.DELETE, url,
-                    response -> {
-                        Log.w("HTTP", "ok");
-                        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                                .requestEmail()
-                                .build();
+                GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
 
-                        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
-
-                        mGoogleSignInClient.signOut().addOnCompleteListener(task -> {
-                            Snackbar.make(parent, getString(R.string.account_delete_successfully), Snackbar.LENGTH_SHORT)
-                                    .show();
-                            mCallback.onDeleteClientAccount();
-                        });
-                    }
-                    ,
-                    error -> {
-                        Log.e("HTTP", "error");
-                    }) {
-                @Override
-                public Map<String, String> getHeaders() {
-                    Map<String, String> params = new HashMap<>();
-                    params.put("Content-Type", "application/json");
-                    return params;
-                }
-            };
-
-            queue.add(jsonObjectRequest);
-
+                mGoogleSignInClient.signOut().addOnCompleteListener(task -> {
+                    Snackbar.make(parent, getString(R.string.account_delete_successfully), Snackbar.LENGTH_SHORT)
+                            .show();
+                    mCallback.onDeleteClientAccount();
+                });
+            }, error -> {
+                Log.e("HTTP", "error");
+            });
         } catch (JSONException e) {
             e.printStackTrace();
         }

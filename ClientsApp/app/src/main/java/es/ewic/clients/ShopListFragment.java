@@ -1,5 +1,7 @@
 package es.ewic.clients;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +14,7 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -19,6 +22,7 @@ import com.android.volley.Request;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
 import es.ewic.clients.adapters.ShopRowAdapter;
@@ -52,7 +56,7 @@ public class ShopListFragment extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
 
     }
 
@@ -85,19 +89,24 @@ public class ShopListFragment extends Fragment {
 
     @SuppressWarnings("MissingPermission")
     private void getLastLocation(ConstraintLayout parent) {
-        mFusedLocationClient.getLastLocation()
-                .addOnCompleteListener(getActivity(), new OnCompleteListener<Location>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Location> task) {
-                        if (task.isSuccessful() && task.getResult() != null) {
-                            mLatitude = task.getResult().getLatitude();
-                            mLongitude = task.getResult().getLongitude();
-                        } else {
-                            Log.w("Position", "getLastLocation:exception", task.getException());
-                        }
-                        getShopList(parent);
-                    }
-                });
+        mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
+            @Override
+            public void onComplete(@NonNull Task<Location> task) {
+                if (task.isSuccessful() && task.getResult() != null) {
+                    mLatitude = task.getResult().getLatitude();
+                    mLongitude = task.getResult().getLongitude();
+                    Log.e("Position", "Lat -> " + task.getResult().getLatitude());
+                    Log.e("Position", "Long -> " + task.getResult().getLongitude());
+
+                } else {
+                    Log.e("Position", "complete - " + task.isComplete());
+                    Log.e("Position", "success - " + task.isSuccessful());
+                    Log.e("Position", "result - " + task.getResult());
+                    Log.e("Position", "getLastLocation:exception - " + task.getException(), task.getException());
+                }
+                getShopList(parent);
+            }
+        });
     }
 
     private void getShopList(ConstraintLayout parent) {

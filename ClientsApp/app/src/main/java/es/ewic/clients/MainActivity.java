@@ -14,7 +14,12 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONObject;
@@ -64,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
                 ActivityCompat.shouldShowRequestPermissionRationale(this,
                         Manifest.permission.ACCESS_COARSE_LOCATION);
         if (shouldProvideRationale) {
-            Snackbar.make(findViewById(R.id.mainActivityLayout), getString(R.string.account_delete_successfully), Snackbar.LENGTH_SHORT)
+            Snackbar.make(findViewById(R.id.mainActivityLayout), getString(R.string.location_needed_message), Snackbar.LENGTH_SHORT)
                     .setAction(R.string.request,
                             v -> startLocationPermissionRequest())
                     .show();
@@ -72,9 +77,6 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
             startLocationPermissionRequest();
         }
     }
-
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
