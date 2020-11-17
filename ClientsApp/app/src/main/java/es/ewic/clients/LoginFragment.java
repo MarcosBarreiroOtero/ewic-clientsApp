@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import es.ewic.clients.utils.BackEndEndpoints;
+import es.ewic.clients.utils.RequestUtils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -157,31 +158,18 @@ public class LoginFragment extends Fragment {
                     .put("lastName", account.getFamilyName())
                     .put("email", account.getEmail());
 
-            RequestQueue queue = Volley.newRequestQueue(getContext());
-
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, BackEndEndpoints.LOGIN_CLIENTS, clientData,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            Log.i("LogIn", response.toString());
-                            mCallback.onLoadClientData(response);
-                        }
-                    }, new Response.ErrorListener() {
+            RequestUtils.sendJsonObjectRequest(getContext(), Request.Method.POST, BackEndEndpoints.LOGIN_CLIENTS, clientData, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    Log.i("LogIn", response.toString());
+                    mCallback.onLoadClientData(response);
+                }
+            }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Log.e("HTTP", "error");
                 }
-            }) {
-                @Override
-                public Map<String, String> getHeaders() throws AuthFailureError {
-                    Map<String, String> params = new HashMap<String, String>();
-                    params.put("Content-Type", "application/json");
-                    return params;
-                }
-            };
-
-            queue.add(jsonObjectRequest);
-
+            });
         } catch (JSONException e) {
             e.printStackTrace();
         }
