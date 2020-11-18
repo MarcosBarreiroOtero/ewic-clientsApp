@@ -1,7 +1,5 @@
 package es.ewic.clients;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +12,6 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -22,11 +19,15 @@ import com.android.volley.Request;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import es.ewic.clients.adapters.ShopRowAdapter;
 import es.ewic.clients.utils.BackEndEndpoints;
+import es.ewic.clients.utils.FragmentUtils;
 import es.ewic.clients.utils.RequestUtils;
 
 /**
@@ -38,6 +39,8 @@ public class ShopListFragment extends Fragment {
 
     private Double mLatitude;
     private Double mLongitude;
+
+    private JSONArray shopArray;
 
     private FusedLocationProviderClient mFusedLocationClient;
 
@@ -79,7 +82,12 @@ public class ShopListFragment extends Fragment {
         shopList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                try {
+                    JSONObject shopInformation = shopArray.getJSONObject(position);
+                    FragmentUtils.getInstance().replaceFragment(getActivity().getSupportFragmentManager(), ShopInformationFragment.newInstance(shopInformation), false);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -93,15 +101,10 @@ public class ShopListFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<Location> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
+                    Log.e("Position", "Ok.");
                     mLatitude = task.getResult().getLatitude();
                     mLongitude = task.getResult().getLongitude();
-                    Log.e("Position", "Lat -> " + task.getResult().getLatitude());
-                    Log.e("Position", "Long -> " + task.getResult().getLongitude());
-
                 } else {
-                    Log.e("Position", "complete - " + task.isComplete());
-                    Log.e("Position", "success - " + task.isSuccessful());
-                    Log.e("Position", "result - " + task.getResult());
                     Log.e("Position", "getLastLocation:exception - " + task.getException(), task.getException());
                 }
                 getShopList(parent);
@@ -119,6 +122,7 @@ public class ShopListFragment extends Fragment {
         RequestUtils.sendJsonArrayRequest(getContext(), Request.Method.GET, url, null, response -> {
             {
                 Log.i("Shop list", response.toString());
+                shopArray = response;
                 ListView shopList = parent.findViewById(R.id.shop_list);
                 ShopRowAdapter shopRowAdapter = new ShopRowAdapter(ShopListFragment.this, response, getResources(), getActivity().getPackageName());
                 shopList.setAdapter(shopRowAdapter);

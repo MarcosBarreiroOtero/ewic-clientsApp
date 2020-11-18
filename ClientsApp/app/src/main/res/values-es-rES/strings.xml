@@ -20,4 +20,6 @@
     <string name="SUPERMARKET">Supermercado</string>
     <string name="location_needed_message">La ubicación se utilza para mostrar las tiendas proximas y la distancia a ellas.</string>
     <string name="request">Solicitar</string>
+    <string name="shopType">Tipo de tienda:</string>
+    <string name="location">Ubicación</string>
 </resources>
