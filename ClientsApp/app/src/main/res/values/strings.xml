@@ -20,4 +20,6 @@
     <string name="SUPERMARKET">Supermarket</string>
     <string name="location_needed_message">The location is used to show the nearby stores and the distance to them.</string>
     <string name="request">Request</string>
+    <string name="shopType">Shop type:</string>
+    <string name="location">Location:</string>
 </resources>

@@ -9,15 +9,17 @@
     <TextView
         android:id="@+id/shop_title"
         android:layout_width="0dp"
-        android:layout_height="24dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginTop="28dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="8dp"
+        android:maxLines="2"
+        android:minLines="1"
         app:layout_constraintBottom_toTopOf="@+id/shop_location"
-        app:layout_constraintEnd_toStartOf="@+id/shop_capacity_status"
+        app:layout_constraintEnd_toStartOf="@+id/shop_percentage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -31,34 +33,32 @@
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="16dp"
+        android:maxLines="2"
+        android:minLines="1"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/shop_capacity_status_text"
+        app:layout_constraintEnd_toStartOf="@+id/shop_percentage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/shop_title" />
 
-    <ImageView
-        android:id="@+id/shop_capacity_status"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginTop="28dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:background="#FFFFFF"
-        android:contentDescription="@string/state"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_search_black_24dp"
-        tools:ignore="VectorDrawableCompat" />
-
-    <TextView
-        android:id="@+id/shop_capacity_status_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+    <com.ramijemli.percentagechartview.PercentageChartView
+        android:id="@+id/shop_percentage"
+        android:layout_width="104dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/shop_capacity_status" />
+        app:layout_constraintTop_toTopOf="parent"
+
+        app:pcv_drawBackground="false"
+        app:pcv_drawBackgroundBar="true"
+        app:pcv_mode="ring"
+        app:pcv_orientation="clockwise"
+        app:pcv_progressBarStyle="square"
+        app:pcv_progressBarThickness="10dp"
+        app:pcv_startAngle="90"
+        app:pcv_textStyle="bold"
+        app:pcv_backgroundBarColor="@color/purple_500"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
