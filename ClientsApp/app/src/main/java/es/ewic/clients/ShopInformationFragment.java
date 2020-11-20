@@ -27,6 +27,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import es.ewic.clients.model.Shop;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link ShopInformationFragment#newInstance} factory method to
@@ -37,7 +39,7 @@ public class ShopInformationFragment extends Fragment implements OnMapReadyCallb
 
     private static final String ARG_SHOP_INFORMATION = "shopInformation";
 
-    private JSONObject shopInformation;
+    private Shop shopInformation;
     private MapView mMapView;
 
     public ShopInformationFragment() {
@@ -48,14 +50,14 @@ public class ShopInformationFragment extends Fragment implements OnMapReadyCallb
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param shopInformation Parameter 1.
+     * @param shop shop Information;
      * @return A new instance of fragment ShopInformation.
      */
     // TODO: Rename and change types and number of parameters
-    public static ShopInformationFragment newInstance(JSONObject shopInformation) {
+    public static ShopInformationFragment newInstance(Shop shop) {
         ShopInformationFragment fragment = new ShopInformationFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_SHOP_INFORMATION, shopInformation.toString());
+        args.putSerializable(ARG_SHOP_INFORMATION, shop);
         fragment.setArguments(args);
         return fragment;
     }
@@ -64,11 +66,7 @@ public class ShopInformationFragment extends Fragment implements OnMapReadyCallb
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            try {
-                shopInformation = new JSONObject(getArguments().getString(ARG_SHOP_INFORMATION));
-            } catch (JSONException e) {
-                shopInformation = null;
-            }
+            shopInformation = (Shop) getArguments().getSerializable(ARG_SHOP_INFORMATION);
         }
 
 
@@ -82,10 +80,10 @@ public class ShopInformationFragment extends Fragment implements OnMapReadyCallb
 
 
         TextView shop_type = parent.findViewById(R.id.shop_information_type);
-        shop_type.setText(getString(getResources().getIdentifier(shopInformation.optString("type"), "string", getActivity().getPackageName())));
+        shop_type.setText(getString(getResources().getIdentifier(shopInformation.getType(), "string", getActivity().getPackageName())));
 
         TextView shop_location = parent.findViewById(R.id.shop_information_location);
-        shop_location.setText(shopInformation.optString("location"));
+        shop_location.setText(shopInformation.getLocation());
 
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map_fragment);
@@ -96,9 +94,9 @@ public class ShopInformationFragment extends Fragment implements OnMapReadyCallb
     @Override
     public void onMapReady(GoogleMap googleMap) {
         Log.e("Map", "Map ready");
-        LatLng location = new LatLng(shopInformation.optDouble("latitude"), shopInformation.optDouble("longitude"));
+        LatLng location = new LatLng(shopInformation.getLatitude(), shopInformation.getLongitude());
 
-        googleMap.addMarker(new MarkerOptions().position(location).title(shopInformation.optString("name")));
+        googleMap.addMarker(new MarkerOptions().position(location).title(shopInformation.getName()));
 
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(location));
         googleMap.setMinZoomPreference(15);

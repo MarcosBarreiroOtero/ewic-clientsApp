@@ -22,4 +22,6 @@
     <string name="request">Request</string>
     <string name="shopType">Shop type:</string>
     <string name="location">Location:</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
 </resources>

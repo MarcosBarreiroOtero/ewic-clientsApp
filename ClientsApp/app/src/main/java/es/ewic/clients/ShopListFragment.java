@@ -21,13 +21,13 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.List;
 
 import es.ewic.clients.adapters.ShopRowAdapter;
+import es.ewic.clients.model.Shop;
 import es.ewic.clients.utils.BackEndEndpoints;
 import es.ewic.clients.utils.FragmentUtils;
+import es.ewic.clients.utils.ModelConverter;
 import es.ewic.clients.utils.RequestUtils;
 
 /**
@@ -40,7 +40,7 @@ public class ShopListFragment extends Fragment {
     private Double mLatitude;
     private Double mLongitude;
 
-    private JSONArray shopArray;
+    private List<Shop> shops;
 
     private FusedLocationProviderClient mFusedLocationClient;
 
@@ -82,12 +82,8 @@ public class ShopListFragment extends Fragment {
         shopList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                try {
-                    JSONObject shopInformation = shopArray.getJSONObject(position);
-                    FragmentUtils.getInstance().replaceFragment(getActivity().getSupportFragmentManager(), ShopInformationFragment.newInstance(shopInformation), false);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                Shop shop = shops.get(position);
+                FragmentUtils.getInstance().replaceFragment(getActivity().getSupportFragmentManager(), ShopInformationFragment.newInstance(shop), false);
             }
         });
 
@@ -122,9 +118,9 @@ public class ShopListFragment extends Fragment {
         RequestUtils.sendJsonArrayRequest(getContext(), Request.Method.GET, url, null, response -> {
             {
                 Log.i("Shop list", response.toString());
-                shopArray = response;
+                shops = ModelConverter.jsonArrayToShopList(response);
                 ListView shopList = parent.findViewById(R.id.shop_list);
-                ShopRowAdapter shopRowAdapter = new ShopRowAdapter(ShopListFragment.this, response, getResources(), getActivity().getPackageName());
+                ShopRowAdapter shopRowAdapter = new ShopRowAdapter(ShopListFragment.this, shops, getResources(), getActivity().getPackageName());
                 shopList.setAdapter(shopRowAdapter);
             }
         }, error -> Log.e("HTTP", "error"));

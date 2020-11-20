@@ -21,16 +21,20 @@ import com.ramijemli.percentagechartview.callback.ProgressTextFormatter;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.List;
+
 import es.ewic.clients.R;
+import es.ewic.clients.model.Shop;
+import es.ewic.clients.utils.FormUtils;
 
 public class ShopRowAdapter extends BaseAdapter implements ListAdapter {
 
-    private final JSONArray shopList;
+    private final List<Shop> shopList;
     private final Fragment fragment;
     private final Resources resources;
     private final String packageName;
 
-    public ShopRowAdapter(Fragment fragment, JSONArray shopList, Resources resources, String packageName) {
+    public ShopRowAdapter(Fragment fragment, List<Shop> shopList, Resources resources, String packageName) {
 
 
         assert fragment != null;
@@ -49,21 +53,21 @@ public class ShopRowAdapter extends BaseAdapter implements ListAdapter {
         if (null == shopList)
             return 0;
         else
-            return shopList.length();
+            return shopList.size();
     }
 
     @Override
-    public JSONObject getItem(int position) {
+    public Shop getItem(int position) {
         if (null == shopList) {
             return null;
         } else
-            return shopList.optJSONObject(position);
+            return shopList.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        JSONObject jsonObject = getItem(position);
-        return jsonObject.optInt("idShop");
+        Shop shop = getItem(position);
+        return shop.getIdShop();
     }
 
     @Override
@@ -74,45 +78,28 @@ public class ShopRowAdapter extends BaseAdapter implements ListAdapter {
 
         TextView shopTitle = convertView.findViewById(R.id.shop_title);
         TextView shopLocation = convertView.findViewById(R.id.shop_location);
+        TextView shopOpen = convertView.findViewById(R.id.shop_open);
 
-        JSONObject shop_data = getItem(position);
+        Shop shop_data = getItem(position);
 
-        String type = resources.getString(resources.getIdentifier(shop_data.optString("type"), "string", packageName));
+        String type = resources.getString(resources.getIdentifier(shop_data.getType(), "string", packageName));
         if (shop_data != null) {
-            shopTitle.setText(type + " - " + shop_data.optString("name"));
-            shopLocation.setText(shop_data.optString("location"));
+            shopTitle.setText(type + " - " + shop_data.getName());
+            shopLocation.setText(shop_data.getLocation());
+
+            if (shop_data.isAllowEntries()) {
+                shopOpen.setText(resources.getString(R.string.open));
+                shopOpen.setTextColor(resources.getColor(R.color.semaphore_green));
+            } else {
+                shopOpen.setText(resources.getString(R.string.close));
+                shopOpen.setTextColor(resources.getColor(R.color.semaphore_red));
+            }
+
         }
 
         PercentageChartView percentageChartView = convertView.findViewById(R.id.shop_percentage);
-
-        float percentage = (float) ((shop_data.optDouble("actualCapacity") / shop_data.optDouble("maxCapacity")) * 100);
-        percentageChartView.setProgress(percentage, false);
-
-        AdaptiveColorProvider colorProvider = new AdaptiveColorProvider() {
-            @Override
-            public int provideProgressColor(float progress) {
-                if (progress < 25) {
-                    return resources.getColor(R.color.semaphore_green);
-                } else if (progress < 100) {
-                    return resources.getColor(R.color.semaphore_ambar);
-                } else {
-                    return resources.getColor(R.color.semaphore_red);
-                }
-            }
-
-            @Override
-            public int provideBackgroundColor(float progress) {
-                //This will provide a bg color that is 80% darker than progress color.
-                return ColorUtils.blendARGB(provideProgressColor(progress), Color.BLACK, .5f);
-            }
-
-            @Override
-            public int provideTextColor(float progress) {
-                return provideProgressColor(progress);
-            }
-        };
-
-        percentageChartView.setAdaptiveColorProvider(colorProvider);
+        float percentage = ((float) shop_data.getActualCapacity() / shop_data.getMaxCapacity()) * 100;
+        FormUtils.configureSemaphorePercentageChartView(resources, percentageChartView, percentage);
 
         return convertView;
     }

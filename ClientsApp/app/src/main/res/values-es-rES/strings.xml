@@ -22,4 +22,6 @@
     <string name="request">Solicitar</string>
     <string name="shopType">Tipo de tienda:</string>
     <string name="location">Ubicación</string>
+    <string name="open">Abierto</string>
+    <string name="close">Cerrado</string>
 </resources>
