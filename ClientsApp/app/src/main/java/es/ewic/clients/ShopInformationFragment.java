@@ -1,8 +1,10 @@
 package es.ewic.clients;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
@@ -10,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -21,6 +24,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.ramijemli.percentagechartview.PercentageChartView;
 
+import es.ewic.clients.model.Client;
 import es.ewic.clients.model.Shop;
 import es.ewic.clients.utils.FormUtils;
 
@@ -34,8 +38,14 @@ public class ShopInformationFragment extends Fragment implements OnMapReadyCallb
 
     private static final String ARG_SHOP_INFORMATION = "shopInformation";
 
+    OnShopInformationListener mCallback;
+
     private Shop shopInformation;
     private MapView mMapView;
+
+    public interface OnShopInformationListener {
+        void onBookShopEntry(Shop shopData);
+    }
 
     public ShopInformationFragment() {
         // Required empty public constructor
@@ -55,6 +65,13 @@ public class ShopInformationFragment extends Fragment implements OnMapReadyCallb
         args.putSerializable(ARG_SHOP_INFORMATION, shop);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        mCallback = (ShopInformationFragment.OnShopInformationListener) getActivity();
     }
 
     @Override
@@ -88,6 +105,14 @@ public class ShopInformationFragment extends Fragment implements OnMapReadyCallb
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map_fragment);
         mapFragment.getMapAsync(this);
+
+        Button shop_information_book_entry = parent.findViewById(R.id.shop_information_book_entry);
+        shop_information_book_entry.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCallback.onBookShopEntry(shopInformation);
+            }
+        });
         return parent;
     }
 

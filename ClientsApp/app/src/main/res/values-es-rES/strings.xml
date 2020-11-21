@@ -24,4 +24,9 @@
     <string name="location">Ubicación</string>
     <string name="open">Abierto</string>
     <string name="close">Cerrado</string>
+    <string name="bookEntry">Reservar entrada</string>
+    <string name="Shop">Tienda</string>
+    <string name="Date">Fecha</string>
+    <string name="Hour">Hora</string>
+    <string name="Remarks">Observacione</string>
 </resources>

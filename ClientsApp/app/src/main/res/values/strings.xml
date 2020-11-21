@@ -24,4 +24,9 @@
     <string name="location">Location:</string>
     <string name="open">Open</string>
     <string name="close">Close</string>
+    <string name="bookEntry">Book Entry</string>
+    <string name="Shop">Shop</string>
+    <string name="Date">Date</string>
+    <string name="Hour">Hour</string>
+    <string name="Remarks">Remarks</string>
 </resources>

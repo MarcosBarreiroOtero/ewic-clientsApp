@@ -25,9 +25,10 @@ import com.google.android.material.snackbar.Snackbar;
 import org.json.JSONObject;
 
 import es.ewic.clients.model.Client;
+import es.ewic.clients.model.Shop;
 import es.ewic.clients.utils.FragmentUtils;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.OnLogInSuccessListener, MyDataFragment.OnMyDataListener {
+public class MainActivity extends AppCompatActivity implements LoginFragment.OnLogInSuccessListener, MyDataFragment.OnMyDataListener, ShopInformationFragment.OnShopInformationListener {
 
 
     private Client clientData;
@@ -141,4 +142,10 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
     }
 
 
+    @Override
+    public void onBookShopEntry(Shop shopData) {
+        if (clientData != null) {
+            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), CreateReservationsFragment.newInstance(clientData, shopData), false);
+        }
+    }
 }
