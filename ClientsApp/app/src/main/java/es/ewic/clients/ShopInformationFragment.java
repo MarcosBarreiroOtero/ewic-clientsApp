@@ -1,12 +1,9 @@
 package es.ewic.clients;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
@@ -22,12 +19,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.w3c.dom.Text;
+import com.ramijemli.percentagechartview.PercentageChartView;
 
 import es.ewic.clients.model.Shop;
+import es.ewic.clients.utils.FormUtils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -78,12 +73,17 @@ public class ShopInformationFragment extends Fragment implements OnMapReadyCallb
         // Inflate the layout for this fragment
         ConstraintLayout parent = (ConstraintLayout) inflater.inflate(R.layout.fragment_shop_information, container, false);
 
-
         TextView shop_type = parent.findViewById(R.id.shop_information_type);
         shop_type.setText(getString(getResources().getIdentifier(shopInformation.getType(), "string", getActivity().getPackageName())));
 
         TextView shop_location = parent.findViewById(R.id.shop_information_location);
         shop_location.setText(shopInformation.getLocation());
+
+        PercentageChartView percentageChartView = parent.findViewById(R.id.shop_information_percentage);
+        float percentage = ((float) shopInformation.getActualCapacity() / shopInformation.getMaxCapacity()) * 100;
+        FormUtils.configureSemaphorePercentageChartView(getResources(), percentageChartView, percentage);
+        TextView shop_capacity = parent.findViewById(R.id.shop_information_capacity);
+        shop_capacity.setText(shopInformation.getActualCapacity() + "/" + shopInformation.getMaxCapacity());
 
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map_fragment);

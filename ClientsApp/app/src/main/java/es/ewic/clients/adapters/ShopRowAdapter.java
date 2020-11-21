@@ -1,25 +1,15 @@
 package es.ewic.clients.adapters;
 
 import android.content.res.Resources;
-import android.graphics.Color;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import androidx.core.graphics.ColorUtils;
 import androidx.fragment.app.Fragment;
 
 import com.ramijemli.percentagechartview.PercentageChartView;
-import com.ramijemli.percentagechartview.callback.AdaptiveColorProvider;
-import com.ramijemli.percentagechartview.callback.OnProgressChangeListener;
-import com.ramijemli.percentagechartview.callback.ProgressTextFormatter;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.List;
 
