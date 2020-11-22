@@ -25,8 +25,14 @@
     <string name="open">Abierto</string>
     <string name="close">Cerrado</string>
     <string name="bookEntry">Reservar entrada</string>
-    <string name="Shop">Tienda</string>
-    <string name="Date">Fecha</string>
-    <string name="Hour">Hora</string>
-    <string name="Remarks">Observacione</string>
+    <string name="shop">Tienda</string>
+    <string name="date">Fecha</string>
+    <string name="hour">Hora</string>
+    <string name="remarks">Observaciones</string>
+    <string name="createReservation">Crear reserva</string>
+    <string name="error_empty_field">El campo no puede estar vacío</string>
+    <string name="error_bad_format_date">La fecha debe seguir el formato dd/MM/yyyy</string>
+    <string name="error_bad_format_hour">La hora debe seguir el formato HH:mm</string>
+    <string name="error_past_reservation">No se pueden crear reservas en el pasado</string>
+    <string name="newReservation">Nueva reserva</string>
 </resources>

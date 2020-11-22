@@ -25,8 +25,14 @@
     <string name="open">Open</string>
     <string name="close">Close</string>
     <string name="bookEntry">Book Entry</string>
-    <string name="Shop">Shop</string>
-    <string name="Date">Date</string>
-    <string name="Hour">Hour</string>
-    <string name="Remarks">Remarks</string>
+    <string name="shop">Shop</string>
+    <string name="date">Date</string>
+    <string name="hour">Hour</string>
+    <string name="remarks">Remarks</string>
+    <string name="createReservation">Create Reservation</string>
+    <string name="error_empty_field">Field can\'t be empty</string>
+    <string name="error_bad_format_date">The date must follow the format dd/MM/yyyy</string>
+    <string name="error_bad_format_hour">The hour must follow the formar HH:mm</string>
+    <string name="error_past_reservation">Can\'t create reservations in the past</string>
+    <string name="newReservation">New Reservation</string>
 </resources>

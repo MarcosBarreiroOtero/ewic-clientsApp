@@ -4,10 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CreateReservationsFragment" >
+    tools:context=".CreateReservationsFragment">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/reservation_shop_label"
+        style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -15,18 +16,17 @@
         android:layout_marginTop="100dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
+        app:errorEnabled="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <AutoCompleteTextView
             android:id="@+id/reservation_shop_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/Shop"
-            android:lines="1"
-            android:maxLines="1"
-            android:minLines="1" />
+            android:hint="@string/shop"
+            android:singleLine="true" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -38,6 +38,7 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
+        app:errorEnabled="true"
         app:layout_constraintEnd_toStartOf="@+id/reservation_hour_label"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/reservation_shop_label">
@@ -46,11 +47,12 @@
             android:id="@+id/reservation_date_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/Date"
+            android:hint="@string/date"
             android:inputType="none"
             android:lines="1"
             android:maxLines="1"
-            android:minLines="1" />
+            android:minLines="1"
+            android:singleLine="false" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -62,6 +64,7 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
+        app:errorEnabled="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/reservation_date_label"
         app:layout_constraintTop_toBottomOf="@+id/reservation_shop_label">
@@ -70,11 +73,12 @@
             android:id="@+id/reservation_hour_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/Hour"
+            android:hint="@string/hour"
             android:inputType="none"
             android:lines="1"
             android:maxLines="1"
-            android:minLines="1" />
+            android:minLines="1"
+            android:singleLine="true" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -86,6 +90,9 @@
         android:layout_marginTop="24dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
+        app:counterEnabled="true"
+        app:counterMaxLength="45"
+        app:errorEnabled="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/reservation_date_label">
@@ -94,9 +101,24 @@
             android:id="@+id/reservation_remark_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/Remarks"
-            android:lines="2"
-            android:minLines="2" />
+            android:hint="@string/remarks"
+            android:lines="13"
+            android:minLines="1"
+            android:singleLine="false" />
     </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/reservation_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="159dp"
+        android:layout_marginLeft="159dp"
+        android:layout_marginEnd="159dp"
+        android:layout_marginRight="159dp"
+        android:layout_marginBottom="32dp"
+        android:text="@string/createReservation"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

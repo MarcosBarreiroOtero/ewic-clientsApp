@@ -5,12 +5,17 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import es.ewic.clients.model.Client;
+import es.ewic.clients.model.Reservation;
 import es.ewic.clients.model.Shop;
 
 public class ModelConverter {
+
+
+    //CLIENT
 
     public static JSONObject clientToJsonObject(Client client) {
         try {
@@ -36,8 +41,7 @@ public class ModelConverter {
         }
     }
 
-    // [{"idShop":1,"name":"Tienda prueba 2","latitude":41.925205,"longitude":-7.438276,"location":"Queizas","maxCapacity":10,"actualCapacity":8,"type":"SUPERMARKET","allowEntries":true,"idSeller":1}
-
+    //SHOP
 
     public static Shop jsonObjectToShop(JSONObject shopData) {
         try {
@@ -57,11 +61,40 @@ public class ModelConverter {
     }
 
     public static List<Shop> jsonArrayToShopList(JSONArray shopsData) {
-        ArrayList<Shop> shops = new ArrayList<Shop>();
+        ArrayList<Shop> shops = new ArrayList<>();
         for (int i = 0; i < shopsData.length(); i++) {
             JSONObject shopData = shopsData.optJSONObject(i);
             shops.add(jsonObjectToShop(shopData));
         }
         return shops;
+    }
+
+    //RESERVATION
+
+    public static JSONObject reservationToJsonObject(Reservation reservation) {
+        Calendar reservationDate = reservation.getDate();
+        try {
+            return new JSONObject().put("date", DateUtils.formatDateLong(reservationDate))
+                    .put("remarks", reservation.getRemarks())
+                    .put("idGoogleLogin", reservation.getIdGoogleLoginClient())
+                    .put("idShop", reservation.getIdShop());
+        } catch (JSONException e) {
+            return null;
+        }
+    }
+
+    public static Reservation jsonObjectToReservation(JSONObject reservationData) {
+        try {
+            Calendar reservationDate = DateUtils.parseDateLong(reservationData.getString("date"));
+            return new Reservation(reservationData.getInt("idReservation"),
+                    reservationDate,
+                    reservationData.getString("state"),
+                    reservationData.getString("remarks"),
+                    reservationData.getString("idGoogleLoginClient"),
+                    reservationData.getInt("idShop"));
+        } catch (JSONException e) {
+            return null;
+        }
+
     }
 }

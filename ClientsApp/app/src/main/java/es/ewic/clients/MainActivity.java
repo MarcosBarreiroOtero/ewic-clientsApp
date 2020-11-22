@@ -88,12 +88,9 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Log.e("Menu", "pulsado menu");
         switch (item.getItemId()) {
             case R.id.action_my_data:
-                Log.e("Hola", "nulo");
                 if (clientData != null) {
-                    Log.e("Hola", "nulo");
                     FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), MyDataFragment.newInstance(clientData), false);
                 }
                 return true;
