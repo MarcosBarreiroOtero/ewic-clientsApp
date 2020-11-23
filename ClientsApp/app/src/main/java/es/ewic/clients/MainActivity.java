@@ -28,14 +28,16 @@ import es.ewic.clients.model.Client;
 import es.ewic.clients.model.Shop;
 import es.ewic.clients.utils.FragmentUtils;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.OnLogInSuccessListener, MyDataFragment.OnMyDataListener, ShopInformationFragment.OnShopInformationListener {
+public class MainActivity extends AppCompatActivity implements LoginFragment.OnLogInSuccessListener,
+        MyDataFragment.OnMyDataListener,
+        ShopInformationFragment.OnShopInformationListener,
+        CreateReservationsFragment.OnCreateReservationListener {
 
 
     private Client clientData;
 
     private FusedLocationProviderClient mFusedLocationClient;
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +96,10 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
                     FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), MyDataFragment.newInstance(clientData), false);
                 }
                 return true;
+            case R.id.action_my_reservations:
+                if (clientData != null) {
+                    FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), MyReservationsFragment.newInstance(clientData), false);
+                }
 
             default:
                 return super.onOptionsItemSelected(item);
@@ -121,7 +127,6 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         myToolbar.setVisibility(View.VISIBLE);
         setSupportActionBar(myToolbar);
-
         FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopListFragment.newInstance(), true);
     }
 
@@ -143,6 +148,15 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
     public void onBookShopEntry(Shop shopData) {
         if (clientData != null) {
             FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), CreateReservationsFragment.newInstance(clientData, shopData), false);
+        }
+    }
+
+    @Override
+    public void onRsvCreate(Shop shop) {
+        if (shop != null) {
+            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopInformationFragment.newInstance(shop), false);
+        } else {
+            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopListFragment.newInstance(), true);
         }
     }
 }

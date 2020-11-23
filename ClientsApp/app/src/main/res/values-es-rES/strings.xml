@@ -6,6 +6,7 @@
     <string name="login_cancelled_message">Para poder utilizar esta aplicación es necesario iniciar sesión con una cuenta de Google.</string>
     <string name="cancel">Cancelar</string>
     <string name="toolbar_menu_my_data">Mis Datos</string>
+    <string name="toolbar_menu_my_reservations">Mis reservas</string>
     <string name="firstName">Nombre</string>
     <string name="lastName">Apellidos</string>
     <string name="notification_email">Email de notificación</string>
@@ -35,4 +36,5 @@
     <string name="error_bad_format_hour">La hora debe seguir el formato HH:mm</string>
     <string name="error_past_reservation">No se pueden crear reservas en el pasado</string>
     <string name="newReservation">Nueva reserva</string>
+    <string name="reservation_create_successfully">Reserva creada correctamente</string>
 </resources>

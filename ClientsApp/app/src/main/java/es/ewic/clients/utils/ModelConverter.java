@@ -1,12 +1,16 @@
 package es.ewic.clients.utils;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import es.ewic.clients.model.Client;
 import es.ewic.clients.model.Reservation;
@@ -73,10 +77,11 @@ public class ModelConverter {
 
     public static JSONObject reservationToJsonObject(Reservation reservation) {
         Calendar reservationDate = reservation.getDate();
+        reservationDate = DateUtils.changeCalendarTimezoneFromDefaultToUTC(reservationDate);
         try {
             return new JSONObject().put("date", DateUtils.formatDateLong(reservationDate))
                     .put("remarks", reservation.getRemarks())
-                    .put("idGoogleLogin", reservation.getIdGoogleLoginClient())
+                    .put("idGoogleLoginClient", reservation.getIdGoogleLoginClient())
                     .put("idShop", reservation.getIdShop());
         } catch (JSONException e) {
             return null;
@@ -85,7 +90,11 @@ public class ModelConverter {
 
     public static Reservation jsonObjectToReservation(JSONObject reservationData) {
         try {
+            // UTC date
             Calendar reservationDate = DateUtils.parseDateLong(reservationData.getString("date"));
+            reservationDate = DateUtils.changeCalendarTimezoneFromUTCToDefault(reservationDate);
+
+            Log.e("Timezone", reservationDate.getTime().toString());
             return new Reservation(reservationData.getInt("idReservation"),
                     reservationDate,
                     reservationData.getString("state"),
@@ -96,5 +105,14 @@ public class ModelConverter {
             return null;
         }
 
+    }
+
+    public static List<Reservation> jsonArrayToReservationList(JSONArray reservationsData) {
+        ArrayList<Reservation> reservations = new ArrayList<>();
+        for (int i = 0; i < reservationsData.length(); i++) {
+            JSONObject reservationData = reservationsData.optJSONObject(i);
+            reservations.add(jsonObjectToReservation(reservationData));
+        }
+        return reservations;
     }
 }

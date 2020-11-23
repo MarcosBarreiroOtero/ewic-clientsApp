@@ -20,6 +20,13 @@ public class Reservation {
         this.idShop = idShop;
     }
 
+    public Reservation(Calendar date, String remarks, String idGoogleLoginClient, int idShop) {
+        this.date = date;
+        this.remarks = remarks;
+        this.idGoogleLoginClient = idGoogleLoginClient;
+        this.idShop = idShop;
+    }
+
     public int getIdReservation() {
         return idReservation;
     }

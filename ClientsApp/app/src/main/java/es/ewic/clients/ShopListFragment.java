@@ -72,7 +72,7 @@ public class ShopListFragment extends Fragment {
         getLastLocation(parent);
 
         // Reload list when refresh
-        SwipeRefreshLayout swipeRefreshLayout = parent.findViewById(R.id.swipeRefreshLayout);
+        SwipeRefreshLayout swipeRefreshLayout = parent.findViewById(R.id.swipeRefreshLayoutShops);
         swipeRefreshLayout.setOnRefreshListener(() -> {
             getLastLocation(parent);
             swipeRefreshLayout.setRefreshing(false);

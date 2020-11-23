@@ -6,6 +6,7 @@
     <string name="login_cancelled_message">In order to use this application, you need to log in with a Google account.</string>
     <string name="cancel">Cancel</string>
     <string name="toolbar_menu_my_data">My Data</string>
+    <string name="toolbar_menu_my_reservations">My reservations</string>
     <string name="firstName">Name</string>
     <string name="lastName">Last Name</string>
     <string name="notification_email">Notification email</string>
@@ -35,4 +36,7 @@
     <string name="error_bad_format_hour">The hour must follow the formar HH:mm</string>
     <string name="error_past_reservation">Can\'t create reservations in the past</string>
     <string name="newReservation">New Reservation</string>
+    <string name="reservation_create_successfully">Reservation create successfully</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
