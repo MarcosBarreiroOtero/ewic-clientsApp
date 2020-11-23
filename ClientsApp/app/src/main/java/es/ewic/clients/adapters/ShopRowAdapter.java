@@ -4,25 +4,27 @@ import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.ramijemli.percentagechartview.PercentageChartView;
+
+import java.util.List;
 
 import es.ewic.clients.R;
+import es.ewic.clients.model.Shop;
+import es.ewic.clients.utils.FormUtils;
 
 public class ShopRowAdapter extends BaseAdapter implements ListAdapter {
 
-    private final JSONArray shopList;
+    private final List<Shop> shopList;
     private final Fragment fragment;
     private final Resources resources;
     private final String packageName;
 
-    public ShopRowAdapter(Fragment fragment, JSONArray shopList, Resources resources, String packageName) {
+    public ShopRowAdapter(Fragment fragment, List<Shop> shopList, Resources resources, String packageName) {
 
 
         assert fragment != null;
@@ -41,21 +43,21 @@ public class ShopRowAdapter extends BaseAdapter implements ListAdapter {
         if (null == shopList)
             return 0;
         else
-            return shopList.length();
+            return shopList.size();
     }
 
     @Override
-    public JSONObject getItem(int position) {
+    public Shop getItem(int position) {
         if (null == shopList) {
             return null;
         } else
-            return shopList.optJSONObject(position);
+            return shopList.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        JSONObject jsonObject = getItem(position);
-        return jsonObject.optInt("idShop");
+        Shop shop = getItem(position);
+        return shop.getIdShop();
     }
 
     @Override
@@ -66,20 +68,28 @@ public class ShopRowAdapter extends BaseAdapter implements ListAdapter {
 
         TextView shopTitle = convertView.findViewById(R.id.shop_title);
         TextView shopLocation = convertView.findViewById(R.id.shop_location);
-        TextView shop_capacity_status_text = convertView.findViewById(R.id.shop_capacity_status_text);
+        TextView shopOpen = convertView.findViewById(R.id.shop_open);
 
-        ImageView shop_capacity_status = convertView.findViewById(R.id.shop_capacity_status);
+        Shop shop_data = getItem(position);
 
-        JSONObject shop_data = getItem(position);
-
-        String type = resources.getString(resources.getIdentifier(shop_data.optString("type"), "string", packageName));
+        String type = resources.getString(resources.getIdentifier(shop_data.getType(), "string", packageName));
         if (shop_data != null) {
-            shopTitle.setText(type + " - " + shop_data.optString("name"));
-            shopLocation.setText(shop_data.optString("location"));
-            shop_capacity_status_text.setText(shop_data.optInt("actualCapacity") + "/" + shop_data.optInt("maxCapacity"));
+            shopTitle.setText(type + " - " + shop_data.getName());
+            shopLocation.setText(shop_data.getLocation());
 
-            shop_capacity_status.setColorFilter(R.color.purple_200);
+            if (shop_data.isAllowEntries()) {
+                shopOpen.setText(resources.getString(R.string.open));
+                shopOpen.setTextColor(resources.getColor(R.color.semaphore_green));
+            } else {
+                shopOpen.setText(resources.getString(R.string.close));
+                shopOpen.setTextColor(resources.getColor(R.color.semaphore_red));
+            }
+
         }
+
+        PercentageChartView percentageChartView = convertView.findViewById(R.id.shop_percentage);
+        float percentage = ((float) shop_data.getActualCapacity() / shop_data.getMaxCapacity()) * 100;
+        FormUtils.configureSemaphorePercentageChartView(resources, percentageChartView, percentage);
 
         return convertView;
     }

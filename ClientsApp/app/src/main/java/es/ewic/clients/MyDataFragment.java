@@ -1,7 +1,6 @@
 package es.ewic.clients;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,29 +16,21 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import es.ewic.clients.model.Client;
 import es.ewic.clients.utils.BackEndEndpoints;
 import es.ewic.clients.utils.FormUtils;
+import es.ewic.clients.utils.ModelConverter;
 import es.ewic.clients.utils.RequestUtils;
 
 /**
@@ -51,12 +42,12 @@ public class MyDataFragment extends Fragment {
 
     private static final String ARG_CLIENT_DATA = "clientData";
 
-    private JSONObject clientData;
+    private Client clientData;
 
     OnMyDataListener mCallback;
 
     public interface OnMyDataListener {
-        void onUpdateClientAccount(JSONObject newClientData);
+        void onUpdateClientAccount(Client newClientData);
 
         void onDeleteClientAccount();
     }
@@ -69,13 +60,13 @@ public class MyDataFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param clientData clientData.
+     * @param client clientData.
      * @return A new instance of fragment MyDataFragment.
      */
-    public static MyDataFragment newInstance(JSONObject clientData) {
+    public static MyDataFragment newInstance(Client client) {
         MyDataFragment fragment = new MyDataFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_CLIENT_DATA, clientData.toString());
+        args.putSerializable(ARG_CLIENT_DATA, client);
         fragment.setArguments(args);
         return fragment;
     }
@@ -96,11 +87,7 @@ public class MyDataFragment extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         if (getArguments() != null) {
-            try {
-                clientData = new JSONObject(getArguments().getString(ARG_CLIENT_DATA));
-            } catch (JSONException e) {
-                clientData = null;
-            }
+            clientData = (Client) getArguments().getSerializable(ARG_CLIENT_DATA);
         }
     }
 
@@ -112,15 +99,13 @@ public class MyDataFragment extends Fragment {
                 container, false);
 
         TextInputEditText til_name = parent.findViewById(R.id.my_data_name_input);
+        til_name.setText(clientData.getFirstName());
+
         TextInputEditText til_last_name = parent.findViewById(R.id.my_data_lastname_input);
+        til_last_name.setText(clientData.getLastName());
+
         TextInputEditText til_email = parent.findViewById(R.id.my_data_email_input);
-        try {
-            til_name.setText(clientData.getString("firstName"));
-            til_last_name.setText(clientData.getString("lastName"));
-            til_email.setText(clientData.getString("email"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        til_email.setText(clientData.getEmail());
 
         Button update_button = parent.findViewById(R.id.button_update_data);
         update_button.setOnClickListener(v -> {
@@ -155,31 +140,28 @@ public class MyDataFragment extends Fragment {
             til_email_label.setError(null);
         }
 
-        try {
-            clientData.put("firstName", til_name.getText());
-            clientData.put("lastName", til_last_name.getText());
-            clientData.put("email", til_email.getText());
+        clientData.setFirstName(til_name.getText().toString());
+        clientData.setLastName(til_last_name.getText().toString());
+        clientData.setEmail(til_email.getText().toString());
 
-            String url = BackEndEndpoints.UPDATE_DELETE_CLIENT + "/" + clientData.get("idGoogleLogin");
+        String url = BackEndEndpoints.UPDATE_DELETE_CLIENT + "/" + clientData.getIdGoogleLogin();
+        JSONObject clientJSON = ModelConverter.clientToJsonObject(clientData);
+        RequestUtils.sendJsonObjectRequest(getContext(), Request.Method.PUT, url, clientJSON, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                clientData = ModelConverter.jsonObjectToClient(response);
+                mCallback.onUpdateClientAccount(clientData);
+                FormUtils.hideLoadingPanel(getActivity().getWindow(), loadingPanel);
+                Snackbar.make(parent, getString(R.string.update_data_successfully), Snackbar.LENGTH_LONG)
+                        .show();
 
-            RequestUtils.sendJsonObjectRequest(getContext(), Request.Method.PUT, url, clientData, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    mCallback.onUpdateClientAccount(response);
-                    FormUtils.hideLoadingPanel(getActivity().getWindow(), loadingPanel);
-                    Snackbar.make(parent, getString(R.string.update_data_successfully), Snackbar.LENGTH_LONG)
-                            .show();
-
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e("HTTP", "error");
-                }
-            });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("HTTP", "error");
+            }
+        });
     }
 
     private void showPreDeleteDialog(ConstraintLayout parent) {
@@ -194,31 +176,25 @@ public class MyDataFragment extends Fragment {
 
         AlertDialog dialog = builder.create();
         dialog.show();
-
     }
 
     private void deleteClientAccount(ConstraintLayout parent) {
-        try {
-            String url = BackEndEndpoints.UPDATE_DELETE_CLIENT + "/" + clientData.get("idClient") + "/" + clientData.get("idGoogleLogin");
+        String url = BackEndEndpoints.UPDATE_DELETE_CLIENT + "/" + clientData.getIdClient() + "/" + clientData.getIdGoogleLogin();
 
-            RequestUtils.sendStringRequest(getContext(), Request.Method.DELETE, url, response -> {
-                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                        .requestEmail()
-                        .build();
+        RequestUtils.sendStringRequest(getContext(), Request.Method.DELETE, url, response -> {
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestEmail()
+                    .build();
 
-                GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
+            GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
 
-                mGoogleSignInClient.signOut().addOnCompleteListener(task -> {
-                    Snackbar.make(parent, getString(R.string.account_delete_successfully), Snackbar.LENGTH_SHORT)
-                            .show();
-                    mCallback.onDeleteClientAccount();
-                });
-            }, error -> {
-                Log.e("HTTP", "error");
+            mGoogleSignInClient.signOut().addOnCompleteListener(task -> {
+                Snackbar.make(parent, getString(R.string.account_delete_successfully), Snackbar.LENGTH_SHORT)
+                        .show();
+                mCallback.onDeleteClientAccount();
             });
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+        }, error -> {
+            Log.e("HTTP", "error");
+        });
     }
 }

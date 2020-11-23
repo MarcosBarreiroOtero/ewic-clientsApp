@@ -24,12 +24,14 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONObject;
 
+import es.ewic.clients.model.Client;
+import es.ewic.clients.model.Shop;
 import es.ewic.clients.utils.FragmentUtils;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.OnLogInSuccessListener, MyDataFragment.OnMyDataListener {
+public class MainActivity extends AppCompatActivity implements LoginFragment.OnLogInSuccessListener, MyDataFragment.OnMyDataListener, ShopInformationFragment.OnShopInformationListener {
 
 
-    private JSONObject clientData;
+    private Client clientData;
 
     private FusedLocationProviderClient mFusedLocationClient;
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
@@ -60,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
 
     private void startLocationPermissionRequest() {
         ActivityCompat.requestPermissions(MainActivity.this,
-                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                 REQUEST_PERMISSIONS_REQUEST_CODE);
     }
 
@@ -112,10 +114,9 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         }
     }
 
-
     @Override
-    public void onLoadClientData(JSONObject loggedClientData) {
-        clientData = loggedClientData;
+    public void onLoadClientData(Client clientData) {
+        this.clientData = clientData;
 
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         myToolbar.setVisibility(View.VISIBLE);
@@ -124,17 +125,24 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopListFragment.newInstance(), true);
     }
 
-
     @Override
-    public void onUpdateClientAccount(JSONObject newClientData) {
-        clientData = newClientData;
+    public void onUpdateClientAccount(Client newClientData) {
+        this.clientData = newClientData;
     }
 
     @Override
     public void onDeleteClientAccount() {
-        clientData = null;
+        this.clientData = null;
         //Hide toolbar
         findViewById(R.id.my_toolbar).setVisibility(View.GONE);
         FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), LoginFragment.newInstance(), false);
+    }
+
+
+    @Override
+    public void onBookShopEntry(Shop shopData) {
+        if (clientData != null) {
+            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), CreateReservationsFragment.newInstance(clientData, shopData), false);
+        }
     }
 }

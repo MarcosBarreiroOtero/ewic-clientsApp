@@ -14,13 +14,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -32,10 +28,9 @@ import com.google.android.gms.tasks.Task;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import es.ewic.clients.model.Client;
 import es.ewic.clients.utils.BackEndEndpoints;
+import es.ewic.clients.utils.ModelConverter;
 import es.ewic.clients.utils.RequestUtils;
 
 /**
@@ -52,7 +47,7 @@ public class LoginFragment extends Fragment {
 
 
     public interface OnLogInSuccessListener {
-        public void onLoadClientData(JSONObject clientData);
+        public void onLoadClientData(Client clientData);
     }
 
     public LoginFragment() {
@@ -161,8 +156,8 @@ public class LoginFragment extends Fragment {
             RequestUtils.sendJsonObjectRequest(getContext(), Request.Method.POST, BackEndEndpoints.LOGIN_CLIENTS, clientData, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
-                    Log.i("LogIn", response.toString());
-                    mCallback.onLoadClientData(response);
+                    Client newClient = ModelConverter.jsonObjectToClient(response);
+                    mCallback.onLoadClientData(newClient);
                 }
             }, new Response.ErrorListener() {
                 @Override

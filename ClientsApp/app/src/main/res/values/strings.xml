@@ -20,4 +20,19 @@
     <string name="SUPERMARKET">Supermarket</string>
     <string name="location_needed_message">The location is used to show the nearby stores and the distance to them.</string>
     <string name="request">Request</string>
+    <string name="shopType">Shop type:</string>
+    <string name="location">Location:</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+    <string name="bookEntry">Book Entry</string>
+    <string name="shop">Shop</string>
+    <string name="date">Date</string>
+    <string name="hour">Hour</string>
+    <string name="remarks">Remarks</string>
+    <string name="createReservation">Create Reservation</string>
+    <string name="error_empty_field">Field can\'t be empty</string>
+    <string name="error_bad_format_date">The date must follow the format dd/MM/yyyy</string>
+    <string name="error_bad_format_hour">The hour must follow the formar HH:mm</string>
+    <string name="error_past_reservation">Can\'t create reservations in the past</string>
+    <string name="newReservation">New Reservation</string>
 </resources>
