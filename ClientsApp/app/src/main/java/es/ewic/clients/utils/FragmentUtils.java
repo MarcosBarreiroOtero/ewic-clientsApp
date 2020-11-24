@@ -31,6 +31,7 @@ public class FragmentUtils {
             FragmentTransaction transaction = fragmentManager.beginTransaction().replace(R.id.mainActivityLayout, fragment,
                     fragment.getClass().getName());
             if (addToBackStack) {
+                transaction.setReorderingAllowed(true);
                 transaction.addToBackStack(null);
             }
             transaction.commit();

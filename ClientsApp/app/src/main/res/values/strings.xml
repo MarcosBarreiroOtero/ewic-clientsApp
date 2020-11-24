@@ -37,6 +37,10 @@
     <string name="error_past_reservation">Can\'t create reservations in the past</string>
     <string name="newReservation">New Reservation</string>
     <string name="reservation_create_successfully">Reservation create successfully</string>
+    <string name="ACTIVE">Active</string>
+    <string name="WAITING">Waiting</string>
+    <string name="COMPLETED">Completed</string>
+    <string name="NOT_APPEAR">Not appear</string>
+    <string name="CANCELLED">Cancelled</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

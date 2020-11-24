@@ -93,14 +93,13 @@ public class ModelConverter {
             // UTC date
             Calendar reservationDate = DateUtils.parseDateLong(reservationData.getString("date"));
             reservationDate = DateUtils.changeCalendarTimezoneFromUTCToDefault(reservationDate);
-
-            Log.e("Timezone", reservationDate.getTime().toString());
             return new Reservation(reservationData.getInt("idReservation"),
                     reservationDate,
                     reservationData.getString("state"),
                     reservationData.getString("remarks"),
                     reservationData.getString("idGoogleLoginClient"),
-                    reservationData.getInt("idShop"));
+                    reservationData.getInt("idShop"),
+                    reservationData.getString("shopName"));
         } catch (JSONException e) {
             return null;
         }

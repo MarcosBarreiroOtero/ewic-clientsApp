@@ -10,14 +10,16 @@ public class Reservation {
     private String remarks;
     private String idGoogleLoginClient;
     private int idShop;
+    private String shopName;
 
-    public Reservation(int idReservation, Calendar date, String state, String remarks, String idGoogleLoginClient, int idShop) {
+    public Reservation(int idReservation, Calendar date, String state, String remarks, String idGoogleLoginClient, int idShop, String shopName) {
         this.idReservation = idReservation;
         this.date = date;
         this.state = state;
         this.remarks = remarks;
         this.idGoogleLoginClient = idGoogleLoginClient;
         this.idShop = idShop;
+        this.shopName = shopName;
     }
 
     public Reservation(Calendar date, String remarks, String idGoogleLoginClient, int idShop) {
@@ -73,6 +75,14 @@ public class Reservation {
 
     public void setIdShop(int idShop) {
         this.idShop = idShop;
+    }
+
+    public String getShopName() {
+        return shopName;
+    }
+
+    public void setShopName(String shopName) {
+        this.shopName = shopName;
     }
 
     @Override

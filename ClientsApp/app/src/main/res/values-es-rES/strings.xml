@@ -37,4 +37,9 @@
     <string name="error_past_reservation">No se pueden crear reservas en el pasado</string>
     <string name="newReservation">Nueva reserva</string>
     <string name="reservation_create_successfully">Reserva creada correctamente</string>
+    <string name="ACTIVE">Activa</string>
+    <string name="WAITING">Esperando</string>
+    <string name="COMPLETED">Completada</string>
+    <string name="NOT_APPEAR">Sin aparecer</string>
+    <string name="CANCELLED">Cancelada</string>
 </resources>

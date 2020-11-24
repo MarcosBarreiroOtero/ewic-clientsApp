@@ -93,18 +93,27 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         switch (item.getItemId()) {
             case R.id.action_my_data:
                 if (clientData != null) {
-                    FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), MyDataFragment.newInstance(clientData), false);
+                    FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), MyDataFragment.newInstance(clientData), true);
                 }
                 return true;
             case R.id.action_my_reservations:
                 if (clientData != null) {
-                    FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), MyReservationsFragment.newInstance(clientData), false);
+                    FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), MyReservationsFragment.newInstance(clientData), true);
                 }
 
             default:
                 return super.onOptionsItemSelected(item);
         }
 
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        Log.e("BACK", getSupportFragmentManager().getBackStackEntryCount() + " back");
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStackImmediate();
+        }
+        return true;
     }
 
     @Override
@@ -118,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
             Log.i("MainActivity", "nothing on backstack, calling super");
             super.onBackPressed();
         }
+//        System.exit(1);
     }
 
     @Override
@@ -127,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         myToolbar.setVisibility(View.VISIBLE);
         setSupportActionBar(myToolbar);
-        FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopListFragment.newInstance(), true);
+        FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopListFragment.newInstance(), false);
     }
 
     @Override

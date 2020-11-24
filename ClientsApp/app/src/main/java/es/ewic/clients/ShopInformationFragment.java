@@ -58,7 +58,6 @@ public class ShopInformationFragment extends Fragment implements OnMapReadyCallb
      * @param shop shop Information;
      * @return A new instance of fragment ShopInformation.
      */
-    // TODO: Rename and change types and number of parameters
     public static ShopInformationFragment newInstance(Shop shop) {
         ShopInformationFragment fragment = new ShopInformationFragment();
         Bundle args = new Bundle();
@@ -70,7 +69,6 @@ public class ShopInformationFragment extends Fragment implements OnMapReadyCallb
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-
         mCallback = (ShopInformationFragment.OnShopInformationListener) getActivity();
     }
 

@@ -55,28 +55,28 @@ public class ShopListFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.app_name);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
-
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.app_name);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
+
         ConstraintLayout parent = (ConstraintLayout) inflater.inflate(R.layout.fragment_shop_list, container, false);
 
-        getLastLocation(parent);
 
         // Reload list when refresh
         SwipeRefreshLayout swipeRefreshLayout = parent.findViewById(R.id.swipeRefreshLayoutShops);
+        swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.setOnRefreshListener(() -> {
-            getLastLocation(parent);
-            swipeRefreshLayout.setRefreshing(false);
+            getLastLocation(parent, swipeRefreshLayout);
+
         });
+
+        getLastLocation(parent, swipeRefreshLayout);
 
         ListView shopList = parent.findViewById(R.id.shop_list);
         shopList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -92,7 +92,7 @@ public class ShopListFragment extends Fragment {
     }
 
     @SuppressWarnings("MissingPermission")
-    private void getLastLocation(ConstraintLayout parent) {
+    private void getLastLocation(ConstraintLayout parent, SwipeRefreshLayout swipeRefreshLayout) {
         mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
             @Override
             public void onComplete(@NonNull Task<Location> task) {
@@ -103,12 +103,12 @@ public class ShopListFragment extends Fragment {
                 } else {
                     Log.e("Position", "getLastLocation:exception - " + task.getException(), task.getException());
                 }
-                getShopList(parent);
+                getShopList(parent, swipeRefreshLayout);
             }
         });
     }
 
-    private void getShopList(ConstraintLayout parent) {
+    private void getShopList(ConstraintLayout parent, SwipeRefreshLayout swipeRefreshLayout) {
         String url = BackEndEndpoints.SHOP_BASE;
 
         if (mLatitude != null && mLongitude != null) {
@@ -122,6 +122,7 @@ public class ShopListFragment extends Fragment {
                 ListView shopList = parent.findViewById(R.id.shop_list);
                 ShopRowAdapter shopRowAdapter = new ShopRowAdapter(ShopListFragment.this, shops, getResources(), getActivity().getPackageName());
                 shopList.setAdapter(shopRowAdapter);
+                swipeRefreshLayout.setRefreshing(false);
             }
         }, error -> Log.e("HTTP", "error"));
     }

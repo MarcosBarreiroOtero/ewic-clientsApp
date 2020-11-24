@@ -82,10 +82,6 @@ public class MyDataFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.toolbar_menu_my_data);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
-
         if (getArguments() != null) {
             clientData = (Client) getArguments().getSerializable(ARG_CLIENT_DATA);
         }
@@ -97,6 +93,11 @@ public class MyDataFragment extends Fragment {
 
         ConstraintLayout parent = (ConstraintLayout) inflater.inflate(R.layout.fragment_my_data,
                 container, false);
+
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.toolbar_menu_my_data);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
+
 
         TextInputEditText til_name = parent.findViewById(R.id.my_data_name_input);
         til_name.setText(clientData.getFirstName());
