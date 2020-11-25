@@ -1,6 +1,7 @@
 package es.ewic.clients;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -153,7 +154,7 @@ public class MyDataFragment extends Fragment {
                 clientData = ModelConverter.jsonObjectToClient(response);
                 mCallback.onUpdateClientAccount(clientData);
                 FormUtils.hideLoadingPanel(getActivity().getWindow(), loadingPanel);
-                Snackbar.make(parent, getString(R.string.update_data_successfully), Snackbar.LENGTH_LONG)
+                Snackbar.make(parent, getString(R.string.cancel_reservation_successfully), Snackbar.LENGTH_LONG)
                         .show();
 
             }
@@ -176,6 +177,12 @@ public class MyDataFragment extends Fragment {
         });
 
         AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface arg0) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.semaphore_red));
+            }
+        });
         dialog.show();
     }
 

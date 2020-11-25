@@ -113,7 +113,7 @@ public class MyReservationsFragment extends Fragment {
                 Log.e("HTTP", response.toString());
                 reservations = ModelConverter.jsonArrayToReservationList(response);
                 ListView reservationList = parent.findViewById(R.id.reservation_list);
-                ReservationRowAdapter reservationRowAdapter = new ReservationRowAdapter(reservations, MyReservationsFragment.this, getResources(), getActivity().getPackageName());
+                ReservationRowAdapter reservationRowAdapter = new ReservationRowAdapter(reservations, client, MyReservationsFragment.this, getResources(), getActivity().getPackageName());
                 reservationList.setAdapter(reservationRowAdapter);
                 swipeRefreshLayout.setRefreshing(false);
             }

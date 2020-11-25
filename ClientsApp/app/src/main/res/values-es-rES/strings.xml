@@ -16,6 +16,7 @@
     <string name="update_data_successfully">Los datos se han actualizado correctamente</string>
     <string name="pre_delete_message">¿Esta seguro de que quiere eliminar su cuenta? No se podrán recuperar sus datos</string>
     <string name="delete">Eliminar</string>
+    <string name="edit">Editar</string>
     <string name="account_delete_successfully">Cuenta eliminada correctamente</string>
     <string name="state">Estado</string>
     <string name="SUPERMARKET">Supermercado</string>
@@ -42,4 +43,7 @@
     <string name="COMPLETED">Completada</string>
     <string name="NOT_APPEAR">Sin aparecer</string>
     <string name="CANCELLED">Cancelada</string>
+    <string name="pre_cancel_reservation_message">¿Está seguro de que quiere cancelar la reserva? El cambio no se podrá rehacer</string>
+    <string name="accept">Aceptar</string>
+    <string name="cancel_reservation_successfully">La reserva se ha cancelado correctamente</string>
 </resources>

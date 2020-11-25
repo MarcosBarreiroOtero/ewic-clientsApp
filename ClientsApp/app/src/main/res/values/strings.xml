@@ -16,6 +16,7 @@
     <string name="update_data_successfully">The data has been updated correctly</string>
     <string name="pre_delete_message">Are you sure you want to delete your account? Your data cannot be recovered</string>
     <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
     <string name="account_delete_successfully">Account delete successfully</string>
     <string name="state">State</string>
     <string name="SUPERMARKET">Supermarket</string>
@@ -42,5 +43,8 @@
     <string name="COMPLETED">Completed</string>
     <string name="NOT_APPEAR">Not appear</string>
     <string name="CANCELLED">Cancelled</string>
+    <string name="pre_cancel_reservation_message">Are you sure you want to cancel this reservation? The change cannot be redone</string>
+    <string name="accept">Accept</string>
+    <string name="cancel_reservation_successfully">The reservation has been successfully canceled</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>
