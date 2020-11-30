@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
@@ -76,6 +77,10 @@ public class ShopInformationFragment extends Fragment implements OnMapReadyCallb
         if (getArguments() != null) {
             shopInformation = (Shop) getArguments().getSerializable(ARG_SHOP_INFORMATION);
         }
+
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(shopInformation.getName());
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
 
 
     }
