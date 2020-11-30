@@ -3,7 +3,6 @@ package es.ewic.clients.utils;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.GradientDrawable;
 import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.View;
@@ -17,8 +16,6 @@ import com.ramijemli.percentagechartview.PercentageChartView;
 import com.ramijemli.percentagechartview.callback.AdaptiveColorProvider;
 import com.ramijemli.percentagechartview.renderer.BaseModeRenderer;
 import com.ramijemli.percentagechartview.renderer.RingModeRenderer;
-
-import org.w3c.dom.Text;
 
 import es.ewic.clients.R;
 

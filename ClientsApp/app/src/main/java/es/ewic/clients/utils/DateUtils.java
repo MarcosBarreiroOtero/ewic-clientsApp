@@ -3,7 +3,6 @@ package es.ewic.clients.utils;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
@@ -71,7 +70,7 @@ public class DateUtils {
 
         long timezoneUTCTime = defaultTime - TimeZone.getDefault().getRawOffset();
         Calendar utcCalendar = Calendar.getInstance(TimeZone.getDefault());
-        defaultCalendar.setTimeInMillis(timezoneUTCTime);
+        utcCalendar.setTimeInMillis(timezoneUTCTime);
 
         return utcCalendar;
     }

@@ -1,5 +1,6 @@
 package es.ewic.clients;
 
+import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,7 +27,6 @@ import java.util.List;
 import es.ewic.clients.adapters.ShopRowAdapter;
 import es.ewic.clients.model.Shop;
 import es.ewic.clients.utils.BackEndEndpoints;
-import es.ewic.clients.utils.FragmentUtils;
 import es.ewic.clients.utils.ModelConverter;
 import es.ewic.clients.utils.RequestUtils;
 
@@ -39,10 +39,14 @@ public class ShopListFragment extends Fragment {
 
     private Double mLatitude;
     private Double mLongitude;
-
     private List<Shop> shops;
-
     private FusedLocationProviderClient mFusedLocationClient;
+
+    OnShopListListener mCallback;
+
+    public interface OnShopListListener {
+        void onClickShop(Shop shop);
+    }
 
     public ShopListFragment() {
         // Required empty public constructor
@@ -50,6 +54,12 @@ public class ShopListFragment extends Fragment {
 
     public static ShopListFragment newInstance() {
         return new ShopListFragment();
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mCallback = (ShopListFragment.OnShopListListener) getActivity();
     }
 
     @Override
@@ -83,11 +93,9 @@ public class ShopListFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Shop shop = shops.get(position);
-                FragmentUtils.getInstance().replaceFragment(getActivity().getSupportFragmentManager(), ShopInformationFragment.newInstance(shop), false);
+                mCallback.onClickShop(shop);
             }
         });
-
-
         return parent;
     }
 

@@ -1,16 +1,12 @@
 package es.ewic.clients.utils;
 
-import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 
 import es.ewic.clients.model.Client;
 import es.ewic.clients.model.Reservation;
@@ -77,9 +73,9 @@ public class ModelConverter {
 
     public static JSONObject reservationToJsonObject(Reservation reservation) {
         Calendar reservationDate = reservation.getDate();
-        reservationDate = DateUtils.changeCalendarTimezoneFromDefaultToUTC(reservationDate);
+        Calendar reservationDateFormatted = DateUtils.changeCalendarTimezoneFromDefaultToUTC(reservationDate);
         try {
-            return new JSONObject().put("date", DateUtils.formatDateLong(reservationDate))
+            return new JSONObject().put("date", DateUtils.formatDateLong(reservationDateFormatted))
                     .put("remarks", reservation.getRemarks())
                     .put("idGoogleLoginClient", reservation.getIdGoogleLoginClient())
                     .put("idShop", reservation.getIdShop());

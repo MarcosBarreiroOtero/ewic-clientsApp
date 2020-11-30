@@ -24,8 +24,10 @@ import es.ewic.clients.utils.FragmentUtils;
 
 public class MainActivity extends AppCompatActivity implements LoginFragment.OnLogInSuccessListener,
         MyDataFragment.OnMyDataListener,
+        ShopListFragment.OnShopListListener,
         ShopInformationFragment.OnShopInformationListener,
-        CreateReservationsFragment.OnCreateReservationListener, ReservationRowAdapter.OnEditReservationListener {
+        CreateReservationsFragment.OnCreateReservationListener,
+        ReservationRowAdapter.OnEditReservationListener {
 
 
     private Client clientData;
@@ -144,6 +146,13 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), LoginFragment.newInstance(), false);
     }
 
+    @Override
+    public void onClickShop(Shop shop) {
+        if (clientData != null) {
+            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopInformationFragment.newInstance(shop), true);
+        }
+    }
+
 
     @Override
     public void onBookShopEntry(Shop shopData) {
@@ -178,4 +187,6 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
             FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), CreateReservationsFragment.newInstance(clientData, null, reservation), true);
         }
     }
+
+
 }

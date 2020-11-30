@@ -3,17 +3,16 @@ package es.ewic.clients;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -24,7 +23,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.ramijemli.percentagechartview.PercentageChartView;
 
-import es.ewic.clients.model.Client;
 import es.ewic.clients.model.Shop;
 import es.ewic.clients.utils.FormUtils;
 
@@ -97,6 +95,7 @@ public class ShopInformationFragment extends Fragment implements OnMapReadyCallb
         PercentageChartView percentageChartView = parent.findViewById(R.id.shop_information_percentage);
         float percentage = ((float) shopInformation.getActualCapacity() / shopInformation.getMaxCapacity()) * 100;
         FormUtils.configureSemaphorePercentageChartView(getResources(), percentageChartView, percentage);
+
         TextView shop_capacity = parent.findViewById(R.id.shop_information_capacity);
         shop_capacity.setText(shopInformation.getActualCapacity() + "/" + shopInformation.getMaxCapacity());
 
