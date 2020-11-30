@@ -36,6 +36,12 @@ public class ReservationRowAdapter extends BaseAdapter implements ListAdapter {
     private final Resources resources;
     private final String packageName;
 
+    private OnEditReservationListener mCallback;
+
+    public interface OnEditReservationListener {
+        public void editReservation(Reservation reservation);
+    }
+
 
     public ReservationRowAdapter(List<Reservation> reservationList, Client client, Fragment fragment, Resources resources, String packageName) {
         assert reservationList != null;
@@ -49,6 +55,8 @@ public class ReservationRowAdapter extends BaseAdapter implements ListAdapter {
         this.fragment = fragment;
         this.resources = resources;
         this.packageName = packageName;
+
+        mCallback = (ReservationRowAdapter.OnEditReservationListener) fragment.getActivity();
     }
 
     @Override
@@ -105,6 +113,7 @@ public class ReservationRowAdapter extends BaseAdapter implements ListAdapter {
                 @Override
                 public void onClick(View v) {
                     Log.e("RSV", "edit" + reservation.toString());
+                    mCallback.editReservation(reservation);
                 }
             });
 

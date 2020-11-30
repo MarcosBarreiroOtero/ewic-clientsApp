@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:descendantFocusability="blocksDescendants"
     tools:ignore="ExtraText">
 
     <TextView
@@ -61,7 +62,7 @@
         android:id="@+id/reservation_edit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginBottom="16dp"
@@ -69,7 +70,7 @@
         android:contentDescription="@string/edit"
         android:src="@drawable/ic_baseline_edit_24"
         android:tint="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/reservation_remarks"
         app:layout_constraintEnd_toStartOf="@+id/reservation_cancel_button"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -77,7 +78,7 @@
         android:id="@+id/reservation_cancel_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:layout_marginBottom="16dp"
@@ -85,7 +86,7 @@
         android:contentDescription="@string/delete"
         android:src="@drawable/ic_baseline_delete_24"
         android:tint="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/reservation_remarks"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
     ... />

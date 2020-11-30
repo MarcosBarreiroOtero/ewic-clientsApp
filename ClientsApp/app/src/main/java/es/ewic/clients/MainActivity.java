@@ -1,7 +1,6 @@
 package es.ewic.clients;
 
 import android.Manifest;
-import android.app.FragmentManager;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,24 +13,19 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 
-import org.json.JSONObject;
-
+import es.ewic.clients.adapters.ReservationRowAdapter;
 import es.ewic.clients.model.Client;
+import es.ewic.clients.model.Reservation;
 import es.ewic.clients.model.Shop;
 import es.ewic.clients.utils.FragmentUtils;
 
 public class MainActivity extends AppCompatActivity implements LoginFragment.OnLogInSuccessListener,
         MyDataFragment.OnMyDataListener,
         ShopInformationFragment.OnShopInformationListener,
-        CreateReservationsFragment.OnCreateReservationListener {
+        CreateReservationsFragment.OnCreateReservationListener, ReservationRowAdapter.OnEditReservationListener {
 
 
     private Client clientData;
@@ -119,15 +113,12 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
     @Override
     public void onBackPressed() {
         Log.w("BACK", "BACK");
-        FragmentManager fm = getFragmentManager();
-        if (fm.getBackStackEntryCount() > 0) {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             Log.i("MainActivity", "popping backstack");
-            fm.popBackStack();
+            getSupportFragmentManager().popBackStack();
         } else {
-            Log.i("MainActivity", "nothing on backstack, calling super");
-            super.onBackPressed();
+            System.exit(1);
         }
-//        System.exit(1);
     }
 
     @Override
@@ -157,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
     @Override
     public void onBookShopEntry(Shop shopData) {
         if (clientData != null) {
-            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), CreateReservationsFragment.newInstance(clientData, shopData), false);
+            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), CreateReservationsFragment.newInstance(clientData, shopData, null), true);
         }
     }
 
@@ -167,6 +158,24 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
             FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopInformationFragment.newInstance(shop), false);
         } else {
             FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopListFragment.newInstance(), true);
+        }
+    }
+
+    @Override
+    public void onRsvUpdate() {
+        if (clientData != null) {
+            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                getSupportFragmentManager().popBackStackImmediate();
+            } else {
+                FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), MyReservationsFragment.newInstance(clientData), false);
+            }
+        }
+    }
+
+    @Override
+    public void editReservation(Reservation reservation) {
+        if (clientData != null) {
+            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), CreateReservationsFragment.newInstance(clientData, null, reservation), true);
         }
     }
 }

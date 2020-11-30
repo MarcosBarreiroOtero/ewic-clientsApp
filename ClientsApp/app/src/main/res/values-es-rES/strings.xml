@@ -46,4 +46,6 @@
     <string name="pre_cancel_reservation_message">¿Está seguro de que quiere cancelar la reserva? El cambio no se podrá rehacer</string>
     <string name="accept">Aceptar</string>
     <string name="cancel_reservation_successfully">La reserva se ha cancelado correctamente</string>
+    <string name="update_reservation_successfully">La reserva se ha actualizado correctamente</string>
+    <string name="update_reservation">Editar reserva</string>
 </resources>

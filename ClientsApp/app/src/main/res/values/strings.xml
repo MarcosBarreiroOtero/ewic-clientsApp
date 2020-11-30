@@ -46,5 +46,7 @@
     <string name="pre_cancel_reservation_message">Are you sure you want to cancel this reservation? The change cannot be redone</string>
     <string name="accept">Accept</string>
     <string name="cancel_reservation_successfully">The reservation has been successfully canceled</string>
+    <string name="update_reservation_successfully">The reservation has been successfully updated</string>
+    <string name="update_reservation">Update reservation</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

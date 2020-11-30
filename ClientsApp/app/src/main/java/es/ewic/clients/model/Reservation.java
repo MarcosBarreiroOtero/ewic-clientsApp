@@ -1,8 +1,9 @@
 package es.ewic.clients.model;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
-public class Reservation {
+public class Reservation implements Serializable {
 
     private int idReservation;
     private Calendar date;
