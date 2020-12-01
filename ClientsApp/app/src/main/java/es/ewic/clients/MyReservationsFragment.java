@@ -1,5 +1,6 @@
 package es.ewic.clients;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
@@ -16,6 +18,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.json.JSONArray;
 
@@ -38,8 +41,13 @@ public class MyReservationsFragment extends Fragment {
     private static final String ARG_CLIENT = "client";
 
     private Client client;
-
     private List<Reservation> reservations;
+
+    OnMyReservationsListener mCallback;
+
+    public interface OnMyReservationsListener {
+        void onCreateNewRsv();
+    }
 
     public MyReservationsFragment() {
         // Required empty public constructor
@@ -58,6 +66,12 @@ public class MyReservationsFragment extends Fragment {
         args.putSerializable(ARG_CLIENT, clientData);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mCallback = (MyReservationsFragment.OnMyReservationsListener) getActivity();
     }
 
     @Override
@@ -100,6 +114,14 @@ public class MyReservationsFragment extends Fragment {
 
             }
         });
+
+        FloatingActionButton add_reservation = parent.findViewById(R.id.add_reservation);
+        add_reservation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mCallback.onCreateNewRsv();
+            }
+        });
         return parent;
     }
 
@@ -110,7 +132,6 @@ public class MyReservationsFragment extends Fragment {
         RequestUtils.sendJsonArrayRequest(getContext(), Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                Log.e("HTTP", response.toString());
                 reservations = ModelConverter.jsonArrayToReservationList(response);
                 ListView reservationList = parent.findViewById(R.id.reservation_list);
                 ReservationRowAdapter reservationRowAdapter = new ReservationRowAdapter(reservations, client, MyReservationsFragment.this, getResources(), getActivity().getPackageName());

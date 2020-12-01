@@ -48,4 +48,6 @@
     <string name="cancel_reservation_successfully">La reserva se ha cancelado correctamente</string>
     <string name="update_reservation_successfully">La reserva se ha actualizado correctamente</string>
     <string name="update_reservation">Editar reserva</string>
+    <string name="error_shop_not_found">Tienda no encontrada</string>
+    <string name="filter_shops">Filtrar tiendas</string>
 </resources>

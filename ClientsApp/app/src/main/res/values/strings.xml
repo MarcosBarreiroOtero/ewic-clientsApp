@@ -48,5 +48,7 @@
     <string name="cancel_reservation_successfully">The reservation has been successfully canceled</string>
     <string name="update_reservation_successfully">The reservation has been successfully updated</string>
     <string name="update_reservation">Update reservation</string>
+    <string name="error_shop_not_found">Shop not found</string>
+    <string name="filter_shops">Filter shops</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

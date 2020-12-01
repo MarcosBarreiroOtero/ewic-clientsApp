@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         ShopListFragment.OnShopListListener,
         ShopInformationFragment.OnShopInformationListener,
         CreateReservationsFragment.OnCreateReservationListener,
+        MyReservationsFragment.OnMyReservationsListener,
         ReservationRowAdapter.OnEditReservationListener {
 
 
@@ -114,9 +115,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
 
     @Override
     public void onBackPressed() {
-        Log.w("BACK", "BACK");
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-            Log.i("MainActivity", "popping backstack");
             getSupportFragmentManager().popBackStack();
         } else {
             System.exit(1);
@@ -166,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         if (shop != null) {
             FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopInformationFragment.newInstance(shop), false);
         } else {
-            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopListFragment.newInstance(), true);
+            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), MyReservationsFragment.newInstance(clientData), false);
         }
     }
 
@@ -180,6 +179,14 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
             }
         }
     }
+
+    @Override
+    public void onCreateNewRsv() {
+        if (clientData != null) {
+            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), CreateReservationsFragment.newInstance(clientData, null, null), true);
+        }
+    }
+
 
     @Override
     public void editReservation(Reservation reservation) {

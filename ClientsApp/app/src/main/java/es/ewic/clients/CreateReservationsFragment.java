@@ -26,9 +26,12 @@ import com.android.volley.VolleyError;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import es.ewic.clients.model.Client;
 import es.ewic.clients.model.Reservation;
@@ -52,6 +55,7 @@ public class CreateReservationsFragment extends Fragment {
     private Client client;
     private Shop shop;
     private Reservation reservation;
+    private JSONArray shopNames;
 
     OnCreateReservationListener mCallback;
 
@@ -130,6 +134,8 @@ public class CreateReservationsFragment extends Fragment {
             act_shop.setAdapter(adapter);
             act_shop.setText(shop.getName());
             act_shop.setEnabled(false);
+        } else {
+            getShopNames(parent);
         }
 
         Calendar now = Calendar.getInstance();
@@ -206,6 +212,32 @@ public class CreateReservationsFragment extends Fragment {
         return parent;
     }
 
+    private void getShopNames(ConstraintLayout parent) {
+
+        String url = BackEndEndpoints.SHOP_NAMES;
+
+        RequestUtils.sendJsonArrayRequest(getContext(), Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                shopNames = response;
+                List<String> names = new ArrayList<>();
+                for (int i = 0; i < shopNames.length(); i++) {
+                    names.add(response.optJSONObject(i).optString("name"));
+                }
+                String[] shops = names.toArray(new String[names.size()]);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.shop_list_item, shops);
+                AutoCompleteTextView act_shop = parent.findViewById(R.id.reservation_shop_input);
+                act_shop.setAdapter(adapter);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("HTTP", "Error");
+            }
+        });
+
+    }
+
     private void showHourPickerListener(TextInputEditText tiet_hour) {
         final Calendar date = DateUtils.parseDateHour(tiet_hour.getText().toString().trim());
         int hour = date.get(Calendar.HOUR_OF_DAY);
@@ -245,6 +277,17 @@ public class CreateReservationsFragment extends Fragment {
             act_shop.setError(getString(R.string.error_empty_field));
             return false;
         } else {
+            if (shopNames != null) {
+                for (int i = 0; i < shopNames.length(); i++) {
+                    JSONObject shopName = shopNames.optJSONObject(i);
+                    if (shop_input.equals(shopName.optString("name"))) {
+                        act_shop.setError(null);
+                        return true;
+                    }
+                }
+                act_shop.setError(getString(R.string.error_shop_not_found));
+                return false;
+            }
             act_shop.setError(null);
             return true;
         }
@@ -299,9 +342,19 @@ public class CreateReservationsFragment extends Fragment {
             String dateInput = tiet_date.getText().toString().trim();
             String hourInput = tiet_hour.getText().toString().trim();
             String shopInput = act_shop.getText().toString().trim();
-
             Calendar date = DateUtils.parseDateLong(hourInput + " " + dateInput);
-            Reservation rsv = new Reservation(date, remarksInput, client.getIdGoogleLogin(), shop.getIdShop());
+            int idShop = 0;
+            if (shop != null) {
+                idShop = shop.getIdShop();
+            } else {
+                for (int i = 0; i < shopNames.length(); i++) {
+                    JSONObject shopName = shopNames.optJSONObject(i);
+                    if (shopInput.equals(shopName.optString("name"))) {
+                        idShop = shopName.optInt("idShop");
+                    }
+                }
+            }
+            Reservation rsv = new Reservation(date, remarksInput, client.getIdGoogleLogin(), idShop);
 
             String url = BackEndEndpoints.RESERVATION_BASE;
             JSONObject rsvJSON = ModelConverter.reservationToJsonObject(rsv);
@@ -334,7 +387,6 @@ public class CreateReservationsFragment extends Fragment {
             String remarksInput = tiet_remarks.getText().toString().trim();
             String dateInput = tiet_date.getText().toString().trim();
             String hourInput = tiet_hour.getText().toString().trim();
-            String shopInput = act_shop.getText().toString().trim();
 
             Calendar date = DateUtils.parseDateLong(hourInput + " " + dateInput);
             reservation.setDate(date);
