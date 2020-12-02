@@ -13,6 +13,7 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -21,9 +22,11 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
+import es.ewic.clients.adapters.DialogFilterShop;
 import es.ewic.clients.adapters.ShopRowAdapter;
 import es.ewic.clients.model.Shop;
 import es.ewic.clients.utils.BackEndEndpoints;
@@ -37,8 +40,16 @@ import es.ewic.clients.utils.RequestUtils;
  */
 public class ShopListFragment extends Fragment {
 
+    private static final String ARG_SHOP_NAME = "shop_name";
+    private static final String ARG_SHOP_TYPE = "shop_type";
+    private static final String ARG_USE_LOCATION = "use_location";
+
+
     private Double mLatitude;
     private Double mLongitude;
+    private String shop_name;
+    private String shop_type;
+    private boolean use_location;
     private List<Shop> shops;
     private FusedLocationProviderClient mFusedLocationClient;
 
@@ -52,8 +63,15 @@ public class ShopListFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static ShopListFragment newInstance() {
-        return new ShopListFragment();
+    public static ShopListFragment newInstance(String shop_name, String shop_type, Boolean use_location) {
+        ShopListFragment fragment = new ShopListFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_SHOP_NAME, shop_name);
+        args.putString(ARG_SHOP_TYPE, shop_type);
+        args.putBoolean(ARG_USE_LOCATION, use_location);
+        fragment.setArguments(args);
+        return fragment;
+
     }
 
     @Override
@@ -66,6 +84,12 @@ public class ShopListFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
+
+        if (getArguments() != null) {
+            shop_name = getArguments().getString(ARG_SHOP_NAME);
+            shop_type = getArguments().getString(ARG_SHOP_TYPE);
+            use_location = getArguments().getBoolean(ARG_USE_LOCATION);
+        }
     }
 
     @Override
@@ -96,6 +120,15 @@ public class ShopListFragment extends Fragment {
                 mCallback.onClickShop(shop);
             }
         });
+
+        // Filter button
+        FloatingActionButton filter_shop = parent.findViewById(R.id.filter_search_button);
+        filter_shop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showFilterDialog(parent, inflater);
+            }
+        });
         return parent;
     }
 
@@ -119,9 +152,23 @@ public class ShopListFragment extends Fragment {
     private void getShopList(ConstraintLayout parent, SwipeRefreshLayout swipeRefreshLayout) {
         String url = BackEndEndpoints.SHOP_BASE;
 
-        if (mLatitude != null && mLongitude != null) {
-            url += "?latitude=" + mLatitude + "&longitude=" + mLongitude;
+        String params = "";
+        if (use_location) {
+            if (mLatitude != null && mLongitude != null) {
+                params += (params.isEmpty() ? "?" : "&") + "latitude=" + mLatitude + "&longitude=" + mLongitude;
+            }
         }
+
+        if (shop_name != null) {
+            params += (params.isEmpty() ? "?" : "&") + "name=" + shop_name;
+        }
+
+        if (shop_type != null) {
+            params += (params.isEmpty() ? "?" : "&") + "shopType=" + shop_type;
+        }
+
+        url += params;
+
 
         RequestUtils.sendJsonArrayRequest(getContext(), Request.Method.GET, url, null, response -> {
             {
@@ -133,6 +180,11 @@ public class ShopListFragment extends Fragment {
                 swipeRefreshLayout.setRefreshing(false);
             }
         }, error -> Log.e("HTTP", "error"));
+    }
+
+    private void showFilterDialog(ConstraintLayout parent, LayoutInflater inflater) {
+        DialogFragment newFragment = DialogFilterShop.newInstance(shop_name, shop_type, use_location);
+        newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
     }
 
 }

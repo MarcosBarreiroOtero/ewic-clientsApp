@@ -50,4 +50,5 @@
     <string name="update_reservation">Editar reserva</string>
     <string name="error_shop_not_found">Tienda no encontrada</string>
     <string name="filter_shops">Filtrar tiendas</string>
+    <string name="shop_filter_location_explanation">Ordenar por proximidad. Es necesario tener la localización activada</string>
 </resources>

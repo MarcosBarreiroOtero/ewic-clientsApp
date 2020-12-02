@@ -50,5 +50,6 @@
     <string name="update_reservation">Update reservation</string>
     <string name="error_shop_not_found">Shop not found</string>
     <string name="filter_shops">Filter shops</string>
+    <string name="shop_filter_location_explanation">Order by proximity. Location is needed.</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

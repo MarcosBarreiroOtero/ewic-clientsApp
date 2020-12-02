@@ -16,6 +16,7 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.material.snackbar.Snackbar;
 
+import es.ewic.clients.adapters.DialogFilterShop;
 import es.ewic.clients.adapters.ReservationRowAdapter;
 import es.ewic.clients.model.Client;
 import es.ewic.clients.model.Reservation;
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         ShopInformationFragment.OnShopInformationListener,
         CreateReservationsFragment.OnCreateReservationListener,
         MyReservationsFragment.OnMyReservationsListener,
-        ReservationRowAdapter.OnEditReservationListener {
+        ReservationRowAdapter.OnEditReservationListener, DialogFilterShop.OnDialogFilterShopListener {
 
 
     private Client clientData;
@@ -129,7 +130,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         myToolbar.setVisibility(View.VISIBLE);
         setSupportActionBar(myToolbar);
-        FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopListFragment.newInstance(), false);
+        FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopListFragment.newInstance(null, null, true), false);
     }
 
     @Override
@@ -195,5 +196,10 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         }
     }
 
-
+    @Override
+    public void onFindShopsFiltered(String shopName, String shopType, boolean useLocation) {
+        if (clientData != null) {
+            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopListFragment.newInstance(shopName, shopType, useLocation), false);
+        }
+    }
 }

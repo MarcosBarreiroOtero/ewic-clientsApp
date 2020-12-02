@@ -1,5 +1,6 @@
 package es.ewic.clients;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -8,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -123,8 +123,11 @@ public class MyDataFragment extends Fragment {
 
     private void updateClientData(ConstraintLayout parent) {
 
-        RelativeLayout loadingPanel = getActivity().findViewById(R.id.loadingPanel);
-        FormUtils.showLoadingPanel(getActivity().getWindow(), loadingPanel);
+        ProgressDialog pd = new ProgressDialog(getContext());
+        pd.setTitle("Loading...");
+        pd.setMessage("Please wait.");
+        pd.setCancelable(false);
+        pd.show();
 
         TextInputEditText til_name = parent.findViewById(R.id.my_data_name_input);
         til_name.clearFocus();
@@ -135,8 +138,8 @@ public class MyDataFragment extends Fragment {
 
         TextInputLayout til_email_label = parent.findViewById(R.id.my_data_email_label);
         if (!FormUtils.isValidEmail(til_email.getText())) {
-            FormUtils.hideLoadingPanel(getActivity().getWindow(), loadingPanel);
             til_email_label.setError(getString(R.string.email_invalid_format));
+            pd.hide();
             return;
         } else {
             til_email_label.setError(null);
@@ -153,8 +156,8 @@ public class MyDataFragment extends Fragment {
             public void onResponse(JSONObject response) {
                 clientData = ModelConverter.jsonObjectToClient(response);
                 mCallback.onUpdateClientAccount(clientData);
-                FormUtils.hideLoadingPanel(getActivity().getWindow(), loadingPanel);
-                Snackbar.make(parent, getString(R.string.cancel_reservation_successfully), Snackbar.LENGTH_LONG)
+                pd.hide();
+                Snackbar.make(parent, getString(R.string.update_data_successfully), Snackbar.LENGTH_LONG)
                         .show();
 
             }
