@@ -51,5 +51,14 @@
     <string name="error_shop_not_found">Shop not found</string>
     <string name="filter_shops">Filter shops</string>
     <string name="shop_filter_location_explanation">Order by proximity. Location is needed.</string>
+    <string name="shop_name">Shop name</string>
+    <string name="OTHER">Other</string>
+    <string name="PHAMARCY">Phamarcy</string>
+    <string name="FRUIT_STORE">Fruit Store</string>
+    <string name="All">All</string>
+    <string name="find_shops">Find Shops</string>
+    <string name="find">Find</string>
+    <string name="please_wait">Please wait.</string>
+    <string name="updating_data">Updating data</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

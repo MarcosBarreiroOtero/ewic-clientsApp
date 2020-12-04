@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
@@ -111,6 +112,8 @@ public class MyDataFragment extends Fragment {
 
         Button update_button = parent.findViewById(R.id.button_update_data);
         update_button.setOnClickListener(v -> {
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
             updateClientData(parent);
         });
 
@@ -123,11 +126,7 @@ public class MyDataFragment extends Fragment {
 
     private void updateClientData(ConstraintLayout parent) {
 
-        ProgressDialog pd = new ProgressDialog(getContext());
-        pd.setTitle("Loading...");
-        pd.setMessage("Please wait.");
-        pd.setCancelable(false);
-        pd.show();
+        ProgressDialog pd = FormUtils.showProgressDialog(getContext(), getResources(), R.string.updating_data, R.string.please_wait);
 
         TextInputEditText til_name = parent.findViewById(R.id.my_data_name_input);
         til_name.clearFocus();

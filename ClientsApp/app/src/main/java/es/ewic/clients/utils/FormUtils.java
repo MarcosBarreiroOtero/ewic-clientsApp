@@ -1,5 +1,7 @@
 package es.ewic.clients.utils;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -20,7 +22,16 @@ public class FormUtils {
     public static boolean isValidEmail(CharSequence target) {
         return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
     }
-    
+
+    public static ProgressDialog showProgressDialog(Context contex, Resources resources, int title, int message) {
+        ProgressDialog pd = new ProgressDialog(contex);
+        pd.setTitle(resources.getString(title));
+        pd.setMessage(resources.getString(message));
+        pd.setCancelable(false);
+        pd.show();
+        return pd;
+    }
+
     public static void configureSemaphorePercentageChartView(Resources resources, PercentageChartView percentageChartView, float percentage) {
 
         percentageChartView.drawBackgroundEnabled(false)

@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStack();
         } else {
-            System.exit(1);
+            finish();
         }
     }
 
