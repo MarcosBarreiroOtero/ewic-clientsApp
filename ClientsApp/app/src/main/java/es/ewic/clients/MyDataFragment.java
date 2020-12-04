@@ -1,13 +1,15 @@
 package es.ewic.clients;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -82,10 +84,6 @@ public class MyDataFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.toolbar_menu_my_data);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
-
         if (getArguments() != null) {
             clientData = (Client) getArguments().getSerializable(ARG_CLIENT_DATA);
         }
@@ -98,6 +96,11 @@ public class MyDataFragment extends Fragment {
         ConstraintLayout parent = (ConstraintLayout) inflater.inflate(R.layout.fragment_my_data,
                 container, false);
 
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.toolbar_menu_my_data);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+
         TextInputEditText til_name = parent.findViewById(R.id.my_data_name_input);
         til_name.setText(clientData.getFirstName());
 
@@ -109,6 +112,8 @@ public class MyDataFragment extends Fragment {
 
         Button update_button = parent.findViewById(R.id.button_update_data);
         update_button.setOnClickListener(v -> {
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(), 0);
             updateClientData(parent);
         });
 
@@ -121,8 +126,7 @@ public class MyDataFragment extends Fragment {
 
     private void updateClientData(ConstraintLayout parent) {
 
-        RelativeLayout loadingPanel = getActivity().findViewById(R.id.loadingPanel);
-        FormUtils.showLoadingPanel(getActivity().getWindow(), loadingPanel);
+        ProgressDialog pd = FormUtils.showProgressDialog(getContext(), getResources(), R.string.updating_data, R.string.please_wait);
 
         TextInputEditText til_name = parent.findViewById(R.id.my_data_name_input);
         til_name.clearFocus();
@@ -133,8 +137,8 @@ public class MyDataFragment extends Fragment {
 
         TextInputLayout til_email_label = parent.findViewById(R.id.my_data_email_label);
         if (!FormUtils.isValidEmail(til_email.getText())) {
-            FormUtils.hideLoadingPanel(getActivity().getWindow(), loadingPanel);
             til_email_label.setError(getString(R.string.email_invalid_format));
+            pd.hide();
             return;
         } else {
             til_email_label.setError(null);
@@ -151,7 +155,7 @@ public class MyDataFragment extends Fragment {
             public void onResponse(JSONObject response) {
                 clientData = ModelConverter.jsonObjectToClient(response);
                 mCallback.onUpdateClientAccount(clientData);
-                FormUtils.hideLoadingPanel(getActivity().getWindow(), loadingPanel);
+                pd.hide();
                 Snackbar.make(parent, getString(R.string.update_data_successfully), Snackbar.LENGTH_LONG)
                         .show();
 
@@ -175,6 +179,12 @@ public class MyDataFragment extends Fragment {
         });
 
         AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface arg0) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.semaphore_red));
+            }
+        });
         dialog.show();
     }
 

@@ -4,37 +4,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ShopListFragment">
+    tools:context=".MyReservationsFragment">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/filter_search_button"
+        android:id="@+id/add_reservation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
         android:clickable="true"
-        android:contentDescription="@string/filter_shops"
+        android:contentDescription="@string/createReservation"
         android:focusable="true"
-        android:src="@drawable/ic_search_black_24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:src="@android:drawable/ic_input_add"
+        app:layout_constraintBottom_toBottomOf="@+id/swipeRefreshLayoutReservatios"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="@+id/swipeRefreshLayoutReservatios" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefreshLayoutShops"
+        android:id="@+id/swipeRefreshLayoutReservatios"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="52dp"
         app:layout_constraintTop_toTopOf="parent">
 
         <ListView
-            android:id="@+id/shop_list"
+            android:id="@+id/reservation_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="52dp"
-            android:dividerHeight="1dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:dividerHeight="1dp">
+
+        </ListView>
+
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

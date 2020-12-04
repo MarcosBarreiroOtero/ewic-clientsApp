@@ -6,6 +6,7 @@
     <string name="login_cancelled_message">Para poder utilizar esta aplicación es necesario iniciar sesión con una cuenta de Google.</string>
     <string name="cancel">Cancelar</string>
     <string name="toolbar_menu_my_data">Mis Datos</string>
+    <string name="toolbar_menu_my_reservations">Mis reservas</string>
     <string name="firstName">Nombre</string>
     <string name="lastName">Apellidos</string>
     <string name="notification_email">Email de notificación</string>
@@ -15,6 +16,7 @@
     <string name="update_data_successfully">Los datos se han actualizado correctamente</string>
     <string name="pre_delete_message">¿Esta seguro de que quiere eliminar su cuenta? No se podrán recuperar sus datos</string>
     <string name="delete">Eliminar</string>
+    <string name="edit">Editar</string>
     <string name="account_delete_successfully">Cuenta eliminada correctamente</string>
     <string name="state">Estado</string>
     <string name="SUPERMARKET">Supermercado</string>
@@ -35,4 +37,27 @@
     <string name="error_bad_format_hour">La hora debe seguir el formato HH:mm</string>
     <string name="error_past_reservation">No se pueden crear reservas en el pasado</string>
     <string name="newReservation">Nueva reserva</string>
+    <string name="reservation_create_successfully">Reserva creada correctamente</string>
+    <string name="ACTIVE">Activa</string>
+    <string name="WAITING">Esperando</string>
+    <string name="COMPLETED">Completada</string>
+    <string name="NOT_APPEAR">Sin aparecer</string>
+    <string name="CANCELLED">Cancelada</string>
+    <string name="pre_cancel_reservation_message">¿Está seguro de que quiere cancelar la reserva? El cambio no se podrá rehacer</string>
+    <string name="accept">Aceptar</string>
+    <string name="cancel_reservation_successfully">La reserva se ha cancelado correctamente</string>
+    <string name="update_reservation_successfully">La reserva se ha actualizado correctamente</string>
+    <string name="update_reservation">Editar reserva</string>
+    <string name="error_shop_not_found">Tienda no encontrada</string>
+    <string name="filter_shops">Filtrar tiendas</string>
+    <string name="shop_filter_location_explanation">Ordenar por proximidad. Es necesario tener la localización activada</string>
+    <string name="shop_name">Nombre de la tienda</string>
+    <string name="OTHER">Otro</string>
+    <string name="PHAMARCY">Farmacia</string>
+    <string name="FRUIT_STORE">Frutería</string>
+    <string name="All">Todo</string>
+    <string name="find_shops">Buscar tiendas</string>
+    <string name="find">Buscar</string>
+    <string name="please_wait">Espere porfavor.</string>
+    <string name="updating_data">Actualizando datos</string>
 </resources>

@@ -25,8 +25,6 @@ public class ShopRowAdapter extends BaseAdapter implements ListAdapter {
     private final String packageName;
 
     public ShopRowAdapter(Fragment fragment, List<Shop> shopList, Resources resources, String packageName) {
-
-
         assert fragment != null;
         assert shopList != null;
         assert resources != null;
@@ -63,8 +61,9 @@ public class ShopRowAdapter extends BaseAdapter implements ListAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        if (convertView == null)
+        if (convertView == null) {
             convertView = fragment.getLayoutInflater().inflate(R.layout.shop_row, null);
+        }
 
         TextView shopTitle = convertView.findViewById(R.id.shop_title);
         TextView shopLocation = convertView.findViewById(R.id.shop_location);

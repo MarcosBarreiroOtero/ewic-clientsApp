@@ -1,5 +1,6 @@
 package es.ewic.clients;
 
+import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -20,13 +22,14 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.List;
 
+import es.ewic.clients.adapters.DialogFilterShop;
 import es.ewic.clients.adapters.ShopRowAdapter;
 import es.ewic.clients.model.Shop;
 import es.ewic.clients.utils.BackEndEndpoints;
-import es.ewic.clients.utils.FragmentUtils;
 import es.ewic.clients.utils.ModelConverter;
 import es.ewic.clients.utils.RequestUtils;
 
@@ -37,62 +40,100 @@ import es.ewic.clients.utils.RequestUtils;
  */
 public class ShopListFragment extends Fragment {
 
+    private static final String ARG_SHOP_NAME = "shop_name";
+    private static final String ARG_SHOP_TYPE = "shop_type";
+    private static final String ARG_USE_LOCATION = "use_location";
+
+
     private Double mLatitude;
     private Double mLongitude;
-
+    private String shop_name;
+    private String shop_type;
+    private boolean use_location;
     private List<Shop> shops;
-
     private FusedLocationProviderClient mFusedLocationClient;
+
+    OnShopListListener mCallback;
+
+    public interface OnShopListListener {
+        void onClickShop(Shop shop);
+    }
 
     public ShopListFragment() {
         // Required empty public constructor
     }
 
-    public static ShopListFragment newInstance() {
-        return new ShopListFragment();
+    public static ShopListFragment newInstance(String shop_name, String shop_type, Boolean use_location) {
+        ShopListFragment fragment = new ShopListFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_SHOP_NAME, shop_name);
+        args.putString(ARG_SHOP_TYPE, shop_type);
+        args.putBoolean(ARG_USE_LOCATION, use_location);
+        fragment.setArguments(args);
+        return fragment;
+
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mCallback = (ShopListFragment.OnShopListListener) getActivity();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.app_name);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
-
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getContext());
 
+        if (getArguments() != null) {
+            shop_name = getArguments().getString(ARG_SHOP_NAME);
+            shop_type = getArguments().getString(ARG_SHOP_TYPE);
+            use_location = getArguments().getBoolean(ARG_USE_LOCATION);
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.app_name);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(false);
+
         ConstraintLayout parent = (ConstraintLayout) inflater.inflate(R.layout.fragment_shop_list, container, false);
 
-        getLastLocation(parent);
 
         // Reload list when refresh
-        SwipeRefreshLayout swipeRefreshLayout = parent.findViewById(R.id.swipeRefreshLayout);
+        SwipeRefreshLayout swipeRefreshLayout = parent.findViewById(R.id.swipeRefreshLayoutShops);
+        swipeRefreshLayout.setRefreshing(true);
         swipeRefreshLayout.setOnRefreshListener(() -> {
-            getLastLocation(parent);
-            swipeRefreshLayout.setRefreshing(false);
+            getLastLocation(parent, swipeRefreshLayout);
+
         });
+
+        getLastLocation(parent, swipeRefreshLayout);
 
         ListView shopList = parent.findViewById(R.id.shop_list);
         shopList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Shop shop = shops.get(position);
-                FragmentUtils.getInstance().replaceFragment(getActivity().getSupportFragmentManager(), ShopInformationFragment.newInstance(shop), false);
+                mCallback.onClickShop(shop);
             }
         });
 
-
+        // Filter button
+        FloatingActionButton filter_shop = parent.findViewById(R.id.filter_search_button);
+        filter_shop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showFilterDialog(parent, inflater);
+            }
+        });
         return parent;
     }
 
     @SuppressWarnings("MissingPermission")
-    private void getLastLocation(ConstraintLayout parent) {
+    private void getLastLocation(ConstraintLayout parent, SwipeRefreshLayout swipeRefreshLayout) {
         mFusedLocationClient.getLastLocation().addOnCompleteListener(new OnCompleteListener<Location>() {
             @Override
             public void onComplete(@NonNull Task<Location> task) {
@@ -103,17 +144,31 @@ public class ShopListFragment extends Fragment {
                 } else {
                     Log.e("Position", "getLastLocation:exception - " + task.getException(), task.getException());
                 }
-                getShopList(parent);
+                getShopList(parent, swipeRefreshLayout);
             }
         });
     }
 
-    private void getShopList(ConstraintLayout parent) {
+    private void getShopList(ConstraintLayout parent, SwipeRefreshLayout swipeRefreshLayout) {
         String url = BackEndEndpoints.SHOP_BASE;
 
-        if (mLatitude != null && mLongitude != null) {
-            url += "?latitude=" + mLatitude + "&longitude=" + mLongitude;
+        String params = "";
+        if (use_location) {
+            if (mLatitude != null && mLongitude != null) {
+                params += (params.isEmpty() ? "?" : "&") + "latitude=" + mLatitude + "&longitude=" + mLongitude;
+            }
         }
+
+        if (shop_name != null) {
+            params += (params.isEmpty() ? "?" : "&") + "name=" + shop_name;
+        }
+
+        if (shop_type != null) {
+            params += (params.isEmpty() ? "?" : "&") + "shopType=" + shop_type;
+        }
+
+        url += params;
+
 
         RequestUtils.sendJsonArrayRequest(getContext(), Request.Method.GET, url, null, response -> {
             {
@@ -122,8 +177,14 @@ public class ShopListFragment extends Fragment {
                 ListView shopList = parent.findViewById(R.id.shop_list);
                 ShopRowAdapter shopRowAdapter = new ShopRowAdapter(ShopListFragment.this, shops, getResources(), getActivity().getPackageName());
                 shopList.setAdapter(shopRowAdapter);
+                swipeRefreshLayout.setRefreshing(false);
             }
         }, error -> Log.e("HTTP", "error"));
+    }
+
+    private void showFilterDialog(ConstraintLayout parent, LayoutInflater inflater) {
+        DialogFragment newFragment = DialogFilterShop.newInstance(shop_name, shop_type, use_location);
+        newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
     }
 
 }

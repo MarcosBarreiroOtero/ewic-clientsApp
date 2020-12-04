@@ -10,8 +10,10 @@ public class BackEndEndpoints {
 
     //Shop
     public static String SHOP_BASE = BASE_ENDPOINT + "/shop";
+    public static String SHOP_NAMES = SHOP_BASE + "/names";
+    public static String SHOP_TYPES = SHOP_BASE + "/types";
 
     // Reservation
-    public static String RESERVATION_BASE = BASE_ENDPOINT + "reservation/client";
+    public static String RESERVATION_BASE = BASE_ENDPOINT + "/reservation/client";
 
 }
