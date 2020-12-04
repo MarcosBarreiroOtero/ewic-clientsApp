@@ -58,6 +58,9 @@
     <string name="All">Todo</string>
     <string name="find_shops">Buscar tiendas</string>
     <string name="find">Buscar</string>
-    <string name="please_wait">Espere porfavor.</string>
+    <string name="please_wait">Espere por favor.</string>
     <string name="updating_data">Actualizando datos</string>
+    <string name="connecting_server">Conectando con el servidor</string>
+    <string name="updating_reservation">Actualizando reserva</string>
+    <string name="creating_reservation">Creando reserva</string>
 </resources>

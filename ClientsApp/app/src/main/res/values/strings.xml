@@ -60,5 +60,8 @@
     <string name="find">Find</string>
     <string name="please_wait">Please wait.</string>
     <string name="updating_data">Updating data</string>
+    <string name="connecting_server">Connecting to the server</string>
+    <string name="updating_reservation">Updating reservation</string>
+    <string name="creating_reservation">Creating reservation</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

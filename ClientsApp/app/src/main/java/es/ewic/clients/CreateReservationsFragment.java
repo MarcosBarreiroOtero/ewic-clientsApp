@@ -1,6 +1,7 @@
 package es.ewic.clients;
 
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -38,6 +39,7 @@ import es.ewic.clients.model.Reservation;
 import es.ewic.clients.model.Shop;
 import es.ewic.clients.utils.BackEndEndpoints;
 import es.ewic.clients.utils.DateUtils;
+import es.ewic.clients.utils.FormUtils;
 import es.ewic.clients.utils.ModelConverter;
 import es.ewic.clients.utils.RequestUtils;
 
@@ -336,6 +338,8 @@ public class CreateReservationsFragment extends Fragment {
 
         if (validateShop(act_shop) & validateReservationDate(tiet_date, tiet_hour)) {
 
+            ProgressDialog pd = FormUtils.showProgressDialog(getContext(), getResources(), R.string.updating_data, R.string.please_wait);
+
             TextInputEditText tiet_remarks = parent.findViewById(R.id.reservation_remark_input);
 
             String remarksInput = tiet_remarks.getText().toString().trim();
@@ -363,6 +367,7 @@ public class CreateReservationsFragment extends Fragment {
                 public void onResponse(JSONObject response) {
                     Snackbar.make(parent, getString(R.string.reservation_create_successfully), Snackbar.LENGTH_LONG)
                             .show();
+                    pd.hide();
                     mCallback.onRsvCreate(shop);
                 }
             }, new Response.ErrorListener() {
@@ -382,6 +387,8 @@ public class CreateReservationsFragment extends Fragment {
 
         if (validateShop(act_shop) & validateReservationDate(tiet_date, tiet_hour)) {
 
+            ProgressDialog pd = FormUtils.showProgressDialog(getContext(), getResources(), R.string.updating_data, R.string.please_wait);
+
             TextInputEditText tiet_remarks = parent.findViewById(R.id.reservation_remark_input);
 
             String remarksInput = tiet_remarks.getText().toString().trim();
@@ -399,6 +406,7 @@ public class CreateReservationsFragment extends Fragment {
                 public void onResponse(JSONObject response) {
                     Snackbar.make(parent, getString(R.string.update_reservation_successfully), Snackbar.LENGTH_LONG)
                             .show();
+                    pd.hide();
                     mCallback.onRsvUpdate();
                 }
             }, new Response.ErrorListener() {

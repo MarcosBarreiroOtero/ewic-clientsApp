@@ -1,5 +1,6 @@
 package es.ewic.clients;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -30,6 +31,7 @@ import org.json.JSONObject;
 
 import es.ewic.clients.model.Client;
 import es.ewic.clients.utils.BackEndEndpoints;
+import es.ewic.clients.utils.FormUtils;
 import es.ewic.clients.utils.ModelConverter;
 import es.ewic.clients.utils.RequestUtils;
 
@@ -80,7 +82,7 @@ public class LoginFragment extends Fragment {
         // Checl if user already signed
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getContext());
         if (account != null) {
-            registerClientBackEnd(account);
+            registerClientBackEnd(account, showConectServerDialog());
         }
 
         mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
@@ -113,10 +115,15 @@ public class LoginFragment extends Fragment {
         }
     }
 
+    private ProgressDialog showConectServerDialog() {
+        ProgressDialog pd = FormUtils.showProgressDialog(getContext(), getResources(), R.string.connecting_server, R.string.please_wait);
+        return pd;
+    }
+
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            registerClientBackEnd(account);
+            registerClientBackEnd(account, showConectServerDialog());
         } catch (ApiException e) {
             // Log in cancelled
             showGoogleSigInNeededInformation();
@@ -146,7 +153,7 @@ public class LoginFragment extends Fragment {
         dialog.show();
     }
 
-    private void registerClientBackEnd(GoogleSignInAccount account) {
+    private void registerClientBackEnd(GoogleSignInAccount account, ProgressDialog pd) {
         try {
             JSONObject clientData = new JSONObject().put("idGoogleLogin", account.getId())
                     .put("firstName", account.getGivenName())
@@ -157,6 +164,7 @@ public class LoginFragment extends Fragment {
                 @Override
                 public void onResponse(JSONObject response) {
                     Client newClient = ModelConverter.jsonObjectToClient(response);
+                    pd.hide();
                     mCallback.onLoadClientData(newClient);
                 }
             }, new Response.ErrorListener() {
