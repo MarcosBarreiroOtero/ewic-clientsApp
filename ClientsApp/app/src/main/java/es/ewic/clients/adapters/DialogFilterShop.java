@@ -154,7 +154,6 @@ public class DialogFilterShop extends DialogFragment {
                 List<String> shop_types = new ArrayList<>();
                 String selected = "";
                 shop_types_translations = new JSONArray();
-                Log.e("SHOP", "Tipo de tienda : " + shop_type);
                 for (int i = 0; i < response.length(); i++) {
                     String type = response.optString(i);
                     String type_translation = getString(getResources().getIdentifier(type, "string", getActivity().getPackageName()));

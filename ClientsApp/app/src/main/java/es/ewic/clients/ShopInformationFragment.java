@@ -3,7 +3,6 @@ package es.ewic.clients;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -120,7 +119,6 @@ public class ShopInformationFragment extends Fragment implements OnMapReadyCallb
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        Log.e("Map", "Map ready");
         LatLng location = new LatLng(shopInformation.getLatitude(), shopInformation.getLongitude());
 
         googleMap.addMarker(new MarkerOptions().position(location).title(shopInformation.getName()));
@@ -129,19 +127,6 @@ public class ShopInformationFragment extends Fragment implements OnMapReadyCallb
         googleMap.setMinZoomPreference(15);
 
         mapEnableMyPosition(googleMap);
-
-//        map:ambientEnabled="true"
-//        map:cameraMaxZoomPreference="1.0"
-//        map:cameraMinZoomPreference="0.0"
-//        map:liteMode="true"
-//        map:uiCompass="true"
-//        map:uiMapToolbar="true"
-//        map:uiRotateGestures="true"
-//        map:uiScrollGestures="true"
-//        map:uiTiltGestures="true"
-//        map:uiZoomControls="true"
-//        map:uiZoomGestures="true"
-//        map:zOrderOnTop="true"
     }
 
     @SuppressLint("MissingPermission")

@@ -138,7 +138,6 @@ public class ShopListFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<Location> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
-                    Log.e("Position", "Ok.");
                     mLatitude = task.getResult().getLatitude();
                     mLongitude = task.getResult().getLongitude();
                 } else {

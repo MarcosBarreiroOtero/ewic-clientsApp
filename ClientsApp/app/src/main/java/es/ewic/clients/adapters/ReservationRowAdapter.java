@@ -112,7 +112,6 @@ public class ReservationRowAdapter extends BaseAdapter implements ListAdapter {
             reservation_edit_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.e("RSV", "edit" + reservation.toString());
                     mCallback.editReservation(reservation);
                 }
             });
@@ -122,7 +121,6 @@ public class ReservationRowAdapter extends BaseAdapter implements ListAdapter {
 
                 @Override
                 public void onClick(View v) {
-                    Log.e("RSV", "delete" + reservation.toString());
                     showPreCancelDialog(view, reservation);
                 }
             });

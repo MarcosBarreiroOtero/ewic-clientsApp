@@ -3,7 +3,6 @@ package es.ewic.clients;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -107,7 +106,6 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
 
     @Override
     public boolean onSupportNavigateUp() {
-        Log.e("BACK", getSupportFragmentManager().getBackStackEntryCount() + " back");
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStackImmediate();
         }
