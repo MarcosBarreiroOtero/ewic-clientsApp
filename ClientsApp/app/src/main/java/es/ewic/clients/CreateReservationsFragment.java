@@ -374,6 +374,17 @@ public class CreateReservationsFragment extends Fragment {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Log.e("HTTP", "error");
+                    pd.hide();
+                    Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+                    snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            snackbar.dismiss();
+                            pd.show();
+                            createNewReservationForm(parent);
+                        }
+                    });
+                    snackbar.show();
                 }
             });
         }
@@ -413,6 +424,17 @@ public class CreateReservationsFragment extends Fragment {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Log.e("HTTP", "error");
+                    pd.hide();
+                    Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+                    snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            snackbar.dismiss();
+                            pd.show();
+                            editReservationForm(parent);
+                        }
+                    });
+                    snackbar.show();
                 }
             });
         }

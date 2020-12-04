@@ -63,5 +63,7 @@
     <string name="connecting_server">Connecting to the server</string>
     <string name="updating_reservation">Updating reservation</string>
     <string name="creating_reservation">Creating reservation</string>
+    <string name="retry">Retry</string>
+    <string name="error_connect_server">Could not connect to server</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>

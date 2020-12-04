@@ -25,6 +25,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -159,10 +160,10 @@ public class LoginFragment extends Fragment {
                     .put("firstName", account.getGivenName())
                     .put("lastName", account.getFamilyName())
                     .put("email", account.getEmail());
-
             RequestUtils.sendJsonObjectRequest(getContext(), Request.Method.POST, BackEndEndpoints.LOGIN_CLIENTS, clientData, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
+                    Log.e("HTTP", "Ok");
                     Client newClient = ModelConverter.jsonObjectToClient(response);
                     pd.hide();
                     mCallback.onLoadClientData(newClient);
@@ -170,7 +171,18 @@ public class LoginFragment extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.e("HTTP", "error");
+                    Log.e("HTTP", "Error");
+                    pd.hide();
+                    Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+                    snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            snackbar.dismiss();
+                            pd.show();
+                            registerClientBackEnd(account, pd);
+                        }
+                    });
+                    snackbar.show();
                 }
             });
         } catch (JSONException e) {

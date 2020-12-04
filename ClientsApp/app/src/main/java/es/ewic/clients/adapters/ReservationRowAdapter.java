@@ -186,6 +186,7 @@ public class ReservationRowAdapter extends BaseAdapter implements ListAdapter {
             public void onResponse(String response) {
                 TextView reservationState = view.findViewById(R.id.reservation_state);
                 reservationState.setText(resources.getString(R.string.CANCELLED));
+                reservationState.setTextColor(resources.getColor(R.color.semaphore_red));
                 ImageButton reservation_edit_button = view.findViewById(R.id.reservation_edit_button);
                 reservation_edit_button.setVisibility(View.GONE);
                 ImageButton reservation_cancel_button = view.findViewById(R.id.reservation_cancel_button);
@@ -198,6 +199,15 @@ public class ReservationRowAdapter extends BaseAdapter implements ListAdapter {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e("HTTP", "error");
+                Snackbar snackbar = Snackbar.make(view, resources.getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+                snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        snackbar.dismiss();
+                        showPreCancelDialog(view, rsv);
+                    }
+                });
+                snackbar.show();
             }
         });
 

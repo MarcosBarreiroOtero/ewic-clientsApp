@@ -164,6 +164,15 @@ public class MyDataFragment extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e("HTTP", "error");
+                Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+                snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        snackbar.dismiss();
+                        updateClientData(parent);
+                    }
+                });
+                snackbar.show();
             }
         });
     }
@@ -205,6 +214,15 @@ public class MyDataFragment extends Fragment {
             });
         }, error -> {
             Log.e("HTTP", "error");
+            Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+            snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    snackbar.dismiss();
+                    deleteClientAccount(parent);
+                }
+            });
+            snackbar.show();
         });
     }
 }

@@ -18,11 +18,14 @@ import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
@@ -178,7 +181,23 @@ public class ShopListFragment extends Fragment {
                 shopList.setAdapter(shopRowAdapter);
                 swipeRefreshLayout.setRefreshing(false);
             }
-        }, error -> Log.e("HTTP", "error"));
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("HTTP", "error");
+                swipeRefreshLayout.setRefreshing(false);
+                Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+                snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        snackbar.dismiss();
+                        swipeRefreshLayout.setRefreshing(true);
+                        getShopList(parent, swipeRefreshLayout);
+                    }
+                });
+                snackbar.show();
+            }
+        });
     }
 
     private void showFilterDialog(ConstraintLayout parent, LayoutInflater inflater) {

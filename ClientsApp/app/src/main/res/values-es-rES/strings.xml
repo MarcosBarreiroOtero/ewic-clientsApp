@@ -63,4 +63,6 @@
     <string name="connecting_server">Conectando con el servidor</string>
     <string name="updating_reservation">Actualizando reserva</string>
     <string name="creating_reservation">Creando reserva</string>
+    <string name="retry">Reintentar</string>
+    <string name="error_connect_server">No se ha podido establecer conexión con el servidor</string>
 </resources>
