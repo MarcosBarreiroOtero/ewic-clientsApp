@@ -4,4 +4,12 @@
     <string name="SUPERMARKET">Supermercado</string>
     <string name="PHARMACY">Farmacia</string>
     <string name="FRUIT_STORE">Frutería</string>
+    <string name="RESTAURANT">Restaurante</string>
+    <string name="BAR">Bar</string>
+    <string name="BOOK_STORE">Librería</string>
+    <string name="HAIRDRESSER">Peluquería</string>
+    <string name="HARDWARE_STORE">Ferretería</string>
+    <string name="BUTCHER_SHOP">Carnicería</string>
+    <string name="FISH_SHOP">Pescadería</string>
+    <string name="BAKERY">Panadería</string>
 </resources>
