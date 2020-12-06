@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -152,8 +153,6 @@ public class ReservationRowAdapter extends BaseAdapter implements ListAdapter {
             }
 
         }
-
-
         return convertView;
     }
 
@@ -173,7 +172,6 @@ public class ReservationRowAdapter extends BaseAdapter implements ListAdapter {
                 dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.semaphore_red));
             }
         });
-
         dialog.show();
     }
 
@@ -199,18 +197,48 @@ public class ReservationRowAdapter extends BaseAdapter implements ListAdapter {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e("HTTP", "error");
-                Snackbar snackbar = Snackbar.make(view, resources.getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
-                snackbar.setAction(R.string.retry, new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        snackbar.dismiss();
-                        showPreCancelDialog(view, rsv);
+                if (error instanceof TimeoutError) {
+                    Snackbar snackbar = Snackbar.make(view, resources.getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+                    snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            snackbar.dismiss();
+                            showPreCancelDialog(view, rsv);
+                        }
+                    });
+                    snackbar.show();
+                } else {
+                    int responseCode = RequestUtils.getErrorCodeRequest(error);
+                    // 404 rsv or client not found (should not happen)
+                    // 401 rsv not mutable
+                    String message = "";
+                    switch (responseCode) {
+                        case 401:
+                            message = resources.getString(R.string.error_rsv_not_mutable_delete);
+                            ImageButton reservation_edit_button = view.findViewById(R.id.reservation_edit_button);
+                            reservation_edit_button.setVisibility(View.GONE);
+                            ImageButton reservation_cancel_button = view.findViewById(R.id.reservation_cancel_button);
+                            reservation_cancel_button.setVisibility(View.GONE);
+                            break;
+                        default:
+                            break;
                     }
-                });
-                snackbar.show();
+
+                    if (message.isEmpty()) {
+                        Snackbar snackbar = Snackbar.make(view, resources.getString(R.string.error_server), Snackbar.LENGTH_INDEFINITE);
+                        snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                snackbar.dismiss();
+                                showPreCancelDialog(view, rsv);
+                            }
+                        });
+                        snackbar.show();
+                    } else {
+                        Snackbar.make(view, message, Snackbar.LENGTH_LONG).show();
+                    }
+                }
             }
         });
-
-
     }
 }

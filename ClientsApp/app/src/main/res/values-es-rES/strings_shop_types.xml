@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="OTHER">Otro</string>
+    <string name="SUPERMARKET">Supermercado</string>
+    <string name="PHARMACY">Farmacia</string>
+    <string name="FRUIT_STORE">Frutería</string>
+</resources>

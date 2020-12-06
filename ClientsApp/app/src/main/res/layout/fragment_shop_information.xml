@@ -6,6 +6,19 @@
     android:layout_height="match_parent"
     tools:context=".ShopInformationFragment">
 
+    <ImageView
+        android:id="@+id/marker_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="92dp"
+        android:contentDescription="@string/shopType"
+        android:src="@drawable/ic_market_24dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/purple_500" />
+
     <TextView
         android:id="@+id/shop_information_type"
         android:layout_width="0dp"
@@ -18,6 +31,19 @@
         app:layout_constraintEnd_toStartOf="@+id/shop_information_percentage"
         app:layout_constraintStart_toEndOf="@+id/marker_icon"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/location_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="32dp"
+        android:contentDescription="@string/location"
+        android:src="@drawable/ic_baseline_location_on_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/shop_information_type"
+        app:tint="@color/purple_500" />
 
     <TextView
         android:id="@+id/shop_information_location"
@@ -48,19 +74,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/shop_information_capacity" />
 
-    <ImageView
-        android:id="@+id/location_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="32dp"
-        android:contentDescription="@string/location"
-        android:src="@drawable/ic_baseline_location_on_24"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/shop_information_type"
-        app:tint="@color/purple_500" />
-
     <com.ramijemli.percentagechartview.PercentageChartView
         android:id="@+id/shop_information_percentage"
         android:layout_width="100dp"
@@ -85,19 +98,6 @@
         app:layout_constraintBottom_toTopOf="@+id/map_fragment"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/shop_information_percentage" />
-
-    <ImageView
-        android:id="@+id/marker_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="92dp"
-        android:contentDescription="@string/shopType"
-        android:src="@drawable/ic_market_24dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/purple_500" />
 
     <Button
         android:id="@+id/shop_information_book_entry"

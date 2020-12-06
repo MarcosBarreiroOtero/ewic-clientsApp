@@ -19,7 +19,6 @@
     <string name="edit">Editar</string>
     <string name="account_delete_successfully">Cuenta eliminada correctamente</string>
     <string name="state">Estado</string>
-    <string name="SUPERMARKET">Supermercado</string>
     <string name="location_needed_message">La ubicación se utilza para mostrar las tiendas proximas y la distancia a ellas.</string>
     <string name="request">Solicitar</string>
     <string name="shopType">Tipo de tienda:</string>
@@ -52,9 +51,6 @@
     <string name="filter_shops">Filtrar tiendas</string>
     <string name="shop_filter_location_explanation">Ordenar por proximidad. Es necesario tener la localización activada</string>
     <string name="shop_name">Nombre de la tienda</string>
-    <string name="OTHER">Otro</string>
-    <string name="PHAMARCY">Farmacia</string>
-    <string name="FRUIT_STORE">Frutería</string>
     <string name="All">Todo</string>
     <string name="find_shops">Buscar tiendas</string>
     <string name="find">Buscar</string>
@@ -65,4 +61,7 @@
     <string name="creating_reservation">Creando reserva</string>
     <string name="retry">Reintentar</string>
     <string name="error_connect_server">No se ha podido establecer conexión con el servidor</string>
+    <string name="error_server">Ha ocurrido un eror, por favor reintente la operación</string>
+    <string name="error_rsv_duplicate">Reserva duplicada. Por favor escoja otra fecha</string>
+    <string name="error_rsv_not_mutable_delete">La reserva no se puede cancelar</string>
 </resources>

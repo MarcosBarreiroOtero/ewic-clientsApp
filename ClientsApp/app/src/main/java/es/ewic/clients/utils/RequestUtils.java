@@ -1,20 +1,28 @@
 package es.ewic.clients.utils;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.view.View;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
+
+import es.ewic.clients.R;
 
 public class RequestUtils {
 
@@ -59,5 +67,26 @@ public class RequestUtils {
             }
         };
         queue.add(stringRequest);
+    }
+
+    public static void showSnackbarNoConnectionServer(View v, Resources resources, View.OnClickListener listener) {
+        Snackbar snackbar = Snackbar.make(v, resources.getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction(R.string.retry, listener);
+        snackbar.show();
+    }
+
+    public static String getErrorMessageRequest(VolleyError error) {
+        try {
+            String responseBody = new String(error.networkResponse.data, "utf-8");
+            JSONObject data = new JSONObject(responseBody);
+            return data.getString("message");
+        } catch (UnsupportedEncodingException e) {
+        } catch (JSONException e) {
+        }
+        return null;
+    }
+
+    public static int getErrorCodeRequest(VolleyError error) {
+        return error.networkResponse.statusCode;
     }
 }

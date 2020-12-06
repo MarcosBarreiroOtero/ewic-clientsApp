@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -163,7 +163,6 @@ public class LoginFragment extends Fragment {
             RequestUtils.sendJsonObjectRequest(getContext(), Request.Method.POST, BackEndEndpoints.LOGIN_CLIENTS, clientData, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
-                    Log.e("HTTP", "Ok");
                     Client newClient = ModelConverter.jsonObjectToClient(response);
                     pd.hide();
                     mCallback.onLoadClientData(newClient);
@@ -171,18 +170,32 @@ public class LoginFragment extends Fragment {
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.e("HTTP", "Error");
                     pd.hide();
-                    Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
-                    snackbar.setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            snackbar.dismiss();
-                            pd.show();
-                            registerClientBackEnd(account, pd);
-                        }
-                    });
-                    snackbar.show();
+                    if (error instanceof TimeoutError) {
+                        Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+                        snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                snackbar.dismiss();
+                                pd.show();
+                                registerClientBackEnd(account, pd);
+                            }
+                        });
+                        snackbar.show();
+                    } else {
+                        int responseCode = RequestUtils.getErrorCodeRequest(error);
+                        // 400 client duplicate (should not happen)
+                        Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_server), Snackbar.LENGTH_INDEFINITE);
+                        snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                snackbar.dismiss();
+                                pd.show();
+                                registerClientBackEnd(account, pd);
+                            }
+                        });
+                        snackbar.show();
+                    }
                 }
             });
         } catch (JSONException e) {

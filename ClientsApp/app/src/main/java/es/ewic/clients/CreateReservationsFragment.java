@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
@@ -375,16 +376,49 @@ public class CreateReservationsFragment extends Fragment {
                 public void onErrorResponse(VolleyError error) {
                     Log.e("HTTP", "error");
                     pd.hide();
-                    Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
-                    snackbar.setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            snackbar.dismiss();
-                            pd.show();
-                            createNewReservationForm(parent);
+                    if (error instanceof TimeoutError) {
+                        Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+                        snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                snackbar.dismiss();
+                                pd.show();
+                                createNewReservationForm(parent);
+                            }
+                        });
+                        snackbar.show();
+                    } else {
+                        int responseCode = RequestUtils.getErrorCodeRequest(error);
+                        // 400 rsv duplicate
+                        // 404 client, shop not found: should not happen
+                        // 401 rsv unathorized: rsv in past
+                        String message = "";
+                        switch (responseCode) {
+                            case 400:
+                                message = getString(R.string.error_rsv_duplicate);
+                                break;
+                            case 401:
+                                message = getString(R.string.error_past_reservation);
+                                break;
+                            default:
+                                break;
                         }
-                    });
-                    snackbar.show();
+                        if (message.isEmpty()) {
+                            Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_server), Snackbar.LENGTH_INDEFINITE);
+                            snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    snackbar.dismiss();
+                                    pd.show();
+                                    createNewReservationForm(parent);
+                                }
+                            });
+                            snackbar.show();
+                        } else {
+                            Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
+                        }
+                    }
+
                 }
             });
         }
@@ -425,16 +459,48 @@ public class CreateReservationsFragment extends Fragment {
                 public void onErrorResponse(VolleyError error) {
                     Log.e("HTTP", "error");
                     pd.hide();
-                    Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
-                    snackbar.setAction(R.string.retry, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            snackbar.dismiss();
-                            pd.show();
-                            editReservationForm(parent);
+                    if (error instanceof TimeoutError) {
+                        Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+                        snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                snackbar.dismiss();
+                                pd.show();
+                                editReservationForm(parent);
+                            }
+                        });
+                        snackbar.show();
+                    } else {
+                        int responseCode = RequestUtils.getErrorCodeRequest(error);
+                        // 400 rsv duplicate
+                        // 404 client, shop not found: should not happen
+                        // 401 rsv unathorized: rsv in past
+                        String message = "";
+                        switch (responseCode) {
+                            case 400:
+                                message = getString(R.string.error_rsv_duplicate);
+                                break;
+                            case 401:
+                                message = getString(R.string.error_past_reservation);
+                                break;
+                            default:
+                                break;
                         }
-                    });
-                    snackbar.show();
+                        if (message.isEmpty()) {
+                            Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_server), Snackbar.LENGTH_INDEFINITE);
+                            snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    snackbar.dismiss();
+                                    pd.show();
+                                    editReservationForm(parent);
+                                }
+                            });
+                            snackbar.show();
+                        } else {
+                            Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
+                        }
+                    }
                 }
             });
         }
