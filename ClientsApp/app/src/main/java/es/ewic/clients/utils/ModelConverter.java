@@ -1,5 +1,7 @@
 package es.ewic.clients.utils;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,6 +47,12 @@ public class ModelConverter {
 
     public static Shop jsonObjectToShop(JSONObject shopData) {
         try {
+            String timetableValue = shopData.optString("timetable");
+            JSONArray timetable = new JSONArray();
+            if (!timetableValue.equals("null")) {
+                timetable = new JSONArray(timetableValue);
+            }
+
             return new Shop(shopData.getInt("idShop"),
                     shopData.getString("name"),
                     shopData.getDouble("latitude"),
@@ -54,8 +62,9 @@ public class ModelConverter {
                     shopData.getInt("actualCapacity"),
                     shopData.getString("type"),
                     shopData.getBoolean("allowEntries"),
-                    shopData.getInt("idSeller"));
+                    shopData.getInt("idSeller"), timetable);
         } catch (JSONException e) {
+            Log.e("SHOP_ERROR", e.getStackTrace().toString());
             return null;
         }
     }

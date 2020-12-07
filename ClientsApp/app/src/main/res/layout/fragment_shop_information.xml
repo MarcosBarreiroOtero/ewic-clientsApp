@@ -113,4 +113,40 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <ImageView
+        android:id="@+id/timetable_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="32dp"
+        android:contentDescription="@string/timetable"
+        android:src="@drawable/ic_baseline_access_time_24"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/shop_information_location"
+        app:tint="@color/purple_500" />
+
+    <TextView
+        android:id="@+id/shop_information_open"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintStart_toEndOf="@+id/timetable_icon"
+        app:layout_constraintTop_toBottomOf="@+id/shop_information_location" />
+
+    <TextView
+        android:id="@+id/shop_information_current_timetable"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        app:layout_constraintEnd_toStartOf="@+id/shop_information_percentage"
+        app:layout_constraintStart_toEndOf="@+id/shop_information_open"
+        app:layout_constraintTop_toBottomOf="@+id/shop_information_location" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

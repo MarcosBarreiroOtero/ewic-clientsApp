@@ -64,4 +64,12 @@
     <string name="error_server">Ha ocurrido un eror, por favor reintente la operación</string>
     <string name="error_rsv_duplicate">Reserva duplicada. Por favor escoja otra fecha</string>
     <string name="error_rsv_not_mutable_delete">La reserva no se puede cancelar</string>
+    <string name="timetable">Horario</string>
+    <string name="monday">Lunes</string>
+    <string name="tuesday">Martes</string>
+    <string name="wednesday">Miércoles</string>
+    <string name="thursday">Jueves</string>
+    <string name="friday">Viernes</string>
+    <string name="saturday">Sábado</string>
+    <string name="sunday">Domingo</string>
 </resources>

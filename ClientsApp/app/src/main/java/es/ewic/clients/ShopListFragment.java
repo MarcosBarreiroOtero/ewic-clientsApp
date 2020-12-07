@@ -108,9 +108,12 @@ public class ShopListFragment extends Fragment {
         // Reload list when refresh
         SwipeRefreshLayout swipeRefreshLayout = parent.findViewById(R.id.swipeRefreshLayoutShops);
         swipeRefreshLayout.setRefreshing(true);
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            getLastLocation(parent, swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                ShopListFragment.this.getLastLocation(parent, swipeRefreshLayout);
 
+            }
         });
 
         getLastLocation(parent, swipeRefreshLayout);
@@ -174,7 +177,6 @@ public class ShopListFragment extends Fragment {
 
         RequestUtils.sendJsonArrayRequest(getContext(), Request.Method.GET, url, null, response -> {
             {
-                Log.i("Shop list", response.toString());
                 shops = ModelConverter.jsonArrayToShopList(response);
                 ListView shopList = parent.findViewById(R.id.shop_list);
                 ShopRowAdapter shopRowAdapter = new ShopRowAdapter(ShopListFragment.this, shops, getResources(), getActivity().getPackageName());
