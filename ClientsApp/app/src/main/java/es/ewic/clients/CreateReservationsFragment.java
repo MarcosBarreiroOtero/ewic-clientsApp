@@ -2,7 +2,6 @@ package es.ewic.clients;
 
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.InputType;
@@ -14,7 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.TimePicker;
+import android.widget.ListAdapter;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,6 +28,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -59,6 +59,7 @@ public class CreateReservationsFragment extends Fragment {
     private Shop shop;
     private Reservation reservation;
     private JSONArray shopNames;
+    private JSONArray timetable;
 
     OnCreateReservationListener mCallback;
 
@@ -116,6 +117,8 @@ public class CreateReservationsFragment extends Fragment {
         } else {
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.newReservation);
         }
+
+        timetable = new JSONArray();
     }
 
     @Override
@@ -123,49 +126,22 @@ public class CreateReservationsFragment extends Fragment {
                              Bundle savedInstanceState) {
         ConstraintLayout parent = (ConstraintLayout) inflater.inflate(R.layout.fragment_create_reservations, container, false);
 
-        // Shop
-        AutoCompleteTextView act_shop = parent.findViewById(R.id.reservation_shop_input);
-        if (reservation != null) {
-            String[] shops = new String[]{reservation.getShopName()};
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.shop_list_item, shops);
-            act_shop.setAdapter(adapter);
-            act_shop.setText(reservation.getShopName());
-            act_shop.setEnabled(false);
-        } else if (shop != null) {
-            String[] shops = new String[]{shop.getName()};
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.shop_list_item, shops);
-            act_shop.setAdapter(adapter);
-            act_shop.setText(shop.getName());
-            act_shop.setEnabled(false);
-        } else {
-            getShopNames(parent);
-        }
 
         Calendar now = Calendar.getInstance();
         now.add(Calendar.HOUR, 1);
 
         //Hour input
-        TextInputEditText tiet_hour = parent.findViewById(R.id.reservation_hour_input);
+        AutoCompleteTextView act_hour = parent.findViewById(R.id.reservation_hour_input);
         if (reservation != null) {
-            tiet_hour.setText(DateUtils.formatHour(reservation.getDate()));
+            act_hour.setText(DateUtils.formatHour(reservation.getDate()));
         } else {
-            tiet_hour.setText(DateUtils.formatHour(now));
+            if (shop != null) {
+                timetable = shop.getTimetable();
+            }
+            setAdapterHourInput(parent, now, timetable);
+            act_hour.setText(DateUtils.formatHour(now));
         }
-        tiet_hour.setInputType(InputType.TYPE_NULL);
-        tiet_hour.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    showHourPickerListener(tiet_hour);
-                }
-            }
-        });
-        tiet_hour.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showHourPickerListener(tiet_hour);
-            }
-        });
+
 
         //Date input
         TextInputEditText tiet_date = parent.findViewById(R.id.reservation_date_input);
@@ -179,16 +155,65 @@ public class CreateReservationsFragment extends Fragment {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    showDatePickerListener(tiet_date);
+                    showDatePickerListener(parent, tiet_date);
                 }
             }
         });
         tiet_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDatePickerListener(tiet_date);
+                showDatePickerListener(parent, tiet_date);
             }
         });
+
+        // Shop
+        AutoCompleteTextView act_shop = parent.findViewById(R.id.reservation_shop_input);
+        if (reservation != null) {
+            String[] shops = new String[]{reservation.getShopName()};
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.shop_list_item, shops);
+            act_shop.setAdapter(adapter);
+            act_shop.setText(reservation.getShopName());
+            act_shop.setEnabled(false);
+
+            getShopCalendar(parent, reservation.getDate());
+        } else if (shop != null) {
+            String[] shops = new String[]{shop.getName()};
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.shop_list_item, shops);
+            act_shop.setAdapter(adapter);
+            act_shop.setText(shop.getName());
+            act_shop.setEnabled(false);
+        } else {
+            getShopNames(parent);
+            act_shop.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (!hasFocus) {
+                        if (validateShop(act_shop)) {
+                            String shopInput = act_shop.getText().toString().trim();
+                            for (int i = 0; i < shopNames.length(); i++) {
+                                JSONObject shopName = shopNames.optJSONObject(i);
+                                if (shopInput.equals(shopName.optString("name"))) {
+                                    String timetableString = shopName.optString("timetable");
+                                    if (timetableString != null && !timetableString.equals("null")) {
+                                        try {
+                                            timetable = new JSONArray(timetableString);
+                                        } catch (JSONException e) {
+                                            timetable = new JSONArray();
+                                        }
+                                    } else {
+                                        timetable = new JSONArray();
+                                    }
+                                }
+                            }
+                        } else {
+                            timetable = new JSONArray();
+                        }
+                        setAdapterHourInput(parent, DateUtils.parseDateDate(tiet_date.getText().toString().trim()), timetable);
+                        act_hour.setText("");
+                    }
+                }
+            });
+        }
 
         //Remarks
         if (reservation != null) {
@@ -213,6 +238,69 @@ public class CreateReservationsFragment extends Fragment {
 
 
         return parent;
+    }
+
+    private List<String> getHoursBetweenRanges(Calendar start, Calendar end) {
+        List<String> hours = new ArrayList<>();
+
+        while (start.before(end)) {
+            hours.add(DateUtils.formatHour(start));
+            start.add(Calendar.MINUTE, 15);
+        }
+
+        return hours;
+
+    }
+
+    private void setAdapterHourInput(ConstraintLayout parent, Calendar date, JSONArray timetable) {
+        List<String> hours = new ArrayList<>();
+        if (timetable.length() == 0) {
+            Calendar start = Calendar.getInstance();
+            start.set(Calendar.HOUR_OF_DAY, 0);
+            start.set(Calendar.MINUTE, 0);
+            start.set(Calendar.SECOND, 0);
+            Calendar end = (Calendar) start.clone();
+            end.add(Calendar.DATE, 1);
+
+            hours = getHoursBetweenRanges(start, end);
+
+        } else {
+            int weekDay = date.get(Calendar.DAY_OF_WEEK);
+            if (weekDay == 1) {
+                weekDay = 6;
+            } else {
+                weekDay -= 2;
+            }
+            for (int i = 0; i < timetable.length(); i++) {
+                JSONObject weekDayTimetable = timetable.optJSONObject(i);
+                if (weekDay == weekDayTimetable.optInt("weekDay")) {
+                    try {
+                        Calendar startMorning = DateUtils.parseDateHour(weekDayTimetable.getString("startMorning"));
+                        Calendar endMorning = DateUtils.parseDateHour(weekDayTimetable.getString("endMorning"));
+                        hours.addAll(getHoursBetweenRanges(startMorning, endMorning));
+                    } catch (JSONException e) {
+                        // no timetable morning
+                    }
+
+                    try {
+                        Calendar startAfternoon = DateUtils.parseDateHour(weekDayTimetable.getString("startAfternoon"));
+                        Calendar endAfternoon = DateUtils.parseDateHour(weekDayTimetable.getString("endAfternoon"));
+                        hours.addAll(getHoursBetweenRanges(startAfternoon, endAfternoon));
+                    } catch (JSONException e) {
+                        // no timetable afternoon
+                    }
+                }
+            }
+        }
+
+        String[] hoursValues = hours.toArray(new String[hours.size()]);
+        AutoCompleteTextView act_hours = parent.findViewById(R.id.reservation_hour_input);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.shop_list_item, hours);
+        act_hours.setAdapter(adapter);
+        if (reservation != null) {
+            act_hours.setText(DateUtils.formatHour(reservation.getDate()));
+        }
+
     }
 
     private void getShopNames(ConstraintLayout parent) {
@@ -241,23 +329,35 @@ public class CreateReservationsFragment extends Fragment {
 
     }
 
-    private void showHourPickerListener(TextInputEditText tiet_hour) {
-        final Calendar date = DateUtils.parseDateHour(tiet_hour.getText().toString().trim());
-        int hour = date.get(Calendar.HOUR_OF_DAY);
-        int minutes = date.get(Calendar.MINUTE);
+    private void getShopCalendar(ConstraintLayout parent, Calendar date) {
+        if (reservation != null) {
+            String url = BackEndEndpoints.SHOP_TIMETABLE + "/" + reservation.getIdShop();
+            RequestUtils.sendStringRequest(getContext(), Request.Method.GET, url, new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    if (response != null && !response.equals("null")) {
+                        try {
+                            timetable = new JSONArray(response);
+                        } catch (JSONException e) {
+                            timetable = new JSONArray();
+                        }
+                    } else {
+                        timetable = new JSONArray();
+                    }
 
-        TimePickerDialog timePicker = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                Calendar cal = Calendar.getInstance();
-                cal.set(0, 0, 0, hourOfDay, minute);
-                tiet_hour.setText(DateUtils.formatHour(cal));
-            }
-        }, hour, minutes, true);
-        timePicker.show();
+                    setAdapterHourInput(parent, date, timetable);
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e("HTTP", "Error");
+                }
+            });
+        }
+
     }
 
-    private void showDatePickerListener(TextInputEditText tiet_date) {
+    private void showDatePickerListener(ConstraintLayout parent, TextInputEditText tiet_date) {
         final Calendar date = DateUtils.parseDateDate(tiet_date.getText().toString().trim());
         int year = date.get(Calendar.YEAR);
         int month = date.get(Calendar.MONTH);
@@ -267,7 +367,28 @@ public class CreateReservationsFragment extends Fragment {
             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                 Calendar cal = Calendar.getInstance();
                 cal.set(year, month, dayOfMonth);
+                int weekDay = cal.get(Calendar.DAY_OF_WEEK);
+                if (weekDay == 1) {
+                    weekDay = 6;
+                } else {
+                    weekDay -= 2;
+                }
+                if (timetable.length() != 0) {
+                    boolean closed = true;
+                    for (int i = 0; i < timetable.length(); i++) {
+                        JSONObject weekDayTimetable = timetable.optJSONObject(i);
+                        if (weekDay == weekDayTimetable.optInt("weekDay")) {
+                            closed = false;
+                        }
+                    }
+                    if (closed) {
+                        Snackbar.make(parent, getString(R.string.error_shop_closed_weekDay), Snackbar.LENGTH_LONG)
+                                .show();
+                        return;
+                    }
+                }
                 tiet_date.setText(DateUtils.formatDate(cal));
+                setAdapterHourInput(parent, cal, timetable);
             }
         }, year, month, day);
         datePicker.getDatePicker().setMinDate(Calendar.getInstance().getTimeInMillis());
@@ -280,23 +401,23 @@ public class CreateReservationsFragment extends Fragment {
             act_shop.setError(getString(R.string.error_empty_field));
             return false;
         } else {
-            if (shopNames != null) {
-                for (int i = 0; i < shopNames.length(); i++) {
-                    JSONObject shopName = shopNames.optJSONObject(i);
-                    if (shop_input.equals(shopName.optString("name"))) {
-                        act_shop.setError(null);
-                        return true;
-                    }
-                }
+            ArrayList<String> results = new ArrayList<>();
+            ListAdapter adapter = act_shop.getAdapter();
+            for (int i = 0; i < adapter.getCount(); i++) {
+                results.add((String) adapter.getItem(i));
+            }
+            if (results.size() == 0 ||
+                    results.indexOf(shop_input) == -1) {
                 act_shop.setError(getString(R.string.error_shop_not_found));
                 return false;
             }
-            act_shop.setError(null);
-            return true;
         }
+        act_shop.setError(null);
+        return true;
+
     }
 
-    private boolean validateReservationDate(TextInputEditText tiet_date, TextInputEditText tiet_hour) {
+    private boolean validateReservationDate(TextInputEditText tiet_date, AutoCompleteTextView act_hour) {
         String dateInput = tiet_date.getText().toString().trim();
         boolean validDate = true;
         boolean validHour = true;
@@ -305,12 +426,24 @@ public class CreateReservationsFragment extends Fragment {
             validDate = false;
         }
 
-        String hourInput = tiet_hour.getText().toString().trim();
+        String hourInput = act_hour.getText().toString().trim();
         if (hourInput.isEmpty()) {
-            tiet_hour.setError(getString(R.string.error_empty_field));
+            act_hour.setError(getString(R.string.error_empty_field));
             validHour = false;
+        } else {
+            ArrayList<String> results = new ArrayList<>();
+            ListAdapter adapter = act_hour.getAdapter();
+            for (int i = 0; i < adapter.getCount(); i++) {
+                results.add((String) adapter.getItem(i));
+            }
+            if (results.size() == 0 ||
+                    results.indexOf(hourInput) == -1) {
+                act_hour.setError(getString(R.string.error_hour_invalid));
+                act_hour.setText("");
+                act_hour.requestFocus();
+                validHour = false;
+            }
         }
-
         if (!validHour && !validDate) {
             return false;
         }
@@ -318,16 +451,18 @@ public class CreateReservationsFragment extends Fragment {
         Calendar now = Calendar.getInstance();
         Calendar date = DateUtils.parseDateLong(hourInput + " " + dateInput);
         if (date == null) {
-            tiet_hour.setError(getString(R.string.error_bad_format_hour));
+            act_hour.setError(getString(R.string.error_bad_format_hour));
             tiet_date.setError(getString(R.string.error_bad_format_date));
             return false;
         } else if (now.after(date)) {
-            tiet_hour.setError(getString(R.string.error_past_reservation));
+            act_hour.setError(getString(R.string.error_past_reservation));
+            act_hour.setText("");
+            act_hour.requestFocus();
             return false;
         }
 
         tiet_date.setError(null);
-        tiet_hour.setError(null);
+        act_hour.setError(null);
         return true;
     }
 
@@ -335,9 +470,9 @@ public class CreateReservationsFragment extends Fragment {
 
         AutoCompleteTextView act_shop = parent.findViewById(R.id.reservation_shop_input);
         TextInputEditText tiet_date = parent.findViewById(R.id.reservation_date_input);
-        TextInputEditText tiet_hour = parent.findViewById(R.id.reservation_hour_input);
+        AutoCompleteTextView act_hour = parent.findViewById(R.id.reservation_hour_input);
 
-        if (validateShop(act_shop) & validateReservationDate(tiet_date, tiet_hour)) {
+        if (validateShop(act_shop) & validateReservationDate(tiet_date, act_hour)) {
 
             ProgressDialog pd = FormUtils.showProgressDialog(getContext(), getResources(), R.string.updating_data, R.string.please_wait);
 
@@ -345,7 +480,7 @@ public class CreateReservationsFragment extends Fragment {
 
             String remarksInput = tiet_remarks.getText().toString().trim();
             String dateInput = tiet_date.getText().toString().trim();
-            String hourInput = tiet_hour.getText().toString().trim();
+            String hourInput = act_hour.getText().toString().trim();
             String shopInput = act_shop.getText().toString().trim();
             Calendar date = DateUtils.parseDateLong(hourInput + " " + dateInput);
             int idShop = 0;
@@ -428,9 +563,9 @@ public class CreateReservationsFragment extends Fragment {
 
         AutoCompleteTextView act_shop = parent.findViewById(R.id.reservation_shop_input);
         TextInputEditText tiet_date = parent.findViewById(R.id.reservation_date_input);
-        TextInputEditText tiet_hour = parent.findViewById(R.id.reservation_hour_input);
+        AutoCompleteTextView act_hour = parent.findViewById(R.id.reservation_hour_input);
 
-        if (validateShop(act_shop) & validateReservationDate(tiet_date, tiet_hour)) {
+        if (validateShop(act_shop) & validateReservationDate(tiet_date, act_hour)) {
 
             ProgressDialog pd = FormUtils.showProgressDialog(getContext(), getResources(), R.string.updating_data, R.string.please_wait);
 
@@ -438,7 +573,7 @@ public class CreateReservationsFragment extends Fragment {
 
             String remarksInput = tiet_remarks.getText().toString().trim();
             String dateInput = tiet_date.getText().toString().trim();
-            String hourInput = tiet_hour.getText().toString().trim();
+            String hourInput = act_hour.getText().toString().trim();
 
             Calendar date = DateUtils.parseDateLong(hourInput + " " + dateInput);
             reservation.setDate(date);

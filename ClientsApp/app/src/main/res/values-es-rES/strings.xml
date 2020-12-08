@@ -72,4 +72,6 @@
     <string name="friday">Viernes</string>
     <string name="saturday">Sábado</string>
     <string name="sunday">Domingo</string>
+    <string name="error_hour_invalid">Hora no válida. Por favor escoga una de la lista</string>
+    <string name="error_shop_closed_weekDay">El día escogido la tienda está cerrada. La fecha no se ha modificado.</string>
 </resources>

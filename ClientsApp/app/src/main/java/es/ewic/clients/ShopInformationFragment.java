@@ -247,17 +247,21 @@ public class ShopInformationFragment extends Fragment implements OnMapReadyCallb
     private void getCurrentTimetable(ConstraintLayout parent, TextView shop_current_timetable) {
         Calendar now = Calendar.getInstance();
         int weekDay = now.get(Calendar.DAY_OF_WEEK);
+        if (weekDay == 1) {
+            weekDay = 6;
+        } else {
+            weekDay -= 2;
+        }
 
         JSONArray timetable = shopInformation.getTimetable();
         for (int i = 0; i < timetable.length(); i++) {
             JSONObject weekDayTimetable = timetable.optJSONObject(i);
-            if (weekDay == (weekDayTimetable.optInt("weekDay") - 1)) {
+            if (weekDay == weekDayTimetable.optInt("weekDay")) {
                 try {
                     Calendar startMorning = DateUtils.parseDateHour(weekDayTimetable.getString("startMorning"));
                     startMorning.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
-                    Calendar endMorning = DateUtils.parseDateHour(weekDayTimetable.getString("startMorning"));
+                    Calendar endMorning = DateUtils.parseDateHour(weekDayTimetable.getString("endMorning"));
                     endMorning.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH));
-
                     if (startMorning.compareTo(now) <= 0 && endMorning.compareTo(now) >= 0) {
                         shop_current_timetable.setText(weekDayTimetable.optString("startMorning") + " - " + weekDayTimetable.optString("endMorning"));
                         break;
