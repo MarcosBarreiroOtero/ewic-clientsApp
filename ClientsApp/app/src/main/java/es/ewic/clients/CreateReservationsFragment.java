@@ -128,7 +128,7 @@ public class CreateReservationsFragment extends Fragment {
 
 
         Calendar now = Calendar.getInstance();
-        now.add(Calendar.HOUR, 1);
+        now.add(Calendar.DATE, 1);
 
         //Hour input
         AutoCompleteTextView act_hour = parent.findViewById(R.id.reservation_hour_input);
@@ -299,6 +299,8 @@ public class CreateReservationsFragment extends Fragment {
         act_hours.setAdapter(adapter);
         if (reservation != null) {
             act_hours.setText(DateUtils.formatHour(reservation.getDate()));
+        } else {
+            act_hours.setText("");
         }
 
     }
@@ -526,14 +528,19 @@ public class CreateReservationsFragment extends Fragment {
                         int responseCode = RequestUtils.getErrorCodeRequest(error);
                         // 400 rsv duplicate
                         // 404 client, shop not found: should not happen
-                        // 401 rsv unathorized: rsv in past
+                        // 401 rsv unathorized: rsv in past or shop full
                         String message = "";
+                        String errorMessage = RequestUtils.getErrorMessageRequest(error);
                         switch (responseCode) {
                             case 400:
                                 message = getString(R.string.error_rsv_duplicate);
                                 break;
                             case 401:
-                                message = getString(R.string.error_past_reservation);
+                                if (errorMessage.contains(RequestUtils.RESERVATION_WHEN_SHOP_FULL)) {
+                                    message = getString(R.string.error_past_reservation);
+                                } else {
+                                    message = getString(R.string.error_past_reservation);
+                                }
                                 break;
                             default:
                                 break;
@@ -609,14 +616,19 @@ public class CreateReservationsFragment extends Fragment {
                         int responseCode = RequestUtils.getErrorCodeRequest(error);
                         // 400 rsv duplicate
                         // 404 client, shop not found: should not happen
-                        // 401 rsv unathorized: rsv in past
+                        // 401 rsv unathorized: rsv in past or shop full
                         String message = "";
+                        String errorMessage = RequestUtils.getErrorMessageRequest(error);
                         switch (responseCode) {
                             case 400:
                                 message = getString(R.string.error_rsv_duplicate);
                                 break;
                             case 401:
-                                message = getString(R.string.error_past_reservation);
+                                if (errorMessage.contains(RequestUtils.RESERVATION_WHEN_SHOP_FULL)) {
+                                    message = getString(R.string.error_past_reservation);
+                                } else {
+                                    message = getString(R.string.error_past_reservation);
+                                }
                                 break;
                             default:
                                 break;
