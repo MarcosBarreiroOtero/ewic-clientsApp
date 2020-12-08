@@ -1,7 +1,5 @@
 package es.ewic.clients.model;
 
-import org.json.JSONArray;
-
 import java.io.Serializable;
 
 
@@ -17,9 +15,9 @@ public class Shop implements Serializable {
     private String type;
     private boolean allowEntries;
     private int idSeller;
-    private JSONArray timetable;
+    private String timetable;
 
-    public Shop(int idShop, String name, double latitude, double longitude, String location, int maxCapacity, int actualCapacity, String type, boolean allowEntries, int idSeller, JSONArray timetable) {
+    public Shop(int idShop, String name, double latitude, double longitude, String location, int maxCapacity, int actualCapacity, String type, boolean allowEntries, int idSeller, String timetable) {
         this.idShop = idShop;
         this.name = name;
         this.latitude = latitude;
@@ -73,7 +71,7 @@ public class Shop implements Serializable {
         return idSeller;
     }
 
-    public JSONArray getTimetable() {
+    public String getTimetable() {
         return timetable;
     }
 
@@ -90,7 +88,7 @@ public class Shop implements Serializable {
                 ", type='" + type + '\'' +
                 ", allowEntries=" + allowEntries +
                 ", idSeller=" + idSeller +
-                ", timetable=" + timetable.toString() +
+                ", timetable=" + timetable +
                 '}';
     }
 }

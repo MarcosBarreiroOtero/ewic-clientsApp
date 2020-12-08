@@ -75,4 +75,6 @@
     <string name="error_hour_invalid">Hora no válida. Por favor escoga una de la lista</string>
     <string name="error_shop_closed_weekDay">El día escogido la tienda está cerrada. La fecha no se ha modificado.</string>
     <string name="error_reservation_shop_full">Tienda llena en la fecha indicada. Por favor escoja otra.</string>
+    <string name="check_timetable_help">* Para consultar el horario semanal pulse en el icono del reloj</string>
+    <string name="shop_timetable_not_defined">La tienda no tiene un horario definido</string>
 </resources>

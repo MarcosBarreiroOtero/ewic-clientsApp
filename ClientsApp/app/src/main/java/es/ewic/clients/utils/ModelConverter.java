@@ -62,7 +62,8 @@ public class ModelConverter {
                     shopData.getInt("actualCapacity"),
                     shopData.getString("type"),
                     shopData.getBoolean("allowEntries"),
-                    shopData.getInt("idSeller"), timetable);
+                    shopData.getInt("idSeller"),
+                    timetable.toString());
         } catch (JSONException e) {
             Log.e("SHOP_ERROR", e.getStackTrace().toString());
             return null;

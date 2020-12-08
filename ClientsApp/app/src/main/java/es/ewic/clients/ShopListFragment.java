@@ -27,6 +27,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import es.ewic.clients.adapters.DialogFilterShop;
@@ -188,11 +189,16 @@ public class ShopListFragment extends Fragment {
             public void onErrorResponse(VolleyError error) {
                 Log.e("HTTP", "error");
                 swipeRefreshLayout.setRefreshing(false);
+                ListView shopList = parent.findViewById(R.id.shop_list);
+                ShopRowAdapter shopRowAdapter = new ShopRowAdapter(ShopListFragment.this, new ArrayList<>(), getResources(), getActivity().getPackageName());
+                shopList.setAdapter(shopRowAdapter);
                 Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+                swipeRefreshLayout.setEnabled(false);
                 snackbar.setAction(R.string.retry, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         snackbar.dismiss();
+                        swipeRefreshLayout.setEnabled(true);
                         swipeRefreshLayout.setRefreshing(true);
                         getShopList(parent, swipeRefreshLayout);
                     }

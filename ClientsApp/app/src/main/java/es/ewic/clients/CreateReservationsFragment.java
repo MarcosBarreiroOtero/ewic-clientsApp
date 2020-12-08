@@ -111,14 +111,17 @@ public class CreateReservationsFragment extends Fragment {
             shop = (Shop) getArguments().getSerializable(ARG_SHOP);
             reservation = (Reservation) getArguments().getSerializable(ARG_RSV);
         }
+        timetable = new JSONArray();
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
         if (reservation != null) {
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.update_reservation);
         } else {
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.newReservation);
         }
-
-        timetable = new JSONArray();
     }
 
     @Override
@@ -136,7 +139,12 @@ public class CreateReservationsFragment extends Fragment {
             act_hour.setText(DateUtils.formatHour(reservation.getDate()));
         } else {
             if (shop != null) {
-                timetable = shop.getTimetable();
+                JSONArray timetable = new JSONArray();
+                try {
+                    timetable = new JSONArray(shop.getTimetable());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
             setAdapterHourInput(parent, now, timetable);
             act_hour.setText(DateUtils.formatHour(now));
