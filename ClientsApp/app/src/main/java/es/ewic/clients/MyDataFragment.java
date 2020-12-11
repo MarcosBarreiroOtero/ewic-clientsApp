@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -164,6 +165,34 @@ public class MyDataFragment extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e("HTTP", "error");
+                pd.hide();
+                if (error instanceof TimeoutError) {
+                    Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+                    snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            snackbar.dismiss();
+                            pd.show();
+                            updateClientData(parent);
+                        }
+                    });
+                    snackbar.show();
+                } else {
+                    int responseCode = RequestUtils.getErrorCodeRequest(error);
+                    //404 client not found: should not happen
+                    //400 client duplicate: should not happen
+                    Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_server), Snackbar.LENGTH_INDEFINITE);
+                    snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            snackbar.dismiss();
+                            pd.show();
+                            updateClientData(parent);
+                        }
+                    });
+                    snackbar.show();
+                }
+
             }
         });
     }
@@ -205,6 +234,32 @@ public class MyDataFragment extends Fragment {
             });
         }, error -> {
             Log.e("HTTP", "error");
+
+            if (error instanceof TimeoutError) {
+                Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+                snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        snackbar.dismiss();
+                        deleteClientAccount(parent);
+                    }
+                });
+                snackbar.show();
+            } else {
+                int responseCode = RequestUtils.getErrorCodeRequest(error);
+                //404 client not found: should not happen
+                Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_server), Snackbar.LENGTH_INDEFINITE);
+                snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        snackbar.dismiss();
+                        deleteClientAccount(parent);
+                    }
+                });
+                snackbar.show();
+            }
+
+
         });
     }
 }

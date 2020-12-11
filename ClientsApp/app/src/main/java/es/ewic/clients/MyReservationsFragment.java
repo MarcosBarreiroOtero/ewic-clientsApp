@@ -18,7 +18,9 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONArray;
 
@@ -106,10 +108,12 @@ public class MyReservationsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 TextView reservationRemarks = view.findViewById(R.id.reservation_remarks);
-                if (reservationRemarks.getVisibility() == View.GONE) {
-                    reservationRemarks.setVisibility(View.VISIBLE);
-                } else {
-                    reservationRemarks.setVisibility(View.GONE);
+                if (!reservationRemarks.getText().toString().trim().equals("")) {
+                    if (reservationRemarks.getVisibility() == View.GONE) {
+                        reservationRemarks.setVisibility(View.VISIBLE);
+                    } else {
+                        reservationRemarks.setVisibility(View.GONE);
+                    }
                 }
 
             }
@@ -137,7 +141,31 @@ public class MyReservationsFragment extends Fragment {
                 ReservationRowAdapter reservationRowAdapter = new ReservationRowAdapter(reservations, client, MyReservationsFragment.this, getResources(), getActivity().getPackageName());
                 reservationList.setAdapter(reservationRowAdapter);
                 swipeRefreshLayout.setRefreshing(false);
+                TextView reservations_not_found = parent.findViewById(R.id.reservations_not_found);
+                if (reservations.isEmpty()) {
+                    reservations_not_found.setVisibility(View.VISIBLE);
+                    reservationList.setVisibility(View.GONE);
+                } else {
+                    reservations_not_found.setVisibility(View.GONE);
+                    reservationList.setVisibility(View.VISIBLE);
+                }
             }
-        }, error -> Log.e("HTTP", "error"));
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("HTTP", "error");
+                swipeRefreshLayout.setRefreshing(false);
+                Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+                snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        snackbar.dismiss();
+                        swipeRefreshLayout.setRefreshing(true);
+                        getReservations(parent, swipeRefreshLayout);
+                    }
+                });
+                snackbar.show();
+            }
+        });
     }
 }

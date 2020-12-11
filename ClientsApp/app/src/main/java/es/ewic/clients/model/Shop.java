@@ -15,8 +15,9 @@ public class Shop implements Serializable {
     private String type;
     private boolean allowEntries;
     private int idSeller;
+    private String timetable;
 
-    public Shop(int idShop, String name, double latitude, double longitude, String location, int maxCapacity, int actualCapacity, String type, boolean allowEntries, int idSeller) {
+    public Shop(int idShop, String name, double latitude, double longitude, String location, int maxCapacity, int actualCapacity, String type, boolean allowEntries, int idSeller, String timetable) {
         this.idShop = idShop;
         this.name = name;
         this.latitude = latitude;
@@ -27,6 +28,7 @@ public class Shop implements Serializable {
         this.type = type;
         this.allowEntries = allowEntries;
         this.idSeller = idSeller;
+        this.timetable = timetable;
     }
 
     public int getIdShop() {
@@ -69,6 +71,10 @@ public class Shop implements Serializable {
         return idSeller;
     }
 
+    public String getTimetable() {
+        return timetable;
+    }
+
     @Override
     public String toString() {
         return "Shop{" +
@@ -82,6 +88,7 @@ public class Shop implements Serializable {
                 ", type='" + type + '\'' +
                 ", allowEntries=" + allowEntries +
                 ", idSeller=" + idSeller +
+                ", timetable=" + timetable +
                 '}';
     }
 }

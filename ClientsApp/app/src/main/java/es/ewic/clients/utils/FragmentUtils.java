@@ -26,7 +26,7 @@ public class FragmentUtils {
      * @param fragmentManager the fragment manager
      * @param fragment        the fragment to instantiate
      */
-    public void replaceFragment(FragmentManager fragmentManager, Fragment fragment, boolean addToBackStack) {
+    public static void replaceFragment(FragmentManager fragmentManager, Fragment fragment, boolean addToBackStack) {
         try {
             FragmentTransaction transaction = fragmentManager.beginTransaction().replace(R.id.mainActivityLayout, fragment,
                     fragment.getClass().getName());
@@ -39,5 +39,4 @@ public class FragmentUtils {
             Log.d(TAG, e.toString());
         }
     }
-
 }

@@ -1,10 +1,10 @@
 package es.ewic.clients;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -24,12 +25,14 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import es.ewic.clients.model.Client;
 import es.ewic.clients.utils.BackEndEndpoints;
+import es.ewic.clients.utils.FormUtils;
 import es.ewic.clients.utils.ModelConverter;
 import es.ewic.clients.utils.RequestUtils;
 
@@ -80,7 +83,7 @@ public class LoginFragment extends Fragment {
         // Checl if user already signed
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getContext());
         if (account != null) {
-            registerClientBackEnd(account);
+            registerClientBackEnd(account, showConectServerDialog());
         }
 
         mGoogleSignInClient = GoogleSignIn.getClient(getContext(), gso);
@@ -113,10 +116,15 @@ public class LoginFragment extends Fragment {
         }
     }
 
+    private ProgressDialog showConectServerDialog() {
+        ProgressDialog pd = FormUtils.showProgressDialog(getContext(), getResources(), R.string.connecting_server, R.string.please_wait);
+        return pd;
+    }
+
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
-            registerClientBackEnd(account);
+            registerClientBackEnd(account, showConectServerDialog());
         } catch (ApiException e) {
             // Log in cancelled
             showGoogleSigInNeededInformation();
@@ -146,23 +154,48 @@ public class LoginFragment extends Fragment {
         dialog.show();
     }
 
-    private void registerClientBackEnd(GoogleSignInAccount account) {
+    private void registerClientBackEnd(GoogleSignInAccount account, ProgressDialog pd) {
         try {
             JSONObject clientData = new JSONObject().put("idGoogleLogin", account.getId())
                     .put("firstName", account.getGivenName())
                     .put("lastName", account.getFamilyName())
                     .put("email", account.getEmail());
-
             RequestUtils.sendJsonObjectRequest(getContext(), Request.Method.POST, BackEndEndpoints.LOGIN_CLIENTS, clientData, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
                     Client newClient = ModelConverter.jsonObjectToClient(response);
+                    pd.hide();
                     mCallback.onLoadClientData(newClient);
                 }
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    Log.e("HTTP", "error");
+                    pd.hide();
+                    if (error instanceof TimeoutError) {
+                        Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+                        snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                snackbar.dismiss();
+                                pd.show();
+                                registerClientBackEnd(account, pd);
+                            }
+                        });
+                        snackbar.show();
+                    } else {
+                        int responseCode = RequestUtils.getErrorCodeRequest(error);
+                        // 400 client duplicate (should not happen)
+                        Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_server), Snackbar.LENGTH_INDEFINITE);
+                        snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                snackbar.dismiss();
+                                pd.show();
+                                registerClientBackEnd(account, pd);
+                            }
+                        });
+                        snackbar.show();
+                    }
                 }
             });
         } catch (JSONException e) {

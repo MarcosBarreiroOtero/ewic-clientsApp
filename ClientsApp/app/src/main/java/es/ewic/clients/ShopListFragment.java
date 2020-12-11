@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,12 +19,16 @@ import androidx.fragment.app.Fragment;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import es.ewic.clients.adapters.DialogFilterShop;
@@ -105,9 +110,12 @@ public class ShopListFragment extends Fragment {
         // Reload list when refresh
         SwipeRefreshLayout swipeRefreshLayout = parent.findViewById(R.id.swipeRefreshLayoutShops);
         swipeRefreshLayout.setRefreshing(true);
-        swipeRefreshLayout.setOnRefreshListener(() -> {
-            getLastLocation(parent, swipeRefreshLayout);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                ShopListFragment.this.getLastLocation(parent, swipeRefreshLayout);
 
+            }
         });
 
         getLastLocation(parent, swipeRefreshLayout);
@@ -138,7 +146,6 @@ public class ShopListFragment extends Fragment {
             @Override
             public void onComplete(@NonNull Task<Location> task) {
                 if (task.isSuccessful() && task.getResult() != null) {
-                    Log.e("Position", "Ok.");
                     mLatitude = task.getResult().getLatitude();
                     mLongitude = task.getResult().getLongitude();
                 } else {
@@ -172,14 +179,42 @@ public class ShopListFragment extends Fragment {
 
         RequestUtils.sendJsonArrayRequest(getContext(), Request.Method.GET, url, null, response -> {
             {
-                Log.i("Shop list", response.toString());
                 shops = ModelConverter.jsonArrayToShopList(response);
                 ListView shopList = parent.findViewById(R.id.shop_list);
                 ShopRowAdapter shopRowAdapter = new ShopRowAdapter(ShopListFragment.this, shops, getResources(), getActivity().getPackageName());
                 shopList.setAdapter(shopRowAdapter);
                 swipeRefreshLayout.setRefreshing(false);
+                TextView shops_not_found = parent.findViewById(R.id.shops_not_found);
+                if (shops.isEmpty()) {
+                    shopList.setVisibility(View.GONE);
+                    shops_not_found.setVisibility(View.VISIBLE);
+                } else {
+                    shopList.setVisibility(View.VISIBLE);
+                    shops_not_found.setVisibility(View.GONE);
+                }
             }
-        }, error -> Log.e("HTTP", "error"));
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("HTTP", "error");
+                swipeRefreshLayout.setRefreshing(false);
+                ListView shopList = parent.findViewById(R.id.shop_list);
+                ShopRowAdapter shopRowAdapter = new ShopRowAdapter(ShopListFragment.this, new ArrayList<>(), getResources(), getActivity().getPackageName());
+                shopList.setAdapter(shopRowAdapter);
+                Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
+                swipeRefreshLayout.setEnabled(false);
+                snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        snackbar.dismiss();
+                        swipeRefreshLayout.setEnabled(true);
+                        swipeRefreshLayout.setRefreshing(true);
+                        getShopList(parent, swipeRefreshLayout);
+                    }
+                });
+                snackbar.show();
+            }
+        });
     }
 
     private void showFilterDialog(ConstraintLayout parent, LayoutInflater inflater) {

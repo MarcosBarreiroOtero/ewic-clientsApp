@@ -3,7 +3,6 @@ package es.ewic.clients;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,8 +30,11 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         MyReservationsFragment.OnMyReservationsListener,
         ReservationRowAdapter.OnEditReservationListener, DialogFilterShop.OnDialogFilterShopListener {
 
+    private static final String ARG_SHOP_INFORMATION = "shopInformation";
+    private static final String ARG_CLIENT_DATA = "clientData";
 
-    private Client clientData;
+    private Client clientData = null;
+    private Shop shopInformation;
 
     private FusedLocationProviderClient mFusedLocationClient;
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
@@ -40,16 +42,44 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null){
+            shopInformation = (Shop) savedInstanceState.getSerializable(ARG_SHOP_INFORMATION);
+            clientData = (Client) savedInstanceState.getSerializable(ARG_CLIENT_DATA);
+        }
+
         setContentView(R.layout.activity_main);
-        clientData = null;
-        //Hide toolbar
-        findViewById(R.id.my_toolbar).setVisibility(View.GONE);
-        FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), LoginFragment.newInstance(), false);
 
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        if (clientData != null) {
+            Toolbar myToolbar = findViewById(R.id.my_toolbar);
+            myToolbar.setVisibility(View.VISIBLE);
+            setSupportActionBar(myToolbar);
+            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopListFragment.newInstance(null, null, true), false);
+            if (shopInformation != null) {
+                FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopInformationFragment.newInstance(shopInformation), true);
+            }
+        } else {
+            clientData = null;
+            //Hide toolbar
+            findViewById(R.id.my_toolbar).setVisibility(View.GONE);
+            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), LoginFragment.newInstance(), false);
 
-        if (!checkPermissions()) {
-            requestPermissions();
+            mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+            if (!checkPermissions()) {
+                requestPermissions();
+            }
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        if (shopInformation != null) {
+            savedInstanceState.putSerializable(ARG_SHOP_INFORMATION, shopInformation);
+        }
+        if (clientData != null) {
+            savedInstanceState.putSerializable(ARG_CLIENT_DATA, clientData);
         }
     }
 
@@ -107,7 +137,6 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
 
     @Override
     public boolean onSupportNavigateUp() {
-        Log.e("BACK", getSupportFragmentManager().getBackStackEntryCount() + " back");
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStackImmediate();
         }
@@ -126,7 +155,6 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
     @Override
     public void onLoadClientData(Client clientData) {
         this.clientData = clientData;
-
         Toolbar myToolbar = findViewById(R.id.my_toolbar);
         myToolbar.setVisibility(View.VISIBLE);
         setSupportActionBar(myToolbar);
@@ -162,11 +190,21 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
     }
 
     @Override
+    public void saveStatus(Shop shopInformation) {
+        this.shopInformation = shopInformation;
+    }
+
+    @Override
     public void onRsvCreate(Shop shop) {
-        if (shop != null) {
-            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopInformationFragment.newInstance(shop), false);
+
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
         } else {
-            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), MyReservationsFragment.newInstance(clientData), false);
+            if (shop != null) {
+                FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopInformationFragment.newInstance(shop), false);
+            } else {
+                FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), MyReservationsFragment.newInstance(clientData), false);
+            }
         }
     }
 
