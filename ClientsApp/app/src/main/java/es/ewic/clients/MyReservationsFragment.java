@@ -141,6 +141,14 @@ public class MyReservationsFragment extends Fragment {
                 ReservationRowAdapter reservationRowAdapter = new ReservationRowAdapter(reservations, client, MyReservationsFragment.this, getResources(), getActivity().getPackageName());
                 reservationList.setAdapter(reservationRowAdapter);
                 swipeRefreshLayout.setRefreshing(false);
+                TextView reservations_not_found = parent.findViewById(R.id.reservations_not_found);
+                if (reservations.isEmpty()) {
+                    reservations_not_found.setVisibility(View.VISIBLE);
+                    reservationList.setVisibility(View.GONE);
+                } else {
+                    reservations_not_found.setVisibility(View.GONE);
+                    reservationList.setVisibility(View.VISIBLE);
+                }
             }
         }, new Response.ErrorListener() {
             @Override

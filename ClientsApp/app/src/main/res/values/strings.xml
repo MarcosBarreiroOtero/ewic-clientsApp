@@ -78,4 +78,6 @@
     <string name="error_reservation_shop_full">Store full on the date indicated. Please choose another.</string>
     <string name="check_timetable_help">* To consult the weekly timetable click on the clock icon</string>
     <string name="shop_timetable_not_defined">The store does not have a defined timetable</string>
+    <string name="shops_not_found">No stores with those parameters were found. Please try other values.</string>
+    <string name="reservations_not_found">You don\'t have any reservations yet. You can make your first reservation through the button or from the store information.</string>
 </resources>

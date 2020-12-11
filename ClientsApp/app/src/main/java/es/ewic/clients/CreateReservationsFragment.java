@@ -147,7 +147,6 @@ public class CreateReservationsFragment extends Fragment {
                 }
             }
             setAdapterHourInput(parent, now, timetable);
-            act_hour.setText(DateUtils.formatHour(now));
         }
 
 

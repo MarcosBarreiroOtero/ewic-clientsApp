@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -183,6 +184,14 @@ public class ShopListFragment extends Fragment {
                 ShopRowAdapter shopRowAdapter = new ShopRowAdapter(ShopListFragment.this, shops, getResources(), getActivity().getPackageName());
                 shopList.setAdapter(shopRowAdapter);
                 swipeRefreshLayout.setRefreshing(false);
+                TextView shops_not_found = parent.findViewById(R.id.shops_not_found);
+                if (shops.isEmpty()) {
+                    shopList.setVisibility(View.GONE);
+                    shops_not_found.setVisibility(View.VISIBLE);
+                } else {
+                    shopList.setVisibility(View.VISIBLE);
+                    shops_not_found.setVisibility(View.GONE);
+                }
             }
         }, new Response.ErrorListener() {
             @Override
