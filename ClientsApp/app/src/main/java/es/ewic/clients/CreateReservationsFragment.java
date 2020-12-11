@@ -139,7 +139,7 @@ public class CreateReservationsFragment extends Fragment {
             act_hour.setText(DateUtils.formatHour(reservation.getDate()));
         } else {
             if (shop != null) {
-                JSONArray timetable = new JSONArray();
+                timetable = new JSONArray();
                 try {
                     timetable = new JSONArray(shop.getTimetable());
                 } catch (JSONException e) {
@@ -249,7 +249,6 @@ public class CreateReservationsFragment extends Fragment {
 
     private List<String> getHoursBetweenRanges(Calendar start, Calendar end) {
         List<String> hours = new ArrayList<>();
-
         while (start.before(end)) {
             hours.add(DateUtils.formatHour(start));
             start.add(Calendar.MINUTE, 15);
@@ -261,6 +260,7 @@ public class CreateReservationsFragment extends Fragment {
 
     private void setAdapterHourInput(ConstraintLayout parent, Calendar date, JSONArray timetable) {
         List<String> hours = new ArrayList<>();
+        Log.e("TIMETABLE", timetable.toString());
         if (timetable.length() == 0) {
             Calendar start = Calendar.getInstance();
             start.set(Calendar.HOUR_OF_DAY, 0);
