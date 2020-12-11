@@ -49,10 +49,9 @@ public class ModelConverter {
         try {
             String timetableValue = shopData.optString("timetable");
             JSONArray timetable = new JSONArray();
-            if (!timetableValue.equals("null")) {
+            if (timetableValue != null && !timetableValue.toLowerCase().equals("null")) {
                 timetable = new JSONArray(timetableValue);
             }
-
             return new Shop(shopData.getInt("idShop"),
                     shopData.getString("name"),
                     shopData.getDouble("latitude"),
@@ -65,7 +64,8 @@ public class ModelConverter {
                     shopData.getInt("idSeller"),
                     timetable.toString());
         } catch (JSONException e) {
-            Log.e("SHOP_ERROR", e.getStackTrace().toString());
+            e.printStackTrace();
+            Log.e("SHOP_ERROR", "Error", e);
             return null;
         }
     }
