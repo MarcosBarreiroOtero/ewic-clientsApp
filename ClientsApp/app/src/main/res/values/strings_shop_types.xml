@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="OTHER">Other</string>
+    <string name="SUPERMARKET">Supermarket</string>
+    <string name="PHARMACY">Pharmacy</string>
+    <string name="FRUIT_STORE">Fruit Store</string>
+    <string name="RESTAURANT">Restaurante</string>
+    <string name="BAR">Bar</string>
+    <string name="BOOK_STORE">Book Store</string>
+    <string name="HAIRDRESSER">Hairdresser</string>
+    <string name="HARDWARE_STORE">Hardware Store</string>
+    <string name="BUTCHER_SHOP">Butcher Shop</string>
+    <string name="FISH_SHOP">Fish Shop</string>
+    <string name="BAKERY">Bakery</string>
+</resources>
