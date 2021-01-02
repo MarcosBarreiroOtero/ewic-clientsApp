@@ -512,14 +512,14 @@ public class CreateReservationsFragment extends Fragment {
                 public void onResponse(JSONObject response) {
                     Snackbar.make(parent, getString(R.string.reservation_create_successfully), Snackbar.LENGTH_LONG)
                             .show();
-                    pd.hide();
+                    pd.dismiss();
                     mCallback.onRsvCreate(shop);
                 }
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Log.e("HTTP", "error");
-                    pd.hide();
+                    pd.dismiss();
                     if (error instanceof TimeoutError) {
                         Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
                         snackbar.setAction(R.string.retry, new View.OnClickListener() {
@@ -600,14 +600,14 @@ public class CreateReservationsFragment extends Fragment {
                 public void onResponse(JSONObject response) {
                     Snackbar.make(parent, getString(R.string.update_reservation_successfully), Snackbar.LENGTH_LONG)
                             .show();
-                    pd.hide();
+                    pd.dismiss();
                     mCallback.onRsvUpdate();
                 }
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     Log.e("HTTP", "error");
-                    pd.hide();
+                    pd.dismiss();
                     if (error instanceof TimeoutError) {
                         Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
                         snackbar.setAction(R.string.retry, new View.OnClickListener() {

@@ -80,4 +80,10 @@
     <string name="shop_timetable_not_defined">The store does not have a defined timetable</string>
     <string name="shops_not_found">No stores with those parameters were found. Please try other values.</string>
     <string name="reservations_not_found">You don\'t have any reservations yet. You can make your first reservation through the button or from the store information.</string>
+    <string name="access_shop">Access shop</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="bluetooth_needed_message">In order to access a store it is necessary to have Bluetooth activated</string>
+    <string name="activate">Activate</string>
+    <string name="bluetooth_list_explanation">List of bluetooth devices found. Click on the one shown on the store device to enter.</string>
+    <string name="bluetooth_searching_devices">Searching devices</string>
 </resources>

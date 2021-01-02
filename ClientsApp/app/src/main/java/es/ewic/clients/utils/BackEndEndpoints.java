@@ -4,8 +4,8 @@ public class BackEndEndpoints {
 
     //Coruña
 //    public static String BASE_ENDPOINT = "http://192.168.1.44:8080/ewic";
-    //Monforte
-    public static String BASE_ENDPOINT = "http://192.168.0.19:8080/ewic";
+
+    public static String BASE_ENDPOINT = "http://192.168.1.37:8080/ewic";
 
     //Client
     public static String UPDATE_DELETE_CLIENT = BASE_ENDPOINT + "/client";

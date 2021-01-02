@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState != null){
+        if (savedInstanceState != null) {
             shopInformation = (Shop) savedInstanceState.getSerializable(ARG_SHOP_INFORMATION);
             clientData = (Client) savedInstanceState.getSerializable(ARG_CLIENT_DATA);
         }
@@ -128,7 +128,12 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
                 if (clientData != null) {
                     FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), MyReservationsFragment.newInstance(clientData), true);
                 }
-
+                return true;
+            case R.id.action_access_shop:
+                if (clientData != null) {
+                    FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), AccessShopFragment.newInstance(clientData), true);
+                }
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
