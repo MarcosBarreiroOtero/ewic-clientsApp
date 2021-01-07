@@ -3,6 +3,7 @@ package es.ewic.clients;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,8 +23,10 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.UUID;
 
 import es.ewic.clients.adapters.DeviceRowAdapter;
 import es.ewic.clients.model.Client;
@@ -44,6 +47,9 @@ public class AccessShopFragment extends Fragment {
     private ListView devices_list;
     private Set<BluetoothDevice> devices;
     private DeviceRowAdapter mDeviceRowAdapter;
+
+    private BluetoothSocket mBluetoothSocket;
+    private static final UUID MY_UUID_SECURE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     public AccessShopFragment() {
         // Required empty public constructor
@@ -79,13 +85,14 @@ public class AccessShopFragment extends Fragment {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         requestActivateBluetooth();
 
+
         devices_list = parent.findViewById(R.id.devices_list);
         devices_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BluetoothDevice clickedDevice = mDeviceRowAdapter.getItem(position);
                 if (clickedDevice != null) {
-
+                    connectToBluetoothServer(clickedDevice);
                 }
             }
         });
@@ -153,5 +160,44 @@ public class AccessShopFragment extends Fragment {
         };
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         getActivity().registerReceiver(mBroadcastReceiver, filter);
+    }
+
+    private void connectToBluetoothServer(BluetoothDevice device) {
+        Log.e("BLUETOOTH", "Conectando");
+        BluetoothSocket tmp = null;
+        try {
+            tmp = device.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
+            Log.e("BLUETOOTH", "Creado RFC");
+        } catch (IOException e) {
+            Log.e("BLUETOOTH", "Socket's create() method failed", e);
+        }
+        mBluetoothSocket = tmp;
+        run();
+    }
+
+    public void run() {
+        mBluetoothAdapter.cancelDiscovery();
+        try {
+            Log.e("BLUETOOTH", "Hola");
+            mBluetoothSocket.connect();
+        } catch (IOException e) {
+            // Unable to connect; close the socket and return.
+            Log.e("BLUETOOTH", "Could not connect client socket", e);
+            try {
+                mBluetoothSocket.close();
+            } catch (IOException closeException) {
+                Log.e("BLUETOOTH", "Could not close the client socket", closeException);
+            }
+            return;
+        }
+    }
+
+    // Closes the client socket and causes the thread to finish.
+    public void cancel() {
+        try {
+            mBluetoothSocket.close();
+        } catch (IOException e) {
+            Log.e("BLUETOOTH", "Could not close the client socket", e);
+        }
     }
 }
