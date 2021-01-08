@@ -25,6 +25,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -44,8 +45,10 @@ public class AccessShopFragment extends Fragment {
     private Client client;
     private BluetoothAdapter mBluetoothAdapter;
     private BroadcastReceiver mBroadcastReceiver;
-    private ListView devices_list;
-    private Set<BluetoothDevice> devices;
+    private ListView bonded_devices_list;
+    private ListView new_devices_list;
+    private List<BluetoothDevice> bonded_devices;
+    private Set<BluetoothDevice> new_devices;
     private DeviceRowAdapter mDeviceRowAdapter;
 
     private BluetoothSocket mBluetoothSocket;
@@ -85,9 +88,19 @@ public class AccessShopFragment extends Fragment {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         requestActivateBluetooth();
 
+        bonded_devices_list = parent.findViewById(R.id.bonded_devices_list);
+        bonded_devices_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                BluetoothDevice clickedDevice = bonded_devices.get(position);
+                if (clickedDevice != null) {
+                    connectToBluetoothServer(clickedDevice);
+                }
+            }
+        });
 
-        devices_list = parent.findViewById(R.id.devices_list);
-        devices_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        new_devices_list = parent.findViewById(R.id.new_devices_list);
+        new_devices_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 BluetoothDevice clickedDevice = mDeviceRowAdapter.getItem(position);
@@ -135,14 +148,18 @@ public class AccessShopFragment extends Fragment {
 
     private void addNewDevice(BluetoothDevice device) {
         mDeviceRowAdapter.addItem(device);
-        devices_list.setAdapter(mDeviceRowAdapter);
+        new_devices_list.setAdapter(mDeviceRowAdapter);
     }
 
     private void searchBluetoothDevices() {
-        devices = mBluetoothAdapter.getBondedDevices();
-        Log.e("BLUETOOTH", "Bonded devices: " + devices.size());
-        mDeviceRowAdapter = new DeviceRowAdapter(new ArrayList<>(devices), AccessShopFragment.this, getResources(), getActivity().getPackageName());
-        devices_list.setAdapter(mDeviceRowAdapter);
+        bonded_devices = new ArrayList<>(mBluetoothAdapter.getBondedDevices());
+        Log.e("BLUETOOTH", "Bonded devices: " + bonded_devices.size());
+
+        DeviceRowAdapter bondedAdapter = new DeviceRowAdapter(new ArrayList<>(bonded_devices), AccessShopFragment.this, getResources(), getActivity().getPackageName());
+        bonded_devices_list.setAdapter(bondedAdapter);
+
+        mDeviceRowAdapter = new DeviceRowAdapter(new ArrayList<>(), AccessShopFragment.this, getResources(), getActivity().getPackageName());
+        new_devices_list.setAdapter(mDeviceRowAdapter);
 
         mBluetoothAdapter.startDiscovery();
         mBroadcastReceiver = new BroadcastReceiver() {
@@ -153,8 +170,9 @@ public class AccessShopFragment extends Fragment {
                 if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                     // Get the BluetoothDevice object from the Intent
                     BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    Log.e("BLUETOOTH", "Encontrado: " + device.getName());
-                    addNewDevice(device);
+                    if (!bonded_devices.contains(device)) {
+                        addNewDevice(device);
+                    }
                 }
             }
         };

@@ -5,8 +5,9 @@
 
     <item
         android:id="@+id/action_access_shop"
+        android:icon="@drawable/ic_entry_24dp"
         android:title="@string/access_shop"
-        app:showAsAction="never" />
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_my_data"
         android:title="@string/toolbar_menu_my_data"

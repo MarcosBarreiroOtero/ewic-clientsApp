@@ -84,4 +84,7 @@
     <string name="activate">Activar</string>
     <string name="bluetooth_list_explanation">Lista de dispositivos de bluetooth encontrados. Pulse sobre aquel que se muestra en el dispositivo de la tienda para poder entrar.</string>
     <string name="bluetooth_searching_devices">Buscando dispositivos</string>
+    <string name="bluetooth_devices_conected">Dispositivos conectados anteriormente</string>
+    <string name="bluetooth_new_devices">Nuevos dispositivos</string>
+    <string name="device">Dispositivo</string>
 </resources>

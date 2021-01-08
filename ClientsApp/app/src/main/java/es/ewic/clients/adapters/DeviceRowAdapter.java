@@ -67,7 +67,6 @@ public class DeviceRowAdapter extends BaseAdapter implements ListAdapter {
         TextView device_address = convertView.findViewById(R.id.device_address);
 
         BluetoothDevice device = getItem(position);
-
         if (device != null) {
             device_name.setText(device.getName());
             device_address.setText(device.getAddress());
