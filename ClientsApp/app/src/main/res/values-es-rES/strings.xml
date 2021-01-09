@@ -87,4 +87,7 @@
     <string name="bluetooth_devices_conected">Dispositivos conectados anteriormente</string>
     <string name="bluetooth_new_devices">Nuevos dispositivos</string>
     <string name="device">Dispositivo</string>
+    <string name="bluetooth_connecting_device">Conectandose al dispositivo</string>
+    <string name="welcome_to">Bienvenido a</string>
+    <string name="enjoy_visit">Deseamos que disfrute de su visita.</string>
 </resources>

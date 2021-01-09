@@ -1,6 +1,7 @@
 package es.ewic.clients;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -15,6 +16,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,6 +27,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -31,6 +35,7 @@ import java.util.UUID;
 
 import es.ewic.clients.adapters.DeviceRowAdapter;
 import es.ewic.clients.model.Client;
+import es.ewic.clients.utils.FormUtils;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -42,6 +47,8 @@ public class AccessShopFragment extends Fragment {
     private static final String ARG_CLIENT = "client";
     private static final int BLUETOOTH_REQUEST_CODE = 01;
 
+    private ConstraintLayout parent;
+    private ProgressDialog pd;
     private Client client;
     private BluetoothAdapter mBluetoothAdapter;
     private BroadcastReceiver mBroadcastReceiver;
@@ -78,7 +85,7 @@ public class AccessShopFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        ConstraintLayout parent = (ConstraintLayout) inflater.inflate(R.layout.fragment_access_shop, container, false);
+        parent = (ConstraintLayout) inflater.inflate(R.layout.fragment_access_shop, container, false);
 
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.access_shop);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -92,6 +99,7 @@ public class AccessShopFragment extends Fragment {
         bonded_devices_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                pd = FormUtils.showProgressDialog(getContext(), getResources(), R.string.bluetooth_connecting_device, R.string.please_wait);
                 BluetoothDevice clickedDevice = bonded_devices.get(position);
                 if (clickedDevice != null) {
                     connectToBluetoothServer(clickedDevice);
@@ -103,6 +111,7 @@ public class AccessShopFragment extends Fragment {
         new_devices_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                pd = FormUtils.showProgressDialog(getContext(), getResources(), R.string.bluetooth_connecting_device, R.string.please_wait);
                 BluetoothDevice clickedDevice = mDeviceRowAdapter.getItem(position);
                 if (clickedDevice != null) {
                     connectToBluetoothServer(clickedDevice);
@@ -155,7 +164,6 @@ public class AccessShopFragment extends Fragment {
 
     private void searchBluetoothDevices() {
         bonded_devices = new ArrayList<>(mBluetoothAdapter.getBondedDevices());
-        Log.e("BLUETOOTH", "Bonded devices: " + bonded_devices.size());
 
         DeviceRowAdapter bondedAdapter = new DeviceRowAdapter(new ArrayList<>(bonded_devices), AccessShopFragment.this, getResources(), getActivity().getPackageName());
         bonded_devices_list.setAdapter(bondedAdapter);
@@ -183,33 +191,52 @@ public class AccessShopFragment extends Fragment {
     }
 
     private void connectToBluetoothServer(BluetoothDevice device) {
-        Log.e("BLUETOOTH", "Conectando");
         BluetoothSocket tmp = null;
         try {
             tmp = device.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
-            Log.e("BLUETOOTH", "Creado RFC");
         } catch (IOException e) {
             Log.e("BLUETOOTH", "Socket's create() method failed", e);
+            pd.dismiss();
         }
         mBluetoothSocket = tmp;
-        run();
-    }
 
-    public void run() {
         mBluetoothAdapter.cancelDiscovery();
         try {
-            Log.e("BLUETOOTH", "Hola");
+            Log.e("BLUETOOTH", "Conectando");
             mBluetoothSocket.connect();
+            pd.dismiss();
+            toogleVisibilityAccessShop(true);
+            Log.e("BLUETOOTH", "Conectado");
+            InputStream inputStream = mBluetoothSocket.getInputStream();
+            final int BUFFER_SIZE = 1024;
+            byte[] buffer = new byte[BUFFER_SIZE];
+            int bytes = 0;
+            int b = BUFFER_SIZE;
+            while (true) {
+                try {
+                    // Read from the InputStream
+                    bytes = inputStream.read(buffer, bytes, BUFFER_SIZE - bytes);
+                    String shopString = new String(buffer);
+                    Log.e("BLUETOOTH", "Tienda :" + shopString);
+                } catch (IOException e) {
+                    Log.e("BLUETOOTH", "Conexión perdida");
+                    break;
+                }
+            }
         } catch (IOException e) {
             // Unable to connect; close the socket and return.
             Log.e("BLUETOOTH", "Could not connect client socket", e);
+            pd.dismiss();
+            mBluetoothAdapter.startDiscovery();
             try {
                 mBluetoothSocket.close();
             } catch (IOException closeException) {
                 Log.e("BLUETOOTH", "Could not close the client socket", closeException);
+                mBluetoothAdapter.startDiscovery();
             }
             return;
         }
+
     }
 
     // Closes the client socket and causes the thread to finish.
@@ -218,6 +245,49 @@ public class AccessShopFragment extends Fragment {
             mBluetoothSocket.close();
         } catch (IOException e) {
             Log.e("BLUETOOTH", "Could not close the client socket", e);
+        }
+    }
+
+    private void toogleVisibilityAccessShop(boolean showWelcome) {
+
+        // Bluetooth elements
+        TextView bluetooth_list_explanation = parent.findViewById(R.id.bluetooth_list_explanation);
+        TextView bluetooth_searching_devices = parent.findViewById(R.id.bluetooth_searching_devices);
+        ProgressBar bluetooth_progressBar = parent.findViewById(R.id.bluetooth_progressBar);
+        TextView bluetooth_bonded_devices = parent.findViewById(R.id.bluetooth_bonded_devices);
+        // Bonded device listView bonded_devices_list
+        TextView bluetooth_new_devices = parent.findViewById(R.id.bluetooth_new_devices);
+        // New devices listView new_devices_list
+
+        //Access elements
+        TextView welcome_text = parent.findViewById(R.id.welcome_text);
+        TextView bluetooth_shop_name = parent.findViewById(R.id.bluetooth_shop_name);
+        TextView enjoy_visit_text = parent.findViewById(R.id.enjoy_visit_text);
+
+        if (showWelcome) {
+            bluetooth_list_explanation.setVisibility(View.GONE);
+            bluetooth_searching_devices.setVisibility(View.GONE);
+            bluetooth_progressBar.setVisibility(View.GONE);
+            bluetooth_bonded_devices.setVisibility(View.GONE);
+            bonded_devices_list.setVisibility(View.GONE);
+            bluetooth_new_devices.setVisibility(View.GONE);
+            new_devices_list.setVisibility(View.GONE);
+
+            welcome_text.setVisibility(View.VISIBLE);
+            bluetooth_shop_name.setVisibility(View.VISIBLE);
+            enjoy_visit_text.setVisibility(View.VISIBLE);
+        } else {
+            bluetooth_list_explanation.setVisibility(View.VISIBLE);
+            bluetooth_searching_devices.setVisibility(View.VISIBLE);
+            bluetooth_progressBar.setVisibility(View.VISIBLE);
+            bluetooth_bonded_devices.setVisibility(View.VISIBLE);
+            bonded_devices_list.setVisibility(View.VISIBLE);
+            bluetooth_new_devices.setVisibility(View.VISIBLE);
+            new_devices_list.setVisibility(View.VISIBLE);
+
+            welcome_text.setVisibility(View.GONE);
+            bluetooth_shop_name.setVisibility(View.GONE);
+            enjoy_visit_text.setVisibility(View.GONE);
         }
     }
 }
