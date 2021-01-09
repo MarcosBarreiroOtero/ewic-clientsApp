@@ -39,6 +39,10 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
     private FusedLocationProviderClient mFusedLocationClient;
     private static final int REQUEST_PERMISSIONS_REQUEST_CODE = 34;
 
+    private boolean enableMyData = true;
+    private boolean enableMyReservation = true;
+    private boolean enableAccessShop = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,21 +121,66 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        MenuItem itemMyData = menu.findItem(R.id.action_my_data);
+        itemMyData.setEnabled(enableMyData);
+
+        MenuItem itemMyReservations = menu.findItem(R.id.action_my_reservations);
+        itemMyReservations.setEnabled(enableMyReservation);
+
+        MenuItem itemAccessShop = menu.findItem(R.id.action_access_shop);
+        itemAccessShop.setEnabled(enableAccessShop);
+        itemAccessShop.getIcon().setAlpha(enableAccessShop ? 255 : 130);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_my_data:
                 if (clientData != null) {
+                    if (!enableMyReservation || !enableAccessShop) {
+                        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                            getSupportFragmentManager().popBackStack();
+                        }
+                    }
                     FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), MyDataFragment.newInstance(clientData), true);
+
+                    enableMyData = false;
+                    enableMyReservation = true;
+                    enableAccessShop = true;
+                    invalidateOptionsMenu();
                 }
                 return true;
             case R.id.action_my_reservations:
                 if (clientData != null) {
+                    if (!enableMyData || !enableAccessShop) {
+                        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                            getSupportFragmentManager().popBackStack();
+                        }
+                    }
                     FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), MyReservationsFragment.newInstance(clientData), true);
+
+                    enableMyData = true;
+                    enableMyReservation = false;
+                    enableAccessShop = true;
+                    invalidateOptionsMenu();
                 }
                 return true;
             case R.id.action_access_shop:
                 if (clientData != null) {
+                    if (!enableMyReservation || !enableMyData) {
+                        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                            getSupportFragmentManager().popBackStack();
+                        }
+                    }
                     FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), AccessShopFragment.newInstance(clientData), true);
+
+                    enableMyData = true;
+                    enableMyReservation = true;
+                    enableAccessShop = false;
+                    invalidateOptionsMenu();
                 }
                 return true;
             default:
@@ -143,7 +192,11 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
     @Override
     public boolean onSupportNavigateUp() {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-            getSupportFragmentManager().popBackStackImmediate();
+            enableMyData = true;
+            enableMyReservation = true;
+            enableAccessShop = true;
+            invalidateOptionsMenu();
+            getSupportFragmentManager().popBackStack();
         }
         return true;
     }
@@ -151,6 +204,10 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
     @Override
     public void onBackPressed() {
         if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            enableMyData = true;
+            enableMyReservation = true;
+            enableAccessShop = true;
+            invalidateOptionsMenu();
             getSupportFragmentManager().popBackStack();
         } else {
             finish();

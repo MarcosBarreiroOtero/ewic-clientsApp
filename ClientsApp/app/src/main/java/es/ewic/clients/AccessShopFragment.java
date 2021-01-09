@@ -138,7 +138,9 @@ public class AccessShopFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        requireActivity().unregisterReceiver(mBroadcastReceiver);
+        if (mBroadcastReceiver != null) {
+            requireActivity().unregisterReceiver(mBroadcastReceiver);
+        }
     }
 
     private void requestActivateBluetooth() {
