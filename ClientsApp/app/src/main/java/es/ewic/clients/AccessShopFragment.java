@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,8 +27,12 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -57,9 +62,17 @@ public class AccessShopFragment extends Fragment {
     private List<BluetoothDevice> bonded_devices;
     private Set<BluetoothDevice> new_devices;
     private DeviceRowAdapter mDeviceRowAdapter;
+    private TextView bluetooth_shop_name;
 
-    private BluetoothSocket mBluetoothSocket;
     private static final UUID MY_UUID_SECURE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+
+    private Handler handler;
+
+    private interface MessageConstants {
+        public static final int MESSAGE_READ = 0;
+        public static final int MESSAGE_WRITE = 1;
+        public static final int MESSAGE_TOAST = 2;
+    }
 
     public AccessShopFragment() {
         // Required empty public constructor
@@ -118,6 +131,8 @@ public class AccessShopFragment extends Fragment {
                 }
             }
         });
+
+        bluetooth_shop_name = parent.findViewById(R.id.bluetooth_shop_name);
 
 
         return parent;
@@ -191,61 +206,13 @@ public class AccessShopFragment extends Fragment {
     }
 
     private void connectToBluetoothServer(BluetoothDevice device) {
-        BluetoothSocket tmp = null;
-        try {
-            tmp = device.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
-        } catch (IOException e) {
-            Log.e("BLUETOOTH", "Socket's create() method failed", e);
-            pd.dismiss();
-        }
-        mBluetoothSocket = tmp;
-
-        mBluetoothAdapter.cancelDiscovery();
-        try {
-            Log.e("BLUETOOTH", "Conectando");
-            mBluetoothSocket.connect();
-            pd.dismiss();
-            toogleVisibilityAccessShop(true);
-            Log.e("BLUETOOTH", "Conectado");
-            InputStream inputStream = mBluetoothSocket.getInputStream();
-            final int BUFFER_SIZE = 1024;
-            byte[] buffer = new byte[BUFFER_SIZE];
-            int bytes = 0;
-            int b = BUFFER_SIZE;
-            while (true) {
-                try {
-                    // Read from the InputStream
-                    bytes = inputStream.read(buffer, bytes, BUFFER_SIZE - bytes);
-                    String shopString = new String(buffer);
-                    Log.e("BLUETOOTH", "Tienda :" + shopString);
-                } catch (IOException e) {
-                    Log.e("BLUETOOTH", "Conexión perdida");
-                    break;
-                }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ConnectThread connectThread = new ConnectThread(device);
+                connectThread.run();
             }
-        } catch (IOException e) {
-            // Unable to connect; close the socket and return.
-            Log.e("BLUETOOTH", "Could not connect client socket", e);
-            pd.dismiss();
-            mBluetoothAdapter.startDiscovery();
-            try {
-                mBluetoothSocket.close();
-            } catch (IOException closeException) {
-                Log.e("BLUETOOTH", "Could not close the client socket", closeException);
-                mBluetoothAdapter.startDiscovery();
-            }
-            return;
-        }
-
-    }
-
-    // Closes the client socket and causes the thread to finish.
-    public void cancel() {
-        try {
-            mBluetoothSocket.close();
-        } catch (IOException e) {
-            Log.e("BLUETOOTH", "Could not close the client socket", e);
-        }
+        }).start();
     }
 
     private void toogleVisibilityAccessShop(boolean showWelcome) {
@@ -261,7 +228,7 @@ public class AccessShopFragment extends Fragment {
 
         //Access elements
         TextView welcome_text = parent.findViewById(R.id.welcome_text);
-        TextView bluetooth_shop_name = parent.findViewById(R.id.bluetooth_shop_name);
+        // Shop name textView bluetooth_shop_name
         TextView enjoy_visit_text = parent.findViewById(R.id.enjoy_visit_text);
 
         if (showWelcome) {
@@ -288,6 +255,88 @@ public class AccessShopFragment extends Fragment {
             welcome_text.setVisibility(View.GONE);
             bluetooth_shop_name.setVisibility(View.GONE);
             enjoy_visit_text.setVisibility(View.GONE);
+        }
+    }
+
+
+    private class ConnectThread extends Thread {
+        private final BluetoothSocket mBluetoothSocket;
+        private final BluetoothDevice mDevice;
+
+        public ConnectThread(BluetoothDevice device) {
+            // Use a temporary object that is later assigned to mmSocket
+            // because mmSocket is final.
+            BluetoothSocket tmp = null;
+            mDevice = device;
+
+            try {
+                // Get a BluetoothSocket to connect with the given BluetoothDevice.
+                // MY_UUID is the app's UUID string, also used in the server code.
+                tmp = device.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
+            } catch (IOException e) {
+                Log.e("BLUETOOTH", "Socket's create() method failed", e);
+            }
+            mBluetoothSocket = tmp;
+        }
+
+        public void run() {
+            mBluetoothAdapter.cancelDiscovery();
+            try {
+                mBluetoothSocket.connect();
+                Log.e("BLUETOOTH", "Conectado");
+
+                //Send idGoogleLogin for the entry
+                OutputStream outputStream = mBluetoothSocket.getOutputStream();
+                outputStream.write(client.getIdGoogleLogin().getBytes());
+
+                InputStream inputStream = mBluetoothSocket.getInputStream();
+                final int BUFFER_SIZE = 1024;
+                byte[] buffer = new byte[BUFFER_SIZE];
+                int bytes = 0;
+                int b = BUFFER_SIZE;
+                while (true) {
+                    try {
+                        // Read from the InputStream
+                        bytes = inputStream.read(buffer, bytes, BUFFER_SIZE - bytes);
+                        String shopString = new String(buffer);
+                        try {
+                            JSONObject shop = new JSONObject(shopString);
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    toogleVisibilityAccessShop(true);
+                                    try {
+                                        bluetooth_shop_name.setText(shop.getString("name"));
+                                    } catch (JSONException e) {
+                                        bluetooth_shop_name.setText(shopString);
+                                    }
+                                    pd.dismiss();
+                                }
+                            });
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                        break;
+                    } catch (IOException e) {
+                        Log.e("BLUETOOTH", "Conexión perdida");
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                // Unable to connect; close the socket and return.
+                Log.e("BLUETOOTH", "Could not connect client socket", e);
+                pd.dismiss();
+                mBluetoothAdapter.startDiscovery();
+                try {
+                    mBluetoothSocket.close();
+                } catch (IOException closeException) {
+                    Log.e("BLUETOOTH", "Could not close the client socket", closeException);
+                    mBluetoothAdapter.startDiscovery();
+                }
+                return;
+            }
         }
     }
 }
