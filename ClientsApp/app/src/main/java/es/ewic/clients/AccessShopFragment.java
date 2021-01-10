@@ -9,6 +9,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -63,6 +64,8 @@ public class AccessShopFragment extends Fragment {
     private Set<BluetoothDevice> new_devices;
     private DeviceRowAdapter mDeviceRowAdapter;
     private TextView bluetooth_shop_name;
+
+    private BlueeToothConectionTask mBlueeToothConectionTask;
 
     private static final UUID MY_UUID_SECURE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
@@ -201,18 +204,14 @@ public class AccessShopFragment extends Fragment {
                 }
             }
         };
+
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         getActivity().registerReceiver(mBroadcastReceiver, filter);
     }
 
     private void connectToBluetoothServer(BluetoothDevice device) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ConnectThread connectThread = new ConnectThread(device);
-                connectThread.run();
-            }
-        }).start();
+        mBlueeToothConectionTask = new BlueeToothConectionTask();
+        mBlueeToothConectionTask.execute(device);
     }
 
     private void toogleVisibilityAccessShop(boolean showWelcome) {
@@ -258,29 +257,25 @@ public class AccessShopFragment extends Fragment {
         }
     }
 
+    private class BlueeToothConectionTask extends AsyncTask<BluetoothDevice, String, BluetoothSocket> {
+        private BluetoothSocket mBluetoothSocket;
+        private BluetoothDevice mDevice;
 
-    private class ConnectThread extends Thread {
-        private final BluetoothSocket mBluetoothSocket;
-        private final BluetoothDevice mDevice;
-
-        public ConnectThread(BluetoothDevice device) {
-            // Use a temporary object that is later assigned to mmSocket
-            // because mmSocket is final.
+        @Override
+        protected BluetoothSocket doInBackground(BluetoothDevice... bluetoothDevices) {
             BluetoothSocket tmp = null;
-            mDevice = device;
-
+            if (bluetoothDevices.length != 0) {
+                mDevice = bluetoothDevices[0];
+            }
             try {
                 // Get a BluetoothSocket to connect with the given BluetoothDevice.
                 // MY_UUID is the app's UUID string, also used in the server code.
-                tmp = device.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
+                tmp = mDevice.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
             } catch (IOException e) {
                 Log.e("BLUETOOTH", "Socket's create() method failed", e);
             }
             mBluetoothSocket = tmp;
-        }
 
-        public void run() {
-            mBluetoothAdapter.cancelDiscovery();
             try {
                 mBluetoothSocket.connect();
                 Log.e("BLUETOOTH", "Conectado");
@@ -291,33 +286,14 @@ public class AccessShopFragment extends Fragment {
 
                 InputStream inputStream = mBluetoothSocket.getInputStream();
                 final int BUFFER_SIZE = 1024;
-                byte[] buffer = new byte[BUFFER_SIZE];
+                byte[] buffer = new byte[1024];
                 int bytes = 0;
-                int b = BUFFER_SIZE;
                 while (true) {
                     try {
                         // Read from the InputStream
-                        bytes = inputStream.read(buffer, bytes, BUFFER_SIZE - bytes);
+                        bytes = inputStream.read(buffer);
                         String shopString = new String(buffer);
-                        try {
-                            JSONObject shop = new JSONObject(shopString);
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    toogleVisibilityAccessShop(true);
-                                    try {
-                                        bluetooth_shop_name.setText(shop.getString("name"));
-                                    } catch (JSONException e) {
-                                        bluetooth_shop_name.setText(shopString);
-                                    }
-                                    pd.dismiss();
-                                }
-                            });
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
+                        publishProgress(shopString);
                         break;
                     } catch (IOException e) {
                         Log.e("BLUETOOTH", "Conexión perdida");
@@ -327,7 +303,6 @@ public class AccessShopFragment extends Fragment {
             } catch (IOException e) {
                 // Unable to connect; close the socket and return.
                 Log.e("BLUETOOTH", "Could not connect client socket", e);
-                pd.dismiss();
                 mBluetoothAdapter.startDiscovery();
                 try {
                     mBluetoothSocket.close();
@@ -335,7 +310,51 @@ public class AccessShopFragment extends Fragment {
                     Log.e("BLUETOOTH", "Could not close the client socket", closeException);
                     mBluetoothAdapter.startDiscovery();
                 }
-                return;
+                return null;
+            }
+
+            return mBluetoothSocket;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... shopNames) {
+            toogleVisibilityAccessShop(true);
+            if (shopNames.length != 0) {
+                String shopName = shopNames[0];
+                try {
+                    JSONObject shopData = new JSONObject(shopName);
+                    bluetooth_shop_name.setText(shopData.getString("name"));
+                } catch (JSONException e) {
+                    bluetooth_shop_name.setText(shopName);
+                }
+            }
+            pd.dismiss();
+
+        }
+
+        @Override
+        protected void onCancelled(BluetoothSocket bluetoothSocket) {
+            toogleVisibilityAccessShop(false);
+            pd.dismiss();
+            if (mBluetoothSocket != null) {
+                try {
+                    mBluetoothSocket.close();
+                } catch (IOException e) {
+                    Log.e("BLUETOOTH", "On cancelled: Could not close the connect socket", e);
+                }
+            }
+        }
+
+        @Override
+        protected void onPostExecute(BluetoothSocket bluetoothSocket) {
+            toogleVisibilityAccessShop(false);
+            pd.dismiss();
+            if (mBluetoothSocket != null) {
+                try {
+                    mBluetoothSocket.close();
+                } catch (IOException e) {
+                    Log.e("BLUETOOTH", "On postExecute: Could not close the connect socket", e);
+                }
             }
         }
     }
