@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -137,6 +138,16 @@ public class AccessShopFragment extends Fragment {
 
         bluetooth_shop_name = parent.findViewById(R.id.bluetooth_shop_name);
 
+        Button bluetooth_exit_shop = parent.findViewById(R.id.bluetooth_exit_shop);
+        bluetooth_exit_shop.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e("BLUETOOTH", "Try to cancel");
+                boolean cancelled = mBlueeToothConectionTask.cancel(true);
+                Log.e("BLUETOOTH", "Cancelled: " + cancelled);
+            }
+        });
+
 
         return parent;
     }
@@ -169,6 +180,7 @@ public class AccessShopFragment extends Fragment {
             requireActivity().unregisterReceiver(mBroadcastReceiver);
         }
     }
+
 
     private void requestActivateBluetooth() {
         Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -229,6 +241,7 @@ public class AccessShopFragment extends Fragment {
         TextView welcome_text = parent.findViewById(R.id.welcome_text);
         // Shop name textView bluetooth_shop_name
         TextView enjoy_visit_text = parent.findViewById(R.id.enjoy_visit_text);
+        Button bluetooth_exit_shop = parent.findViewById(R.id.bluetooth_exit_shop);
 
         if (showWelcome) {
             bluetooth_list_explanation.setVisibility(View.GONE);
@@ -242,6 +255,7 @@ public class AccessShopFragment extends Fragment {
             welcome_text.setVisibility(View.VISIBLE);
             bluetooth_shop_name.setVisibility(View.VISIBLE);
             enjoy_visit_text.setVisibility(View.VISIBLE);
+            bluetooth_exit_shop.setVisibility(View.VISIBLE);
         } else {
             bluetooth_list_explanation.setVisibility(View.VISIBLE);
             bluetooth_searching_devices.setVisibility(View.VISIBLE);
@@ -254,6 +268,7 @@ public class AccessShopFragment extends Fragment {
             welcome_text.setVisibility(View.GONE);
             bluetooth_shop_name.setVisibility(View.GONE);
             enjoy_visit_text.setVisibility(View.GONE);
+            bluetooth_exit_shop.setVisibility(View.GONE);
         }
     }
 
@@ -278,27 +293,45 @@ public class AccessShopFragment extends Fragment {
 
             try {
                 mBluetoothSocket.connect();
-                Log.e("BLUETOOTH", "Conectado");
-
                 //Send idGoogleLogin for the entry
                 OutputStream outputStream = mBluetoothSocket.getOutputStream();
                 outputStream.write(client.getIdGoogleLogin().getBytes());
 
-                InputStream inputStream = mBluetoothSocket.getInputStream();
                 final int BUFFER_SIZE = 1024;
                 byte[] buffer = new byte[1024];
                 int bytes = 0;
+                InputStream inputStream = mBluetoothSocket.getInputStream();
+
+                //First read
+
+                try {
+                    bytes = inputStream.read(buffer);
+
+                    String shopString = new String(buffer);
+                    Log.e("BLUETOOTH", "Nuevo:" + shopString.trim());
+                    publishProgress(shopString);
+                } catch (IOException e) {
+                    Log.e("BLUETOOTH", "Sin conexión");
+                    return null;
+                }
+
                 while (true) {
-                    try {
-                        // Read from the InputStream
-                        bytes = inputStream.read(buffer);
-                        String shopString = new String(buffer);
-                        publishProgress(shopString);
+                    //Check if async task isCancelled
+                    if (isCancelled()) {
+                        Log.e("BLUETOOTH", "Cancelada");
                         break;
+                    }
+
+                    //Check if socket is connected
+                    try {
+                        //TODO revisar otro método
+                        outputStream.write(client.getIdGoogleLogin().getBytes());
                     } catch (IOException e) {
                         Log.e("BLUETOOTH", "Conexión perdida");
                         break;
                     }
+
+
                 }
             } catch (IOException e) {
                 // Unable to connect; close the socket and return.
@@ -322,19 +355,22 @@ public class AccessShopFragment extends Fragment {
             if (shopNames.length != 0) {
                 String shopName = shopNames[0];
                 try {
-                    JSONObject shopData = new JSONObject(shopName);
+                    JSONObject shopData = new JSONObject(shopName.trim());
                     bluetooth_shop_name.setText(shopData.getString("name"));
                 } catch (JSONException e) {
                     bluetooth_shop_name.setText(shopName);
                 }
             }
+            ((AppCompatActivity) getActivity()).getSupportActionBar().hide();
             pd.dismiss();
 
         }
 
         @Override
         protected void onCancelled(BluetoothSocket bluetoothSocket) {
+            Log.e("BLUETOOTH", "On Cancelled");
             toogleVisibilityAccessShop(false);
+            ((AppCompatActivity) getActivity()).getSupportActionBar().show();
             pd.dismiss();
             if (mBluetoothSocket != null) {
                 try {
@@ -347,7 +383,9 @@ public class AccessShopFragment extends Fragment {
 
         @Override
         protected void onPostExecute(BluetoothSocket bluetoothSocket) {
+            Log.e("BLUETOOTH", "On postExecute");
             toogleVisibilityAccessShop(false);
+            ((AppCompatActivity) getActivity()).getSupportActionBar().show();
             pd.dismiss();
             if (mBluetoothSocket != null) {
                 try {

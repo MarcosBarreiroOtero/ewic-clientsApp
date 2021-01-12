@@ -92,4 +92,5 @@
     <string name="bluetooth_connecting_device">Conecting to device</string>
     <string name="welcome_to">Welcome to</string>
     <string name="enjoy_visit">We hope you enjoy your visit.</string>
+    <string name="exit_shop">Exit shop</string>
 </resources>
