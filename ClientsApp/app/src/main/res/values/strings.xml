@@ -93,4 +93,7 @@
     <string name="welcome_to">Welcome to</string>
     <string name="enjoy_visit">We hope you enjoy your visit.</string>
     <string name="exit_shop">Exit shop</string>
+    <string name="bluetooth_exit_not_connection">Connection to the device could not be established.</string>
+    <string name="bluetooth_exit_cancel">Leaving the store.</string>
+    <string name="bluetooth_exit_lost_connection">Connection with the device has been lost. Leaving the store.</string>
 </resources>

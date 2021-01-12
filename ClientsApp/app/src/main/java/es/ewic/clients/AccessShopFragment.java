@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +21,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -37,7 +37,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import es.ewic.clients.adapters.DeviceRowAdapter;
@@ -52,7 +51,7 @@ import es.ewic.clients.utils.FormUtils;
 public class AccessShopFragment extends Fragment {
 
     private static final String ARG_CLIENT = "client";
-    private static final int BLUETOOTH_REQUEST_CODE = 01;
+    private static final int BLUETOOTH_REQUEST_CODE = 1;
 
     private ConstraintLayout parent;
     private ProgressDialog pd;
@@ -62,7 +61,6 @@ public class AccessShopFragment extends Fragment {
     private ListView bonded_devices_list;
     private ListView new_devices_list;
     private List<BluetoothDevice> bonded_devices;
-    private Set<BluetoothDevice> new_devices;
     private DeviceRowAdapter mDeviceRowAdapter;
     private TextView bluetooth_shop_name;
 
@@ -70,12 +68,10 @@ public class AccessShopFragment extends Fragment {
 
     private static final UUID MY_UUID_SECURE = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-    private Handler handler;
+    OnAcessShopListener mCallback;
 
-    private interface MessageConstants {
-        public static final int MESSAGE_READ = 0;
-        public static final int MESSAGE_WRITE = 1;
-        public static final int MESSAGE_TOAST = 2;
+    public interface OnAcessShopListener {
+        void onBluetoothTurnOff();
     }
 
     public AccessShopFragment() {
@@ -88,6 +84,13 @@ public class AccessShopFragment extends Fragment {
         args.putSerializable(ARG_CLIENT, clientData);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        mCallback = (AccessShopFragment.OnAcessShopListener) getActivity();
     }
 
     @Override
@@ -142,9 +145,7 @@ public class AccessShopFragment extends Fragment {
         bluetooth_exit_shop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e("BLUETOOTH", "Try to cancel");
                 boolean cancelled = mBlueeToothConectionTask.cancel(true);
-                Log.e("BLUETOOTH", "Cancelled: " + cancelled);
             }
         });
 
@@ -176,6 +177,9 @@ public class AccessShopFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (mBluetoothAdapter != null) {
+            mBluetoothAdapter.cancelDiscovery();
+        }
         if (mBroadcastReceiver != null) {
             requireActivity().unregisterReceiver(mBroadcastReceiver);
         }
@@ -213,15 +217,27 @@ public class AccessShopFragment extends Fragment {
                     if (!bonded_devices.contains(device)) {
                         addNewDevice(device);
                     }
+                } else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                    if (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
+                            == BluetoothAdapter.STATE_OFF) {
+                        Log.e("BLUETOOTH", "BLuetooth desactivado");
+                        mBluetoothAdapter.cancelDiscovery();
+                        if (mBlueeToothConectionTask != null) {
+                            mBlueeToothConectionTask.cancel(true);
+                        }
+                        mCallback.onBluetoothTurnOff();
+                    }
                 }
             }
         };
 
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         getActivity().registerReceiver(mBroadcastReceiver, filter);
     }
 
     private void connectToBluetoothServer(BluetoothDevice device) {
+        mBluetoothAdapter.cancelDiscovery();
         mBlueeToothConectionTask = new BlueeToothConectionTask();
         mBlueeToothConectionTask.execute(device);
     }
@@ -272,12 +288,12 @@ public class AccessShopFragment extends Fragment {
         }
     }
 
-    private class BlueeToothConectionTask extends AsyncTask<BluetoothDevice, String, BluetoothSocket> {
+    private class BlueeToothConectionTask extends AsyncTask<BluetoothDevice, String, String> {
         private BluetoothSocket mBluetoothSocket;
         private BluetoothDevice mDevice;
 
         @Override
-        protected BluetoothSocket doInBackground(BluetoothDevice... bluetoothDevices) {
+        protected String doInBackground(BluetoothDevice... bluetoothDevices) {
             BluetoothSocket tmp = null;
             if (bluetoothDevices.length != 0) {
                 mDevice = bluetoothDevices[0];
@@ -311,24 +327,23 @@ public class AccessShopFragment extends Fragment {
                     Log.e("BLUETOOTH", "Nuevo:" + shopString.trim());
                     publishProgress(shopString);
                 } catch (IOException e) {
-                    Log.e("BLUETOOTH", "Sin conexión");
-                    return null;
+                    return getString(R.string.bluetooth_exit_not_connection);
                 }
 
                 while (true) {
                     //Check if async task isCancelled
                     if (isCancelled()) {
                         Log.e("BLUETOOTH", "Cancelada");
-                        break;
+                        return getString(R.string.bluetooth_exit_cancel);
                     }
 
                     //Check if socket is connected
                     try {
                         //TODO revisar otro método
+                        outputStream.flush();
                         outputStream.write(client.getIdGoogleLogin().getBytes());
                     } catch (IOException e) {
-                        Log.e("BLUETOOTH", "Conexión perdida");
-                        break;
+                        return getString(R.string.bluetooth_exit_lost_connection);
                     }
 
 
@@ -336,17 +351,8 @@ public class AccessShopFragment extends Fragment {
             } catch (IOException e) {
                 // Unable to connect; close the socket and return.
                 Log.e("BLUETOOTH", "Could not connect client socket", e);
-                mBluetoothAdapter.startDiscovery();
-                try {
-                    mBluetoothSocket.close();
-                } catch (IOException closeException) {
-                    Log.e("BLUETOOTH", "Could not close the client socket", closeException);
-                    mBluetoothAdapter.startDiscovery();
-                }
-                return null;
+                return getString(R.string.bluetooth_exit_not_connection);
             }
-
-            return mBluetoothSocket;
         }
 
         @Override
@@ -367,11 +373,8 @@ public class AccessShopFragment extends Fragment {
         }
 
         @Override
-        protected void onCancelled(BluetoothSocket bluetoothSocket) {
+        protected void onCancelled(String exitMessage) {
             Log.e("BLUETOOTH", "On Cancelled");
-            toogleVisibilityAccessShop(false);
-            ((AppCompatActivity) getActivity()).getSupportActionBar().show();
-            pd.dismiss();
             if (mBluetoothSocket != null) {
                 try {
                     mBluetoothSocket.close();
@@ -379,14 +382,20 @@ public class AccessShopFragment extends Fragment {
                     Log.e("BLUETOOTH", "On cancelled: Could not close the connect socket", e);
                 }
             }
+            toogleVisibilityAccessShop(false);
+            ((AppCompatActivity) getActivity()).getSupportActionBar().show();
+            if (!mBluetoothAdapter.isDiscovering()) {
+                mBluetoothAdapter.startDiscovery();
+            }
+            if (pd.isShowing()) {
+                pd.dismiss();
+            }
+            Snackbar.make(getView(), exitMessage, Snackbar.LENGTH_SHORT).show();
         }
 
         @Override
-        protected void onPostExecute(BluetoothSocket bluetoothSocket) {
+        protected void onPostExecute(String exitMessage) {
             Log.e("BLUETOOTH", "On postExecute");
-            toogleVisibilityAccessShop(false);
-            ((AppCompatActivity) getActivity()).getSupportActionBar().show();
-            pd.dismiss();
             if (mBluetoothSocket != null) {
                 try {
                     mBluetoothSocket.close();
@@ -394,6 +403,15 @@ public class AccessShopFragment extends Fragment {
                     Log.e("BLUETOOTH", "On postExecute: Could not close the connect socket", e);
                 }
             }
+            toogleVisibilityAccessShop(false);
+            ((AppCompatActivity) getActivity()).getSupportActionBar().show();
+            if (!mBluetoothAdapter.isDiscovering()) {
+                mBluetoothAdapter.startDiscovery();
+            }
+            if (pd.isShowing()) {
+                pd.dismiss();
+            }
+            Snackbar.make(getView(), exitMessage, Snackbar.LENGTH_SHORT).show();
         }
     }
 }

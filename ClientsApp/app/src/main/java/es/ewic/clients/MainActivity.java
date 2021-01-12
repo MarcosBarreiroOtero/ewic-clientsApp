@@ -28,7 +28,9 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         ShopInformationFragment.OnShopInformationListener,
         CreateReservationsFragment.OnCreateReservationListener,
         MyReservationsFragment.OnMyReservationsListener,
-        ReservationRowAdapter.OnEditReservationListener, DialogFilterShop.OnDialogFilterShopListener {
+        ReservationRowAdapter.OnEditReservationListener,
+        DialogFilterShop.OnDialogFilterShopListener,
+        AccessShopFragment.OnAcessShopListener {
 
     private static final String ARG_SHOP_INFORMATION = "shopInformation";
     private static final String ARG_CLIENT_DATA = "clientData";
@@ -301,5 +303,22 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         if (clientData != null) {
             FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopListFragment.newInstance(shopName, shopType, useLocation), false);
         }
+    }
+
+    @Override
+    public void onBluetoothTurnOff() {
+        if (clientData != null) {
+            Snackbar.make(findViewById(R.id.mainActivityLayout), getString(R.string.bluetooth_needed_message), Snackbar.LENGTH_LONG).show();
+            enableMyData = true;
+            enableMyReservation = true;
+            enableAccessShop = true;
+            invalidateOptionsMenu();
+            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                getSupportFragmentManager().popBackStackImmediate();
+            } else {
+                FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopListFragment.newInstance(null, null, true), false);
+            }
+        }
+
     }
 }
