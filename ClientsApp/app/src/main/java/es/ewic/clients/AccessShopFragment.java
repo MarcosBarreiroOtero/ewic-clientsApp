@@ -413,6 +413,8 @@ public class AccessShopFragment extends Fragment {
             toogleVisibilityAccessShop(false);
             ((AppCompatActivity) getActivity()).getSupportActionBar().show();
             if (!mBluetoothAdapter.isDiscovering()) {
+                mDeviceRowAdapter = new DeviceRowAdapter(new ArrayList<>(), AccessShopFragment.this, getResources(), getActivity().getPackageName());
+                new_devices_list.setAdapter(mDeviceRowAdapter);
                 mBluetoothAdapter.startDiscovery();
             }
             if (pd.isShowing()) {

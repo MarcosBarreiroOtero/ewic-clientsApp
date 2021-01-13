@@ -62,7 +62,7 @@
     <string name="retry">Reintentar</string>
     <string name="error_connect_server">No se ha podido establecer conexión con el servidor</string>
     <string name="error_server">Ha ocurrido un eror, por favor reintente la operación</string>
-    <string name="error_rsv_duplicate">Reserva duplicada. Por favor escoja otra fecha</string>
+    <string name="error_rsv_duplicate">Ya existe una reserva para esa hora. Por favor escoja otra fecha</string>
     <string name="error_rsv_not_mutable_delete">La reserva no se puede cancelar</string>
     <string name="timetable">Horario</string>
     <string name="monday">Lunes</string>
@@ -74,7 +74,7 @@
     <string name="sunday">Domingo</string>
     <string name="error_hour_invalid">Hora no válida. Por favor escoga una de la lista</string>
     <string name="error_shop_closed_weekDay">El día escogido la tienda está cerrada. La fecha no se ha modificado.</string>
-    <string name="error_reservation_shop_full">Tienda llena en la fecha indicada. Por favor escoja otra.</string>
+    <string name="error_reservation_shop_full">No se puede guardar la reserva para el número de clientes en la fecha indicada.</string>
     <string name="check_timetable_help">* Para consultar el horario semanal pulse en el icono del reloj</string>
     <string name="shop_timetable_not_defined">La tienda no tiene un horario definido</string>
     <string name="shops_not_found">No se han encontrado tiendas con esos parámetros. Por favor pruebe con otros valores.</string>
@@ -94,4 +94,9 @@
     <string name="bluetooth_exit_not_connection">No se ha podido establecer conexión con el dispositivo.</string>
     <string name="bluetooth_exit_cancel">Saliendo de la tienda.</string>
     <string name="bluetooth_exit_lost_connection">Se ha perdido conexión con el dispositivo. Saliendo de la tienda.</string>
+    <string name="nClients">Número de clientes</string>
+    <string name="error_nClients_min">El número de clientes minimo es 1.</string>
+    <string name="error_nClient_max">El número de clientes supera el aforo máximo de la tienda</string>
+    <string name="client">cliente</string>
+    <string name="clients">clientes</string>
 </resources>

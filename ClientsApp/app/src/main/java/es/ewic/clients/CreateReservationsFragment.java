@@ -26,6 +26,7 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -173,6 +174,14 @@ public class CreateReservationsFragment extends Fragment {
             }
         });
 
+        //Nclients
+        TextInputEditText tiet_nClients = parent.findViewById(R.id.reservation_nClients_input);
+        if (reservation != null) {
+            tiet_nClients.setText(Integer.toString(reservation.getnClients()));
+        } else {
+            tiet_nClients.setText("1");
+        }
+
         // Shop
         AutoCompleteTextView act_shop = parent.findViewById(R.id.reservation_shop_input);
         if (reservation != null) {
@@ -195,7 +204,7 @@ public class CreateReservationsFragment extends Fragment {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
                     if (!hasFocus) {
-                        if (validateShop(act_shop)) {
+                        if (validateShop(parent)) {
                             String shopInput = act_shop.getText().toString().trim();
                             for (int i = 0; i < shopNames.length(); i++) {
                                 JSONObject shopName = shopNames.optJSONObject(i);
@@ -217,6 +226,7 @@ public class CreateReservationsFragment extends Fragment {
                         }
                         setAdapterHourInput(parent, DateUtils.parseDateDate(tiet_date.getText().toString().trim()), timetable);
                         act_hour.setText("");
+                        tiet_nClients.setText("1");
                     }
                 }
             });
@@ -404,10 +414,13 @@ public class CreateReservationsFragment extends Fragment {
         datePicker.show();
     }
 
-    private boolean validateShop(AutoCompleteTextView act_shop) {
+    private boolean validateShop(ConstraintLayout parent) {
+        TextInputLayout til_shop = parent.findViewById(R.id.reservation_shop_label);
+        AutoCompleteTextView act_shop = parent.findViewById(R.id.reservation_shop_input);
+
         String shop_input = act_shop.getText().toString().trim();
         if (shop_input.isEmpty()) {
-            act_shop.setError(getString(R.string.error_empty_field));
+            til_shop.setError(getString(R.string.error_empty_field));
             return false;
         } else {
             ArrayList<String> results = new ArrayList<>();
@@ -417,27 +430,32 @@ public class CreateReservationsFragment extends Fragment {
             }
             if (results.size() == 0 ||
                     results.indexOf(shop_input) == -1) {
-                act_shop.setError(getString(R.string.error_shop_not_found));
+                til_shop.setError(getString(R.string.error_shop_not_found));
                 return false;
             }
         }
-        act_shop.setError(null);
+        til_shop.setError(null);
         return true;
 
     }
 
-    private boolean validateReservationDate(TextInputEditText tiet_date, AutoCompleteTextView act_hour) {
+    private boolean validateReservationDate(ConstraintLayout parent) {
+        TextInputLayout til_date = parent.findViewById(R.id.reservation_date_label);
+        TextInputEditText tiet_date = parent.findViewById(R.id.reservation_date_input);
+        TextInputLayout til_hour = parent.findViewById(R.id.reservation_hour_label);
+        AutoCompleteTextView act_hour = parent.findViewById(R.id.reservation_hour_input);
+
         String dateInput = tiet_date.getText().toString().trim();
         boolean validDate = true;
         boolean validHour = true;
         if (dateInput.isEmpty()) {
-            tiet_date.setError(getString(R.string.error_empty_field));
+            til_date.setError(getString(R.string.error_empty_field));
             validDate = false;
         }
 
         String hourInput = act_hour.getText().toString().trim();
         if (hourInput.isEmpty()) {
-            act_hour.setError(getString(R.string.error_empty_field));
+            til_hour.setError(getString(R.string.error_empty_field));
             validHour = false;
         } else {
             ArrayList<String> results = new ArrayList<>();
@@ -447,7 +465,7 @@ public class CreateReservationsFragment extends Fragment {
             }
             if (results.size() == 0 ||
                     results.indexOf(hourInput) == -1) {
-                act_hour.setError(getString(R.string.error_hour_invalid));
+                til_hour.setError(getString(R.string.error_hour_invalid));
                 act_hour.setText("");
                 act_hour.requestFocus();
                 validHour = false;
@@ -460,37 +478,80 @@ public class CreateReservationsFragment extends Fragment {
         Calendar now = Calendar.getInstance();
         Calendar date = DateUtils.parseDateLong(hourInput + " " + dateInput);
         if (date == null) {
-            act_hour.setError(getString(R.string.error_bad_format_hour));
-            tiet_date.setError(getString(R.string.error_bad_format_date));
+            til_hour.setError(getString(R.string.error_bad_format_hour));
+            til_date.setError(getString(R.string.error_bad_format_date));
             return false;
         } else if (now.after(date)) {
-            act_hour.setError(getString(R.string.error_past_reservation));
+            til_hour.setError(getString(R.string.error_past_reservation));
             act_hour.setText("");
             act_hour.requestFocus();
             return false;
         }
 
-        tiet_date.setError(null);
-        act_hour.setError(null);
+        til_date.setError(null);
+        til_hour.setError(null);
+        return true;
+    }
+
+    private boolean validateNClients(ConstraintLayout parent) {
+        TextInputLayout til_nClients = parent.findViewById(R.id.reservation_nClients_label);
+        TextInputEditText tiet_nClients = parent.findViewById(R.id.reservation_nClients_input);
+
+        if (tiet_nClients.getText().toString().trim().isEmpty()) {
+            til_nClients.setError(getString(R.string.error_empty_field));
+            return false;
+        }
+
+        Integer nClientsValue = Integer.parseInt(tiet_nClients.getText().toString().trim());
+
+
+        if (nClientsValue < 1) {
+            til_nClients.setError(getString(R.string.error_nClients_min));
+            return false;
+        }
+
+        if (shop != null) {
+            if (nClientsValue > shop.getMaxCapacity()) {
+                til_nClients.setError(getString(R.string.error_nClient_max) + " (" + shop.getMaxCapacity() + ")");
+                return false;
+            }
+        } else if (reservation == null) {
+            AutoCompleteTextView act_shop = parent.findViewById(R.id.reservation_shop_input);
+            String shop_input = act_shop.getText().toString().trim();
+            for (int i = 0; i < shopNames.length(); i++) {
+                JSONObject shopName = shopNames.optJSONObject(i);
+                if (shop_input.equals(shopName.optString("name"))) {
+                    int maxCapacity = shopName.optInt("maxCapacity");
+                    if (nClientsValue > maxCapacity) {
+                        til_nClients.setError(getString(R.string.error_nClient_max) + " (" + maxCapacity + ")");
+                        return false;
+                    }
+                    break;
+                }
+            }
+        }
+
+        til_nClients.setError(null);
         return true;
     }
 
     private void createNewReservationForm(ConstraintLayout parent) {
 
-        AutoCompleteTextView act_shop = parent.findViewById(R.id.reservation_shop_input);
-        TextInputEditText tiet_date = parent.findViewById(R.id.reservation_date_input);
-        AutoCompleteTextView act_hour = parent.findViewById(R.id.reservation_hour_input);
-
-        if (validateShop(act_shop) & validateReservationDate(tiet_date, act_hour)) {
-
+        if (validateShop(parent) & validateReservationDate(parent) & validateNClients(parent)) {
             ProgressDialog pd = FormUtils.showProgressDialog(getContext(), getResources(), R.string.updating_data, R.string.please_wait);
 
+            AutoCompleteTextView act_shop = parent.findViewById(R.id.reservation_shop_input);
+            TextInputEditText tiet_date = parent.findViewById(R.id.reservation_date_input);
+            AutoCompleteTextView act_hour = parent.findViewById(R.id.reservation_hour_input);
+            TextInputEditText tiet_nClients = parent.findViewById(R.id.reservation_nClients_input);
             TextInputEditText tiet_remarks = parent.findViewById(R.id.reservation_remark_input);
 
             String remarksInput = tiet_remarks.getText().toString().trim();
             String dateInput = tiet_date.getText().toString().trim();
             String hourInput = act_hour.getText().toString().trim();
             String shopInput = act_shop.getText().toString().trim();
+            Integer nClientsInput = Integer.parseInt(tiet_nClients.getText().toString().trim());
+
             Calendar date = DateUtils.parseDateLong(hourInput + " " + dateInput);
             int idShop = 0;
             if (shop != null) {
@@ -503,7 +564,7 @@ public class CreateReservationsFragment extends Fragment {
                     }
                 }
             }
-            Reservation rsv = new Reservation(date, remarksInput, client.getIdGoogleLogin(), idShop);
+            Reservation rsv = new Reservation(date, remarksInput, nClientsInput, client.getIdGoogleLogin(), idShop);
 
             String url = BackEndEndpoints.RESERVATION_BASE;
             JSONObject rsvJSON = ModelConverter.reservationToJsonObject(rsv);
@@ -544,7 +605,7 @@ public class CreateReservationsFragment extends Fragment {
                                 break;
                             case 401:
                                 if (errorMessage.contains(RequestUtils.RESERVATION_WHEN_SHOP_FULL)) {
-                                    message = getString(R.string.error_past_reservation);
+                                    message = getString(R.string.error_reservation_shop_full);
                                 } else {
                                     message = getString(R.string.error_past_reservation);
                                 }
@@ -575,23 +636,26 @@ public class CreateReservationsFragment extends Fragment {
 
     private void editReservationForm(ConstraintLayout parent) {
 
-        AutoCompleteTextView act_shop = parent.findViewById(R.id.reservation_shop_input);
-        TextInputEditText tiet_date = parent.findViewById(R.id.reservation_date_input);
-        AutoCompleteTextView act_hour = parent.findViewById(R.id.reservation_hour_input);
-
-        if (validateShop(act_shop) & validateReservationDate(tiet_date, act_hour)) {
+        if (validateShop(parent) & validateReservationDate(parent) & validateNClients(parent)) {
 
             ProgressDialog pd = FormUtils.showProgressDialog(getContext(), getResources(), R.string.updating_data, R.string.please_wait);
 
+            AutoCompleteTextView act_shop = parent.findViewById(R.id.reservation_shop_input);
+            TextInputEditText tiet_date = parent.findViewById(R.id.reservation_date_input);
+            AutoCompleteTextView act_hour = parent.findViewById(R.id.reservation_hour_input);
+            TextInputEditText tiet_nClients = parent.findViewById(R.id.reservation_nClients_input);
             TextInputEditText tiet_remarks = parent.findViewById(R.id.reservation_remark_input);
 
             String remarksInput = tiet_remarks.getText().toString().trim();
             String dateInput = tiet_date.getText().toString().trim();
             String hourInput = act_hour.getText().toString().trim();
+            String shopInput = act_shop.getText().toString().trim();
+            Integer nClientsInput = Integer.parseInt(tiet_nClients.getText().toString().trim());
 
             Calendar date = DateUtils.parseDateLong(hourInput + " " + dateInput);
             reservation.setDate(date);
             reservation.setRemarks(remarksInput);
+            reservation.setnClients(nClientsInput);
 
             String url = BackEndEndpoints.RESERVATION_BASE + "/" + reservation.getIdReservation();
             JSONObject rsvJSON = ModelConverter.reservationToJsonObject(reservation);
@@ -632,7 +696,7 @@ public class CreateReservationsFragment extends Fragment {
                                 break;
                             case 401:
                                 if (errorMessage.contains(RequestUtils.RESERVATION_WHEN_SHOP_FULL)) {
-                                    message = getString(R.string.error_past_reservation);
+                                    message = getString(R.string.error_reservation_shop_full);
                                 } else {
                                     message = getString(R.string.error_past_reservation);
                                 }

@@ -99,7 +99,7 @@ public class ReservationRowAdapter extends BaseAdapter implements ListAdapter {
         Reservation reservation = getItem(position);
 
         if (reservation != null) {
-            shopId.setText(reservation.getShopName());
+            shopId.setText(reservation.getShopName() + " (" + reservation.getnClients() + " " + (reservation.getnClients() == 1 ? resources.getString(R.string.client) : resources.getString(R.string.clients)) + ")");
 
             Calendar date = reservation.getDate();
             reservationDate.setText(DateUtils.formatDateLong(date));
