@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
     private boolean enableMyData = true;
     private boolean enableMyReservation = true;
     private boolean enableAccessShop = true;
+    private boolean enableBackButton = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -205,14 +206,16 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
 
     @Override
     public void onBackPressed() {
-        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-            enableMyData = true;
-            enableMyReservation = true;
-            enableAccessShop = true;
-            invalidateOptionsMenu();
-            getSupportFragmentManager().popBackStack();
-        } else {
-            finish();
+        if (enableBackButton) {
+            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                enableMyData = true;
+                enableMyReservation = true;
+                enableAccessShop = true;
+                invalidateOptionsMenu();
+                getSupportFragmentManager().popBackStack();
+            } else {
+                finish();
+            }
         }
     }
 
@@ -308,7 +311,6 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
     @Override
     public void onBluetoothTurnOff() {
         if (clientData != null) {
-            Snackbar.make(findViewById(R.id.mainActivityLayout), getString(R.string.bluetooth_needed_message), Snackbar.LENGTH_LONG).show();
             enableMyData = true;
             enableMyReservation = true;
             enableAccessShop = true;
@@ -320,5 +322,15 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
             }
         }
 
+    }
+
+    @Override
+    public void enterShop() {
+        enableBackButton = false;
+    }
+
+    @Override
+    public void exitShop() {
+        enableBackButton = true;
     }
 }

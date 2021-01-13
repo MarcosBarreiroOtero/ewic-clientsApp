@@ -72,6 +72,10 @@ public class AccessShopFragment extends Fragment {
 
     public interface OnAcessShopListener {
         void onBluetoothTurnOff();
+
+        void enterShop();
+
+        void exitShop();
     }
 
     public AccessShopFragment() {
@@ -223,7 +227,11 @@ public class AccessShopFragment extends Fragment {
                         Log.e("BLUETOOTH", "BLuetooth desactivado");
                         mBluetoothAdapter.cancelDiscovery();
                         if (mBlueeToothConectionTask != null) {
-                            mBlueeToothConectionTask.cancel(true);
+                            if (!mBlueeToothConectionTask.isCancelled()) {
+                                Snackbar.make(getView(), getString(R.string.bluetooth_needed_message), Snackbar.LENGTH_LONG).show();
+                            } else {
+                                mBlueeToothConectionTask.cancel(true);
+                            }
                         }
                         mCallback.onBluetoothTurnOff();
                     }
@@ -357,6 +365,7 @@ public class AccessShopFragment extends Fragment {
 
         @Override
         protected void onProgressUpdate(String... shopNames) {
+            mCallback.enterShop();
             toogleVisibilityAccessShop(true);
             if (shopNames.length != 0) {
                 String shopName = shopNames[0];
@@ -374,33 +383,31 @@ public class AccessShopFragment extends Fragment {
 
         @Override
         protected void onCancelled(String exitMessage) {
-            Log.e("BLUETOOTH", "On Cancelled");
+            mCallback.exitShop();
             if (mBluetoothSocket != null) {
                 try {
+                    mBluetoothSocket.getInputStream().close();
+                    mBluetoothSocket.getOutputStream().close();
                     mBluetoothSocket.close();
                 } catch (IOException e) {
                     Log.e("BLUETOOTH", "On cancelled: Could not close the connect socket", e);
                 }
             }
-            toogleVisibilityAccessShop(false);
             ((AppCompatActivity) getActivity()).getSupportActionBar().show();
-            if (!mBluetoothAdapter.isDiscovering()) {
-                mBluetoothAdapter.startDiscovery();
-            }
-            if (pd.isShowing()) {
-                pd.dismiss();
-            }
             Snackbar.make(getView(), exitMessage, Snackbar.LENGTH_SHORT).show();
+            mBluetoothAdapter.disable();
         }
 
         @Override
         protected void onPostExecute(String exitMessage) {
-            Log.e("BLUETOOTH", "On postExecute");
+            mCallback.exitShop();
             if (mBluetoothSocket != null) {
                 try {
+                    mBluetoothSocket.getInputStream().close();
+                    mBluetoothSocket.getOutputStream().close();
                     mBluetoothSocket.close();
                 } catch (IOException e) {
-                    Log.e("BLUETOOTH", "On postExecute: Could not close the connect socket", e);
+                    Log.e("BLUETOOTH", "On cancelled: Could not close the connect socket", e);
                 }
             }
             toogleVisibilityAccessShop(false);
