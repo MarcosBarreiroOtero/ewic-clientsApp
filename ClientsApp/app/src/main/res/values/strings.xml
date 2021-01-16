@@ -56,7 +56,7 @@
     <string name="find_shops">Find Shops</string>
     <string name="find">Find</string>
     <string name="please_wait">Please wait.</string>
-    <string name="updating_data" translatable="false">Updating data</string>
+    <string name="updating_data">Updating data</string>
     <string name="connecting_server">Connecting to the server</string>
     <string name="updating_reservation">Updating reservation</string>
     <string name="creating_reservation">Creating reservation</string>
@@ -100,4 +100,5 @@
     <string name="error_nClient_max">The number of customers exceeds the maximum capacity of the store</string>
     <string name="client">client</string>
     <string name="clients">clients</string>
+    <string name="bluetooth_location_needed">To find new devices it is necessary to have the location activated</string>
 </resources>
