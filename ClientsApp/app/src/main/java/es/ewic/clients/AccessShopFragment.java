@@ -259,6 +259,7 @@ public class AccessShopFragment extends Fragment {
         TextView bluetooth_bonded_devices = parent.findViewById(R.id.bluetooth_bonded_devices);
         // Bonded device listView bonded_devices_list
         TextView bluetooth_new_devices = parent.findViewById(R.id.bluetooth_new_devices);
+        TextView bluetooth_location_needed = parent.findViewById(R.id.bluetooth_location_needed);
         // New devices listView new_devices_list
 
         //Access elements
@@ -274,6 +275,7 @@ public class AccessShopFragment extends Fragment {
             bluetooth_bonded_devices.setVisibility(View.GONE);
             bonded_devices_list.setVisibility(View.GONE);
             bluetooth_new_devices.setVisibility(View.GONE);
+            bluetooth_location_needed.setVisibility(View.GONE);
             new_devices_list.setVisibility(View.GONE);
 
             welcome_text.setVisibility(View.VISIBLE);
@@ -287,6 +289,7 @@ public class AccessShopFragment extends Fragment {
             bluetooth_bonded_devices.setVisibility(View.VISIBLE);
             bonded_devices_list.setVisibility(View.VISIBLE);
             bluetooth_new_devices.setVisibility(View.VISIBLE);
+            bluetooth_location_needed.setVisibility(View.VISIBLE);
             new_devices_list.setVisibility(View.VISIBLE);
 
             welcome_text.setVisibility(View.GONE);
