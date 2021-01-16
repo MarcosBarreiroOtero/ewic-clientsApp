@@ -87,6 +87,7 @@ public class ModelConverter {
         try {
             return new JSONObject().put("date", DateUtils.formatDateLong(reservationDateFormatted))
                     .put("remarks", reservation.getRemarks())
+                    .put("nClients", reservation.getnClients())
                     .put("idGoogleLoginClient", reservation.getIdGoogleLoginClient())
                     .put("idShop", reservation.getIdShop());
         } catch (JSONException e) {
@@ -103,6 +104,7 @@ public class ModelConverter {
                     reservationDate,
                     reservationData.getString("state"),
                     reservationData.getString("remarks"),
+                    reservationData.getInt("nClients"),
                     reservationData.getString("idGoogleLoginClient"),
                     reservationData.getInt("idShop"),
                     reservationData.getString("shopName"));

@@ -9,23 +9,26 @@ public class Reservation implements Serializable {
     private Calendar date;
     private String state;
     private String remarks;
+    private int nClients;
     private String idGoogleLoginClient;
     private int idShop;
     private String shopName;
 
-    public Reservation(int idReservation, Calendar date, String state, String remarks, String idGoogleLoginClient, int idShop, String shopName) {
+    public Reservation(int idReservation, Calendar date, String state, String remarks, int nClients, String idGoogleLoginClient, int idShop, String shopName) {
         this.idReservation = idReservation;
         this.date = date;
         this.state = state;
         this.remarks = remarks;
+        this.nClients = nClients;
         this.idGoogleLoginClient = idGoogleLoginClient;
         this.idShop = idShop;
         this.shopName = shopName;
     }
 
-    public Reservation(Calendar date, String remarks, String idGoogleLoginClient, int idShop) {
+    public Reservation(Calendar date, String remarks, int nClients, String idGoogleLoginClient, int idShop) {
         this.date = date;
         this.remarks = remarks;
+        this.nClients = nClients;
         this.idGoogleLoginClient = idGoogleLoginClient;
         this.idShop = idShop;
     }
@@ -62,6 +65,15 @@ public class Reservation implements Serializable {
         this.remarks = remarks;
     }
 
+    public int getnClients() {
+        return nClients;
+    }
+
+    public void setnClients(int nClients) {
+        this.nClients = nClients;
+    }
+
+
     public String getIdGoogleLoginClient() {
         return idGoogleLoginClient;
     }
@@ -93,6 +105,7 @@ public class Reservation implements Serializable {
                 ", date=" + date.getTime().toString() +
                 ", state='" + state + '\'' +
                 ", remarks='" + remarks + '\'' +
+                ", nClients='" + nClients + '\'' +
                 ", idGoogleLoginClient='" + idGoogleLoginClient + '\'' +
                 ", idShop=" + idShop +
                 '}';

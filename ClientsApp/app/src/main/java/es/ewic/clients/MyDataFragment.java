@@ -139,7 +139,7 @@ public class MyDataFragment extends Fragment {
         TextInputLayout til_email_label = parent.findViewById(R.id.my_data_email_label);
         if (!FormUtils.isValidEmail(til_email.getText())) {
             til_email_label.setError(getString(R.string.email_invalid_format));
-            pd.hide();
+            pd.dismiss();
             return;
         } else {
             til_email_label.setError(null);
@@ -156,7 +156,7 @@ public class MyDataFragment extends Fragment {
             public void onResponse(JSONObject response) {
                 clientData = ModelConverter.jsonObjectToClient(response);
                 mCallback.onUpdateClientAccount(clientData);
-                pd.hide();
+                pd.dismiss();
                 Snackbar.make(parent, getString(R.string.update_data_successfully), Snackbar.LENGTH_LONG)
                         .show();
 
@@ -165,7 +165,7 @@ public class MyDataFragment extends Fragment {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e("HTTP", "error");
-                pd.hide();
+                pd.dismiss();
                 if (error instanceof TimeoutError) {
                     Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
                     snackbar.setAction(R.string.retry, new View.OnClickListener() {
