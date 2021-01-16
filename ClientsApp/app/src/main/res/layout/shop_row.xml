@@ -16,6 +16,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
         android:lines="2"
+        android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/shop_percentage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

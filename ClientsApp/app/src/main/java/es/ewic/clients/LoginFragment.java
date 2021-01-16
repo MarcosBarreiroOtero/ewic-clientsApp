@@ -160,17 +160,18 @@ public class LoginFragment extends Fragment {
                     .put("firstName", account.getGivenName())
                     .put("lastName", account.getFamilyName())
                     .put("email", account.getEmail());
+
             RequestUtils.sendJsonObjectRequest(getContext(), Request.Method.POST, BackEndEndpoints.LOGIN_CLIENTS, clientData, new Response.Listener<JSONObject>() {
                 @Override
                 public void onResponse(JSONObject response) {
                     Client newClient = ModelConverter.jsonObjectToClient(response);
-                    pd.hide();
+                    pd.dismiss();
                     mCallback.onLoadClientData(newClient);
                 }
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    pd.hide();
+                    pd.dismiss();
                     if (error instanceof TimeoutError) {
                         Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
                         snackbar.setAction(R.string.retry, new View.OnClickListener() {
