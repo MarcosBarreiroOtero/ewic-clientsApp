@@ -148,8 +148,6 @@ public class ShopListFragment extends Fragment {
                 if (task.isSuccessful() && task.getResult() != null) {
                     mLatitude = task.getResult().getLatitude();
                     mLongitude = task.getResult().getLongitude();
-                } else {
-                    Log.e("Position", "getLastLocation:exception - " + task.getException(), task.getException());
                 }
                 getShopList(parent, swipeRefreshLayout);
             }
