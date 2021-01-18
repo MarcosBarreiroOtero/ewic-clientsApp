@@ -216,7 +216,7 @@ public class ShopListFragment extends Fragment {
     }
 
     private void showFilterDialog(ConstraintLayout parent, LayoutInflater inflater) {
-        DialogFragment newFragment = DialogFilterShop.newInstance(shop_name, shop_type, use_location);
+        DialogFragment newFragment = DialogFilterShop.newInstance(shop_name, shop_type, use_location, true);
         newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
     }
 

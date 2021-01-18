@@ -1,8 +1,10 @@
 package es.ewic.clients;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -16,8 +18,10 @@ import android.widget.DatePicker;
 import android.widget.ListAdapter;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.android.volley.Request;
@@ -36,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import es.ewic.clients.adapters.DialogFilterShop;
 import es.ewic.clients.model.Client;
 import es.ewic.clients.model.Reservation;
 import es.ewic.clients.model.Shop;
@@ -52,10 +57,16 @@ import es.ewic.clients.utils.RequestUtils;
  */
 public class CreateReservationsFragment extends Fragment {
 
+    public static final String INTENT_SHOP_NAME = "shop_name";
+    public static final String INTENT_SHOP_TYPE = "shop_type";
+
     private static final String ARG_CLIENT = "client_data";
     private static final String ARG_SHOP = "shop_data";
     private static final String ARG_RSV = "reservation_data";
 
+    public static final int DIALOG_FRAGMENT = 1;
+
+    private ConstraintLayout parent;
     private Client client;
     private Shop shop;
     private Reservation reservation;
@@ -128,7 +139,7 @@ public class CreateReservationsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        ConstraintLayout parent = (ConstraintLayout) inflater.inflate(R.layout.fragment_create_reservations, container, false);
+        parent = (ConstraintLayout) inflater.inflate(R.layout.fragment_create_reservations, container, false);
 
 
         Calendar now = Calendar.getInstance();
@@ -163,14 +174,14 @@ public class CreateReservationsFragment extends Fragment {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    showDatePickerListener(parent, tiet_date);
+                    showDatePickerListener(tiet_date);
                 }
             }
         });
         tiet_date.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDatePickerListener(parent, tiet_date);
+                showDatePickerListener(tiet_date);
             }
         });
 
@@ -191,7 +202,7 @@ public class CreateReservationsFragment extends Fragment {
             act_shop.setText(reservation.getShopName());
             act_shop.setEnabled(false);
 
-            getShopCalendar(parent, reservation.getDate());
+            getShopCalendar(reservation.getDate());
         } else if (shop != null) {
             String[] shops = new String[]{shop.getName()};
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.shop_list_item, shops);
@@ -199,12 +210,26 @@ public class CreateReservationsFragment extends Fragment {
             act_shop.setText(shop.getName());
             act_shop.setEnabled(false);
         } else {
-            getShopNames(parent);
+            TextInputLayout til_shop = parent.findViewById(R.id.reservation_shop_label);
+            til_shop.setStartIconDrawable(R.drawable.ic_filter_24dp);
+            til_shop.setStartIconContentDescription(R.string.filter_shops);
+            Fragment targetFragment = this;
+            til_shop.setStartIconOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DialogFragment newFragment = DialogFilterShop.newInstance(null, null, false, false);
+                    newFragment.setTargetFragment(targetFragment, DIALOG_FRAGMENT);
+                    newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
+                }
+            });
+
+            getShopNames(null, null);
+
             act_shop.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
                     if (!hasFocus) {
-                        if (validateShop(parent)) {
+                        if (validateShop()) {
                             String shopInput = act_shop.getText().toString().trim();
                             for (int i = 0; i < shopNames.length(); i++) {
                                 JSONObject shopName = shopNames.optJSONObject(i);
@@ -246,15 +271,28 @@ public class CreateReservationsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (reservation != null) {
-                    editReservationForm(parent);
+                    editReservationForm();
                 } else {
-                    createNewReservationForm(parent);
+                    createNewReservationForm();
                 }
             }
         });
 
 
         return parent;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        switch (requestCode) {
+            case DIALOG_FRAGMENT:
+                if (resultCode == Activity.RESULT_OK) {
+                    String shop_Name = data.getStringExtra(INTENT_SHOP_NAME);
+                    String shop_type = data.getStringExtra(INTENT_SHOP_TYPE);
+                    getShopNames(shop_Name, shop_type);
+                }
+                break;
+        }
     }
 
     private List<String> getHoursBetweenRanges(Calendar start, Calendar end) {
@@ -322,9 +360,31 @@ public class CreateReservationsFragment extends Fragment {
 
     }
 
-    private void getShopNames(ConstraintLayout parent) {
+    private void getShopNames(String shopName, String shop_type) {
 
         String url = BackEndEndpoints.SHOP_NAMES;
+
+        TextInputLayout til_shop = parent.findViewById(R.id.reservation_shop_label);
+        if (shopName != null || shop_type != null) {
+            til_shop.setHelperTextEnabled(true);
+            String helperText = getString(R.string.last_filtering) + ":";
+            url += "?";
+            if (shopName != null) {
+                url += "name=" + shopName + "&";
+                helperText += " " + shopName + " (" + getString(R.string.shop_name) + ")";
+            }
+            if (shop_type != null) {
+                url += "shopType=" + shop_type + "&";
+                String shopTypeText = getString(R.string.shopType);
+                shopTypeText = shopTypeText.substring(0, shopTypeText.length() - 1);
+                String type_translation = getString(getResources().getIdentifier(shop_type, "string", getActivity().getPackageName()));
+                helperText += " " + type_translation + " (" + shopTypeText + ")";
+            }
+            til_shop.setHelperText(helperText);
+        } else {
+            til_shop.setHelperTextEnabled(false);
+        }
+
 
         RequestUtils.sendJsonArrayRequest(getContext(), Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
             @Override
@@ -345,10 +405,9 @@ public class CreateReservationsFragment extends Fragment {
                 Log.e("HTTP", "Error");
             }
         });
-
     }
 
-    private void getShopCalendar(ConstraintLayout parent, Calendar date) {
+    private void getShopCalendar(Calendar date) {
         if (reservation != null) {
             String url = BackEndEndpoints.SHOP_TIMETABLE + "/" + reservation.getIdShop();
             RequestUtils.sendStringRequest(getContext(), Request.Method.GET, url, new Response.Listener<String>() {
@@ -376,7 +435,7 @@ public class CreateReservationsFragment extends Fragment {
 
     }
 
-    private void showDatePickerListener(ConstraintLayout parent, TextInputEditText tiet_date) {
+    private void showDatePickerListener(TextInputEditText tiet_date) {
         final Calendar date = DateUtils.parseDateDate(tiet_date.getText().toString().trim());
         int year = date.get(Calendar.YEAR);
         int month = date.get(Calendar.MONTH);
@@ -414,7 +473,7 @@ public class CreateReservationsFragment extends Fragment {
         datePicker.show();
     }
 
-    private boolean validateShop(ConstraintLayout parent) {
+    private boolean validateShop() {
         TextInputLayout til_shop = parent.findViewById(R.id.reservation_shop_label);
         AutoCompleteTextView act_shop = parent.findViewById(R.id.reservation_shop_input);
 
@@ -439,7 +498,7 @@ public class CreateReservationsFragment extends Fragment {
 
     }
 
-    private boolean validateReservationDate(ConstraintLayout parent) {
+    private boolean validateReservationDate() {
         TextInputLayout til_date = parent.findViewById(R.id.reservation_date_label);
         TextInputEditText tiet_date = parent.findViewById(R.id.reservation_date_input);
         TextInputLayout til_hour = parent.findViewById(R.id.reservation_hour_label);
@@ -493,7 +552,7 @@ public class CreateReservationsFragment extends Fragment {
         return true;
     }
 
-    private boolean validateNClients(ConstraintLayout parent) {
+    private boolean validateNClients() {
         TextInputLayout til_nClients = parent.findViewById(R.id.reservation_nClients_label);
         TextInputEditText tiet_nClients = parent.findViewById(R.id.reservation_nClients_input);
 
@@ -535,9 +594,9 @@ public class CreateReservationsFragment extends Fragment {
         return true;
     }
 
-    private void createNewReservationForm(ConstraintLayout parent) {
+    private void createNewReservationForm() {
 
-        if (validateShop(parent) & validateReservationDate(parent) & validateNClients(parent)) {
+        if (validateShop() & validateReservationDate() & validateNClients()) {
             ProgressDialog pd = FormUtils.showProgressDialog(getContext(), getResources(), R.string.updating_data, R.string.please_wait);
 
             AutoCompleteTextView act_shop = parent.findViewById(R.id.reservation_shop_input);
@@ -588,7 +647,7 @@ public class CreateReservationsFragment extends Fragment {
                             public void onClick(View v) {
                                 snackbar.dismiss();
                                 pd.show();
-                                createNewReservationForm(parent);
+                                createNewReservationForm();
                             }
                         });
                         snackbar.show();
@@ -620,7 +679,7 @@ public class CreateReservationsFragment extends Fragment {
                                 public void onClick(View v) {
                                     snackbar.dismiss();
                                     pd.show();
-                                    createNewReservationForm(parent);
+                                    createNewReservationForm();
                                 }
                             });
                             snackbar.show();
@@ -634,9 +693,9 @@ public class CreateReservationsFragment extends Fragment {
         }
     }
 
-    private void editReservationForm(ConstraintLayout parent) {
+    private void editReservationForm() {
 
-        if (validateShop(parent) & validateReservationDate(parent) & validateNClients(parent)) {
+        if (validateShop() & validateReservationDate() & validateNClients()) {
 
             ProgressDialog pd = FormUtils.showProgressDialog(getContext(), getResources(), R.string.updating_data, R.string.please_wait);
 
@@ -679,7 +738,7 @@ public class CreateReservationsFragment extends Fragment {
                             public void onClick(View v) {
                                 snackbar.dismiss();
                                 pd.show();
-                                editReservationForm(parent);
+                                editReservationForm();
                             }
                         });
                         snackbar.show();
@@ -711,7 +770,7 @@ public class CreateReservationsFragment extends Fragment {
                                 public void onClick(View v) {
                                     snackbar.dismiss();
                                     pd.show();
-                                    editReservationForm(parent);
+                                    editReservationForm();
                                 }
                             });
                             snackbar.show();
