@@ -69,12 +69,16 @@ public class HourAutocompleteAdapter extends BaseAdapter implements Filterable {
                     results.count = mOriginalValues.size();
                     results.values = mOriginalValues;
                 } else {
+                    boolean showAll = false;
                     for (String hour : mOriginalValues) {
                         if (hour.toLowerCase().startsWith(constraint.toString().toLowerCase())) {
                             FilteredArrList.add(hour);
+                            if (hour.toLowerCase().equals(constraint.toString().toLowerCase())) {
+                                showAll = true;
+                            }
                         }
                     }
-                    if (FilteredArrList.size() <= 1) {
+                    if (showAll) {
                         results.count = mOriginalValues.size();
                         results.values = mOriginalValues;
                     } else {
