@@ -389,9 +389,11 @@ public class CreateReservationsFragment extends Fragment {
         RequestUtils.sendJsonArrayRequest(getContext(), Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                shopNames = response;
+                if (shopName == null && shop_type == null) {
+                    shopNames = response;
+                }
                 List<String> names = new ArrayList<>();
-                for (int i = 0; i < shopNames.length(); i++) {
+                for (int i = 0; i < response.length(); i++) {
                     names.add(response.optJSONObject(i).optString("name"));
                 }
                 String[] shops = names.toArray(new String[names.size()]);
@@ -482,16 +484,32 @@ public class CreateReservationsFragment extends Fragment {
             til_shop.setError(getString(R.string.error_empty_field));
             return false;
         } else {
-            ArrayList<String> results = new ArrayList<>();
-            ListAdapter adapter = act_shop.getAdapter();
-            for (int i = 0; i < adapter.getCount(); i++) {
-                results.add((String) adapter.getItem(i));
+            if (shopNames != null) {
+                boolean error = true;
+                for (int i = 0; i < shopNames.length(); i++) {
+                    JSONObject shopName = shopNames.optJSONObject(i);
+                    if (shop_input.equals(shopName.optString("name"))) {
+                        error = false;
+                        break;
+                    }
+                }
+                if (error) {
+                    til_shop.setError(getString(R.string.error_shop_not_found));
+                    return false;
+                }
+            } else {
+                ArrayList<String> results = new ArrayList<>();
+                ListAdapter adapter = act_shop.getAdapter();
+                for (int i = 0; i < adapter.getCount(); i++) {
+                    results.add((String) adapter.getItem(i));
+                }
+                if (results.size() == 0 ||
+                        results.indexOf(shop_input) == -1) {
+                    til_shop.setError(getString(R.string.error_shop_not_found));
+                    return false;
+                }
             }
-            if (results.size() == 0 ||
-                    results.indexOf(shop_input) == -1) {
-                til_shop.setError(getString(R.string.error_shop_not_found));
-                return false;
-            }
+
         }
         til_shop.setError(null);
         return true;
