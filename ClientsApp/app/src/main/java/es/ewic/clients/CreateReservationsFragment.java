@@ -41,6 +41,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import es.ewic.clients.adapters.DialogFilterShop;
+import es.ewic.clients.adapters.HourAutocompleteAdapter;
 import es.ewic.clients.model.Client;
 import es.ewic.clients.model.Reservation;
 import es.ewic.clients.model.Shop;
@@ -350,7 +351,9 @@ public class CreateReservationsFragment extends Fragment {
 
         String[] hoursValues = hours.toArray(new String[hours.size()]);
         AutoCompleteTextView act_hours = parent.findViewById(R.id.reservation_hour_input);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.shop_list_item, hours);
+        HourAutocompleteAdapter adapter = new HourAutocompleteAdapter(hours, CreateReservationsFragment.this);
+//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.shop_list_item, hours);
+//        adapter
         act_hours.setAdapter(adapter);
         if (reservation != null) {
             act_hours.setText(DateUtils.formatHour(reservation.getDate()));
