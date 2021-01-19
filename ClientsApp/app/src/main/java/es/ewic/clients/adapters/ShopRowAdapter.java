@@ -3,6 +3,8 @@ package es.ewic.clients.adapters;
 import android.content.res.Resources;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
@@ -89,6 +91,10 @@ public class ShopRowAdapter extends BaseAdapter implements ListAdapter {
         PercentageChartView percentageChartView = convertView.findViewById(R.id.shop_percentage);
         float percentage = ((float) shop_data.getActualCapacity() / shop_data.getMaxCapacity()) * 100;
         FormUtils.configureSemaphorePercentageChartView(resources, percentageChartView, percentage);
+
+        Animation animation = AnimationUtils.loadAnimation(convertView.getContext(), R.anim.slide_in);
+        animation.setDuration(500 + (position * 100));
+        convertView.startAnimation(animation);
 
         return convertView;
     }
