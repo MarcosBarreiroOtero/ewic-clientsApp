@@ -63,9 +63,8 @@ public class ShopRowAdapter extends BaseAdapter implements ListAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
 
-        if (convertView == null) {
-            convertView = fragment.getLayoutInflater().inflate(R.layout.shop_row, null);
-        }
+        //Siempre se sobreescribe la view por culpa del percentchartview
+        convertView = fragment.getLayoutInflater().inflate(R.layout.shop_row, null);
 
         TextView shopTitle = convertView.findViewById(R.id.shop_title);
         TextView shopLocation = convertView.findViewById(R.id.shop_location);
@@ -86,11 +85,13 @@ public class ShopRowAdapter extends BaseAdapter implements ListAdapter {
                 shopOpen.setTextColor(resources.getColor(R.color.semaphore_red));
             }
 
+            PercentageChartView percentageChartView = convertView.findViewById(R.id.shop_percentage);
+            float percentage = ((float) shop_data.getActualCapacity() / shop_data.getMaxCapacity()) * 100;
+            FormUtils.configureSemaphorePercentageChartView(resources, percentageChartView, percentage);
+
+
         }
 
-        PercentageChartView percentageChartView = convertView.findViewById(R.id.shop_percentage);
-        float percentage = ((float) shop_data.getActualCapacity() / shop_data.getMaxCapacity()) * 100;
-        FormUtils.configureSemaphorePercentageChartView(resources, percentageChartView, percentage);
 
         Animation animation = AnimationUtils.loadAnimation(convertView.getContext(), R.anim.slide_in);
         animation.setDuration(500 + (position * 100));

@@ -34,38 +34,40 @@ public class FormUtils {
 
     public static void configureSemaphorePercentageChartView(Resources resources, PercentageChartView percentageChartView, float percentage) {
 
-        percentageChartView.drawBackgroundEnabled(false)
-                .drawBackgroundBarEnabled(true)
-                .orientation(BaseModeRenderer.ORIENTATION_CLOCKWISE)
-                .progressBarStyle(RingModeRenderer.CAP_SQUARE)
-                .progressBarThickness(10)
-                .startAngle(90)
-                .textStyle(Typeface.BOLD)
-                .backgroundBarColor(resources.getColor(R.color.purple_500)).apply();
+        if (percentageChartView != null) {
+            percentageChartView.drawBackgroundEnabled(false)
+                    .drawBackgroundBarEnabled(true)
+                    .orientation(BaseModeRenderer.ORIENTATION_CLOCKWISE)
+                    .progressBarStyle(RingModeRenderer.CAP_SQUARE)
+                    .progressBarThickness(10)
+                    .startAngle(90)
+                    .textStyle(Typeface.BOLD)
+                    .backgroundBarColor(resources.getColor(R.color.purple_500)).apply();
 
-        percentageChartView.setProgress(percentage, false);
-        percentageChartView.setAdaptiveColorProvider(new AdaptiveColorProvider() {
-            @Override
-            public int provideProgressColor(float progress) {
-                if (progress < 25) {
-                    return resources.getColor(R.color.semaphore_green);
-                } else if (progress < 100) {
-                    return resources.getColor(R.color.semaphore_ambar);
-                } else {
-                    return resources.getColor(R.color.semaphore_red);
+            percentageChartView.setProgress(percentage, false);
+            percentageChartView.setAdaptiveColorProvider(new AdaptiveColorProvider() {
+                @Override
+                public int provideProgressColor(float progress) {
+                    if (progress < 25) {
+                        return resources.getColor(R.color.semaphore_green);
+                    } else if (progress < 100) {
+                        return resources.getColor(R.color.semaphore_ambar);
+                    } else {
+                        return resources.getColor(R.color.semaphore_red);
+                    }
                 }
-            }
 
-            @Override
-            public int provideBackgroundColor(float progress) {
-                //This will provide a bg color that is 80% darker than progress color.
-                return ColorUtils.blendARGB(provideProgressColor(progress), Color.BLACK, .5f);
-            }
+                @Override
+                public int provideBackgroundColor(float progress) {
+                    //This will provide a bg color that is 80% darker than progress color.
+                    return ColorUtils.blendARGB(provideProgressColor(progress), Color.BLACK, .5f);
+                }
 
-            @Override
-            public int provideTextColor(float progress) {
-                return provideProgressColor(progress);
-            }
-        });
+                @Override
+                public int provideTextColor(float progress) {
+                    return provideProgressColor(progress);
+                }
+            });
+        }
     }
 }
