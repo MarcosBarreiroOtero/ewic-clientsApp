@@ -101,4 +101,5 @@
     <string name="client">client</string>
     <string name="clients">clients</string>
     <string name="bluetooth_location_needed">To find new devices it is necessary to have the location activated</string>
+    <string name="last_filtering">Last filtering</string>
 </resources>

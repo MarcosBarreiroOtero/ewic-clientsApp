@@ -1,6 +1,8 @@
 package es.ewic.clients.adapters;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import es.ewic.clients.CreateReservationsFragment;
 import es.ewic.clients.R;
 import es.ewic.clients.utils.BackEndEndpoints;
 import es.ewic.clients.utils.RequestUtils;
@@ -37,11 +40,14 @@ public class DialogFilterShop extends DialogFragment {
     private static final String ARG_SHOP_NAME = "shop_name";
     private static final String ARG_SHOP_TYPE = "shop_type";
     private static final String ARG_USE_LOCATION = "use_location";
+    private static final String ARG_SHOW_LOCATION = "show_location";
 
 
     private String shop_name;
     private String shop_type;
     private boolean use_location;
+
+    private boolean show_location = true;
 
     private JSONArray shop_types_translations;
 
@@ -52,15 +58,17 @@ public class DialogFilterShop extends DialogFragment {
     }
 
 
-    public static DialogFilterShop newInstance(String shop_name, String shop_type, boolean use_location) {
+    public static DialogFilterShop newInstance(String shop_name, String shop_type, boolean use_location, boolean show_location) {
         DialogFilterShop fragment = new DialogFilterShop();
         Bundle args = new Bundle();
         args.putString(ARG_SHOP_NAME, shop_name);
         args.putString(ARG_SHOP_TYPE, shop_type);
         args.putBoolean(ARG_USE_LOCATION, use_location);
+        args.putBoolean(ARG_SHOW_LOCATION, show_location);
         fragment.setArguments(args);
         return fragment;
     }
+
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -77,6 +85,7 @@ public class DialogFilterShop extends DialogFragment {
             shop_name = getArguments().getString(ARG_SHOP_NAME);
             shop_type = getArguments().getString(ARG_SHOP_TYPE);
             use_location = getArguments().getBoolean(ARG_USE_LOCATION);
+            show_location = getArguments().getBoolean(ARG_SHOW_LOCATION);
         }
     }
 
@@ -100,6 +109,11 @@ public class DialogFilterShop extends DialogFragment {
         c_use_location.setChecked(use_location);
 
         getShopTypes(view);
+
+        if (!show_location) {
+            CheckBox filter_user_location = view.findViewById(R.id.filter_shop_use_location);
+            filter_user_location.setVisibility(View.GONE);
+        }
 
         //Cancel button
         Button btn_cancel = view.findViewById(R.id.button_filter_cancel);
@@ -137,7 +151,15 @@ public class DialogFilterShop extends DialogFragment {
                 CheckBox c_use_location = view.findViewById(R.id.filter_shop_use_location);
                 boolean useLocation = c_use_location.isChecked();
 
-                mCallback.onFindShopsFiltered(shop_name, shop_type, useLocation);
+                if (show_location) {
+                    mCallback.onFindShopsFiltered(shop_name, shop_type, useLocation);
+                } else {
+                    Intent intent = new Intent();
+                    intent.putExtra(CreateReservationsFragment.INTENT_SHOP_NAME, shop_name);
+                    intent.putExtra(CreateReservationsFragment.INTENT_SHOP_TYPE, shop_type);
+                    getTargetFragment().onActivityResult(getTargetRequestCode(), Activity.RESULT_OK, intent);
+                }
+
                 dismiss();
             }
         });

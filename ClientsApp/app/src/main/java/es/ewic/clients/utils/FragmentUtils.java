@@ -28,7 +28,12 @@ public class FragmentUtils {
      */
     public static void replaceFragment(FragmentManager fragmentManager, Fragment fragment, boolean addToBackStack) {
         try {
-            FragmentTransaction transaction = fragmentManager.beginTransaction().replace(R.id.mainActivityLayout, fragment,
+            FragmentTransaction transaction = fragmentManager.beginTransaction().setCustomAnimations(
+                    R.anim.slide_in,  // enter
+                    R.anim.fade_out,  // exit
+                    R.anim.fade_in,   // popEnter
+                    R.anim.slide_out  // popExit
+            ).replace(R.id.mainActivityLayout, fragment,
                     fragment.getClass().getName());
             if (addToBackStack) {
                 transaction.setReorderingAllowed(true);

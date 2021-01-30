@@ -148,8 +148,6 @@ public class ShopListFragment extends Fragment {
                 if (task.isSuccessful() && task.getResult() != null) {
                     mLatitude = task.getResult().getLatitude();
                     mLongitude = task.getResult().getLongitude();
-                } else {
-                    Log.e("Position", "getLastLocation:exception - " + task.getException(), task.getException());
                 }
                 getShopList(parent, swipeRefreshLayout);
             }
@@ -218,7 +216,7 @@ public class ShopListFragment extends Fragment {
     }
 
     private void showFilterDialog(ConstraintLayout parent, LayoutInflater inflater) {
-        DialogFragment newFragment = DialogFilterShop.newInstance(shop_name, shop_type, use_location);
+        DialogFragment newFragment = DialogFilterShop.newInstance(shop_name, shop_type, use_location, true);
         newFragment.show(getActivity().getSupportFragmentManager(), "dialog");
     }
 
