@@ -46,6 +46,7 @@ import es.ewic.clients.model.Client;
 import es.ewic.clients.model.Reservation;
 import es.ewic.clients.model.Shop;
 import es.ewic.clients.utils.BackEndEndpoints;
+import es.ewic.clients.utils.ConfigurationNames;
 import es.ewic.clients.utils.DateUtils;
 import es.ewic.clients.utils.FormUtils;
 import es.ewic.clients.utils.ModelConverter;
@@ -73,6 +74,12 @@ public class CreateReservationsFragment extends Fragment {
     private Reservation reservation;
     private JSONArray shopNames;
     private JSONArray timetable;
+
+    private int minutesBetweenReservation = 15;
+    private int minutesAfterOpeningMorning = 0;
+    private int minutesBeforeClosingMorning = 0;
+    private int minutesAfterOpeningAfternoon = 0;
+    private int minutesBeforeClosingAfternoon = 0;
 
     OnCreateReservationListener mCallback;
 
@@ -148,20 +155,37 @@ public class CreateReservationsFragment extends Fragment {
 
         //Hour input
         AutoCompleteTextView act_hour = parent.findViewById(R.id.reservation_hour_input);
-        if (reservation != null) {
-            act_hour.setText(DateUtils.formatHour(reservation.getDate()));
-        } else {
-            if (shop != null) {
-                timetable = new JSONArray();
-                try {
-                    timetable = new JSONArray(shop.getTimetable());
-                } catch (JSONException e) {
-                    e.printStackTrace();
+        if (shop != null) {
+            timetable = new JSONArray();
+            try {
+                timetable = new JSONArray(shop.getTimetable());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            boolean closed = true;
+            while (closed) {
+                now.add(Calendar.DATE, 1);
+                int weekDay = now.get(Calendar.DAY_OF_WEEK);
+                if (weekDay == 1) {
+                    weekDay = 6;
+                } else {
+                    weekDay -= 2;
+                }
+                for (int i = 0; i < timetable.length(); i++) {
+                    JSONObject weekDayTimetable = timetable.optJSONObject(i);
+                    if (weekDay == weekDayTimetable.optInt("weekDay")) {
+                        closed = false;
+                        break;
+                    }
                 }
             }
-            setAdapterHourInput(parent, now, timetable);
+            getReservationParams(parent, now, timetable, shop.getIdShop());
         }
 
+        if (reservation != null) {
+            getShopTimetable(reservation.getDate());
+        }
 
         //Date input
         TextInputEditText tiet_date = parent.findViewById(R.id.reservation_date_input);
@@ -202,8 +226,6 @@ public class CreateReservationsFragment extends Fragment {
             act_shop.setAdapter(adapter);
             act_shop.setText(reservation.getShopName());
             act_shop.setEnabled(false);
-
-            getShopCalendar(reservation.getDate());
         } else if (shop != null) {
             String[] shops = new String[]{shop.getName()};
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.shop_list_item, shops);
@@ -245,12 +267,51 @@ public class CreateReservationsFragment extends Fragment {
                                     } else {
                                         timetable = new JSONArray();
                                     }
+                                    String minutesBetweenReservationsText = shopName.optString("minutesBetweenReservations");
+                                    minutesBetweenReservation = minutesBetweenReservationsText.isEmpty() ? 15 : Integer.parseInt(minutesBetweenReservationsText);
+                                    String minutesAfterOpeningMorningText = shopName.optString("minutesAfterOpeningMorning");
+                                    minutesAfterOpeningMorning = minutesAfterOpeningMorningText.isEmpty() ? 0 : Integer.parseInt(minutesAfterOpeningMorningText);
+                                    String minutesBeforeClosingMorningText = shopName.optString("minutesBeforeClosingMorning");
+                                    minutesBeforeClosingMorning = minutesBeforeClosingMorningText.isEmpty() ? 0 : Integer.parseInt(minutesBeforeClosingMorningText);
+                                    String minutesAfterOpeningAfternoonText = shopName.optString("minutesAfterOpeningAfternoon");
+                                    minutesAfterOpeningAfternoon = minutesAfterOpeningAfternoonText.isEmpty() ? 0 : Integer.parseInt(minutesAfterOpeningAfternoonText);
+                                    String minutesBeforeClosingAfternoonText = shopName.optString("minutesBeforeClosingAfternoon");
+                                    minutesBeforeClosingAfternoon = minutesBeforeClosingAfternoonText.isEmpty() ? 0 : Integer.parseInt(minutesBeforeClosingAfternoonText);
+
                                 }
                             }
                         } else {
                             timetable = new JSONArray();
+                            minutesBetweenReservation = 15;
+                            minutesAfterOpeningMorning = 0;
+                            minutesBeforeClosingMorning = 0;
+                            minutesAfterOpeningAfternoon = 0;
+                            minutesBeforeClosingAfternoon = 0;
                         }
-                        setAdapterHourInput(parent, DateUtils.parseDateDate(tiet_date.getText().toString().trim()), timetable);
+                        Calendar date = DateUtils.parseDateDate(tiet_date.getText().toString().trim());
+                        if (timetable.length() != 0) {
+                            boolean closed = true;
+                            while (closed) {
+                                int weekDay = date.get(Calendar.DAY_OF_WEEK);
+                                if (weekDay == 1) {
+                                    weekDay = 6;
+                                } else {
+                                    weekDay -= 2;
+                                }
+                                for (int i = 0; i < timetable.length(); i++) {
+                                    JSONObject weekDayTimetable = timetable.optJSONObject(i);
+                                    if (weekDay == weekDayTimetable.optInt("weekDay")) {
+                                        closed = false;
+                                        break;
+                                    }
+                                }
+                                if (closed) {
+                                    date.add(Calendar.DATE, 1);
+                                }
+                            }
+                        }
+                        tiet_date.setText(DateUtils.formatDate(date));
+                        setAdapterHourInput(parent, date, timetable);
                         act_hour.setText("");
                         tiet_nClients.setText("1");
                     }
@@ -300,11 +361,53 @@ public class CreateReservationsFragment extends Fragment {
         List<String> hours = new ArrayList<>();
         while (start.before(end)) {
             hours.add(DateUtils.formatHour(start));
-            start.add(Calendar.MINUTE, 15);
+            start.add(Calendar.MINUTE, minutesBetweenReservation);
         }
 
         return hours;
 
+    }
+
+    private void getReservationParams(ConstraintLayout parent, Calendar date, JSONArray timetable, int idShop) {
+
+        String url = BackEndEndpoints.CONFIGURATION_RESERVATION(idShop);
+
+        RequestUtils.sendJsonArrayRequest(getContext(), Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                for (int i = 0; i < response.length(); i++) {
+                    try {
+                        JSONObject param = response.getJSONObject(i);
+                        String value = param.getString("value");
+                        if (!value.isEmpty()) {
+                            if (param.getString("name").equals(ConfigurationNames.MINUTES_BETWEEN_RESERVATIONS)) {
+                                minutesBetweenReservation = Integer.parseInt(param.getString("value"));
+                            }
+                            if (param.getString("name").equals(ConfigurationNames.MINUTES_AFTER_OPENING_MORNING)) {
+                                minutesAfterOpeningMorning = Integer.parseInt(param.getString("value"));
+                            }
+                            if (param.getString("name").equals(ConfigurationNames.MINUTES_BEFORE_CLOSING_MORNING)) {
+                                minutesBeforeClosingMorning = Integer.parseInt(param.getString("value"));
+                            }
+                            if (param.getString("name").equals(ConfigurationNames.MINUTES_AFTER_OPENING_AFTERNOON)) {
+                                minutesAfterOpeningAfternoon = Integer.parseInt(param.getString("value"));
+                            }
+                            if (param.getString("name").equals(ConfigurationNames.MINUTES_BEFORE_CLOSING_AFTERNOON)) {
+                                minutesBeforeClosingAfternoon = Integer.parseInt(param.getString("value"));
+                            }
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                setAdapterHourInput(parent, date, timetable);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("HTTP", "error reservation params");
+            }
+        });
     }
 
     private void setAdapterHourInput(ConstraintLayout parent, Calendar date, JSONArray timetable) {
@@ -332,7 +435,9 @@ public class CreateReservationsFragment extends Fragment {
                 if (weekDay == weekDayTimetable.optInt("weekDay")) {
                     try {
                         Calendar startMorning = DateUtils.parseDateHour(weekDayTimetable.getString("startMorning"));
+                        startMorning.add(Calendar.MINUTE, minutesAfterOpeningMorning);
                         Calendar endMorning = DateUtils.parseDateHour(weekDayTimetable.getString("endMorning"));
+                        endMorning.add(Calendar.MINUTE, -minutesBeforeClosingMorning);
                         hours.addAll(getHoursBetweenRanges(startMorning, endMorning));
                     } catch (JSONException e) {
                         // no timetable morning
@@ -340,7 +445,9 @@ public class CreateReservationsFragment extends Fragment {
 
                     try {
                         Calendar startAfternoon = DateUtils.parseDateHour(weekDayTimetable.getString("startAfternoon"));
+                        startAfternoon.add(Calendar.MINUTE, minutesAfterOpeningAfternoon);
                         Calendar endAfternoon = DateUtils.parseDateHour(weekDayTimetable.getString("endAfternoon"));
+                        endAfternoon.add(Calendar.MINUTE, -minutesBeforeClosingAfternoon);
                         hours.addAll(getHoursBetweenRanges(startAfternoon, endAfternoon));
                     } catch (JSONException e) {
                         // no timetable afternoon
@@ -352,8 +459,6 @@ public class CreateReservationsFragment extends Fragment {
         String[] hoursValues = hours.toArray(new String[hours.size()]);
         AutoCompleteTextView act_hours = parent.findViewById(R.id.reservation_hour_input);
         HourAutocompleteAdapter adapter = new HourAutocompleteAdapter(hours, CreateReservationsFragment.this);
-//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.shop_list_item, hours);
-//        adapter
         act_hours.setAdapter(adapter);
         if (reservation != null) {
             act_hours.setText(DateUtils.formatHour(reservation.getDate()));
@@ -412,7 +517,7 @@ public class CreateReservationsFragment extends Fragment {
         });
     }
 
-    private void getShopCalendar(Calendar date) {
+    private void getShopTimetable(Calendar date) {
         if (reservation != null) {
             String url = BackEndEndpoints.SHOP_TIMETABLE + "/" + reservation.getIdShop();
             RequestUtils.sendStringRequest(getContext(), Request.Method.GET, url, new Response.Listener<String>() {
@@ -428,7 +533,7 @@ public class CreateReservationsFragment extends Fragment {
                         timetable = new JSONArray();
                     }
 
-                    setAdapterHourInput(parent, date, timetable);
+                    getReservationParams(parent, date, timetable, reservation.getIdShop());
                 }
             }, new Response.ErrorListener() {
                 @Override
@@ -456,22 +561,21 @@ public class CreateReservationsFragment extends Fragment {
                 } else {
                     weekDay -= 2;
                 }
-                if (timetable.length() != 0) {
-                    boolean closed = true;
-                    for (int i = 0; i < timetable.length(); i++) {
-                        JSONObject weekDayTimetable = timetable.optJSONObject(i);
-                        if (weekDay == weekDayTimetable.optInt("weekDay")) {
-                            closed = false;
-                        }
-                    }
-                    if (closed) {
-                        Snackbar.make(parent, getString(R.string.error_shop_closed_weekDay), Snackbar.LENGTH_LONG)
-                                .show();
-                        return;
+                boolean closed = true;
+                for (int i = 0; i < timetable.length(); i++) {
+                    JSONObject weekDayTimetable = timetable.optJSONObject(i);
+                    if (weekDay == weekDayTimetable.optInt("weekDay")) {
+                        closed = false;
                     }
                 }
-                tiet_date.setText(DateUtils.formatDate(cal));
-                setAdapterHourInput(parent, cal, timetable);
+                if (closed) {
+                    Snackbar.make(parent, getString(R.string.error_shop_closed_weekDay), Snackbar.LENGTH_LONG)
+                            .show();
+                } else {
+                    tiet_date.setText(DateUtils.formatDate(cal));
+                    setAdapterHourInput(parent, cal, timetable);
+                }
+
             }
         }, year, month, day);
         datePicker.getDatePicker().setMinDate(Calendar.getInstance().getTimeInMillis());
