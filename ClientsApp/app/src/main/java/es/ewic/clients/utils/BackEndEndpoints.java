@@ -25,4 +25,8 @@ public class BackEndEndpoints {
         return CONFIGURATION_BASE + "/" + idShop + "/reservation";
     }
 
+    public static String CONFIGURATION_IMAGE(int idShop) {
+        return CONFIGURATION_BASE + "/" + idShop + "/image";
+    }
+
 }

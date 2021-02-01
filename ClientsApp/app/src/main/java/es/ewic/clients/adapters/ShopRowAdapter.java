@@ -1,23 +1,32 @@
 package es.ewic.clients.adapters;
 
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.ramijemli.percentagechartview.PercentageChartView;
 
 import java.util.List;
 
 import es.ewic.clients.R;
 import es.ewic.clients.model.Shop;
+import es.ewic.clients.utils.BackEndEndpoints;
 import es.ewic.clients.utils.FormUtils;
+import es.ewic.clients.utils.ImageUtils;
+import es.ewic.clients.utils.RequestUtils;
 
 public class ShopRowAdapter extends BaseAdapter implements ListAdapter {
 
@@ -90,6 +99,8 @@ public class ShopRowAdapter extends BaseAdapter implements ListAdapter {
             FormUtils.configureSemaphorePercentageChartView(resources, percentageChartView, percentage);
 
 
+            ImageView image = convertView.findViewById(R.id.shop_image);
+            getShopImage(shop_data, image);
         }
 
 
@@ -98,6 +109,29 @@ public class ShopRowAdapter extends BaseAdapter implements ListAdapter {
         convertView.startAnimation(animation);
 
         return convertView;
+    }
+
+    private void getShopImage(Shop shopData, ImageView image) {
+        String url = BackEndEndpoints.CONFIGURATION_IMAGE(shopData.getIdShop());
+        RequestUtils.sendStringRequest(fragment.getContext(), Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.e("HTTP", "ok " + response.length());
+                if (!response.isEmpty()) {
+                    String base64 = response;
+                    Bitmap map = ImageUtils.convert(base64);
+                    image.setImageBitmap(map);
+                } else {
+                    image.setVisibility(View.GONE);
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("HTTP", "ok");
+                image.setVisibility(View.GONE);
+            }
+        });
     }
 
 }
