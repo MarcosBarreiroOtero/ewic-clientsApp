@@ -3,6 +3,7 @@ package es.ewic.clients;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,6 +46,9 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
     private boolean enableMyReservation = true;
     private boolean enableAccessShop = true;
     private boolean enableBackButton = true;
+
+    private String lastSearch = "null@#null@#true";
+    private boolean firstSearch = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,7 +203,12 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
             enableMyReservation = true;
             enableAccessShop = true;
             invalidateOptionsMenu();
-            getSupportFragmentManager().popBackStack();
+            getSupportFragmentManager().popBackStackImmediate();
+            if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+                //Init page with first search
+                lastSearch = "null@#null@#true";
+                firstSearch = false;
+            }
         }
         return true;
     }
@@ -212,7 +221,12 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
                 enableMyReservation = true;
                 enableAccessShop = true;
                 invalidateOptionsMenu();
-                getSupportFragmentManager().popBackStack();
+                getSupportFragmentManager().popBackStackImmediate();
+                if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+                    //Init page with first search
+                    lastSearch = "null@#null@#true";
+                    firstSearch = false;
+                }
             } else {
                 finish();
             }
@@ -304,7 +318,24 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
     @Override
     public void onFindShopsFiltered(String shopName, String shopType, boolean useLocation) {
         if (clientData != null) {
-            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopListFragment.newInstance(shopName, shopType, useLocation), false);
+            String search = (shopName == null ? "null" : shopName) + "@#" + (shopType == null ? "null" : shopType) + "@#" + (useLocation ? "true" : "false");
+            if (search.equals(lastSearch)) {
+                Log.e("Filter", "Misma búsqueda");
+                return;
+            } else {
+                lastSearch = search;
+            }
+
+            if (firstSearch) {
+                Log.e("Filter", "Primera búsqueda");
+                if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                    getSupportFragmentManager().popBackStackImmediate();
+                } else {
+                    FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopListFragment.newInstance(null, null, true), false);
+                }
+            }
+            firstSearch = !firstSearch;
+            FragmentUtils.getInstance().replaceFragment(getSupportFragmentManager(), ShopListFragment.newInstance(shopName, shopType, useLocation), true);
         }
     }
 

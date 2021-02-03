@@ -18,4 +18,15 @@ public class BackEndEndpoints {
     // Reservation
     public static String RESERVATION_BASE = BASE_ENDPOINT + "/reservation/client";
 
+    //Configuration
+    public static String CONFIGURATION_BASE = BASE_ENDPOINT + "/configuration";
+
+    public static String CONFIGURATION_RESERVATION(int idShop) {
+        return CONFIGURATION_BASE + "/" + idShop + "/reservation";
+    }
+
+    public static String CONFIGURATION_IMAGE(int idShop) {
+        return CONFIGURATION_BASE + "/" + idShop + "/image";
+    }
+
 }

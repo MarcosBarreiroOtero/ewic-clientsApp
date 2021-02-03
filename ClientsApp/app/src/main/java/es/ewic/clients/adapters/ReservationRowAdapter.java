@@ -5,6 +5,8 @@ import android.content.res.Resources;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ListAdapter;
@@ -152,6 +154,9 @@ public class ReservationRowAdapter extends BaseAdapter implements ListAdapter {
                     break;
             }
 
+            Animation animation = AnimationUtils.loadAnimation(convertView.getContext(), R.anim.slide_in);
+            animation.setDuration(300 + (position * 100));
+            convertView.startAnimation(animation);
         }
         return convertView;
     }
