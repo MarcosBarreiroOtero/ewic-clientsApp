@@ -10,8 +10,8 @@ android {
         applicationId "es.ewic.clients"
         minSdkVersion 26
         targetSdkVersion 30
-        versionCode 3
-        versionName "0.2-demo"
+        versionCode 4
+        versionName "0.3-demo"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
