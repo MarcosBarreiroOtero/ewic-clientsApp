@@ -184,7 +184,7 @@ public class LoginFragment extends Fragment {
                         });
                         snackbar.show();
                     } else {
-                        int responseCode = RequestUtils.getErrorCodeRequest(error);
+                        // int responseCode = RequestUtils.getErrorCodeRequest(error);
                         // 400 client duplicate (should not happen)
                         Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_server), Snackbar.LENGTH_INDEFINITE);
                         snackbar.setAction(R.string.retry, new View.OnClickListener() {

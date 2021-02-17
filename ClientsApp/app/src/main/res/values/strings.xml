@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Ewic</string>
+    <string name="app_name">Ewyc</string>
     <string name="warning">Warning</string>
     <string name="google_login_button">Log in</string>
     <string name="login_cancelled_message">In order to use this application, you need to log in with a Google account.</string>
