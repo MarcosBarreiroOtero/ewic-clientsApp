@@ -178,7 +178,6 @@ public class MyDataFragment extends Fragment {
                     });
                     snackbar.show();
                 } else {
-                    int responseCode = RequestUtils.getErrorCodeRequest(error);
                     //404 client not found: should not happen
                     //400 client duplicate: should not happen
                     Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_server), Snackbar.LENGTH_INDEFINITE);
@@ -211,7 +210,7 @@ public class MyDataFragment extends Fragment {
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface arg0) {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.semaphore_red));
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.semaphore_red, null));
             }
         });
         dialog.show();
@@ -246,7 +245,6 @@ public class MyDataFragment extends Fragment {
                 });
                 snackbar.show();
             } else {
-                int responseCode = RequestUtils.getErrorCodeRequest(error);
                 //404 client not found: should not happen
                 Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_server), Snackbar.LENGTH_INDEFINITE);
                 snackbar.setAction(R.string.retry, new View.OnClickListener() {

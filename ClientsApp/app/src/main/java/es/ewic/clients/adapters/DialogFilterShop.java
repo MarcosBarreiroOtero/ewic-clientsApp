@@ -54,7 +54,7 @@ public class DialogFilterShop extends DialogFragment {
     OnDialogFilterShopListener mCallback;
 
     public interface OnDialogFilterShopListener {
-        public void onFindShopsFiltered(String shopName, String shopType, boolean useLocation);
+        void onFindShopsFiltered(String shopName, String shopType, boolean useLocation);
     }
 
 
@@ -111,8 +111,7 @@ public class DialogFilterShop extends DialogFragment {
         getShopTypes(view);
 
         if (!show_location) {
-            CheckBox filter_user_location = view.findViewById(R.id.filter_shop_use_location);
-            filter_user_location.setVisibility(View.GONE);
+            c_use_location.setVisibility(View.GONE);
         }
 
         //Cancel button
@@ -134,7 +133,7 @@ public class DialogFilterShop extends DialogFragment {
                 if (shop_name.equals("")) {
                     shop_name = null;
                 }
-                Spinner s_shop_type = (Spinner) view.findViewById(R.id.filter_shop_type);
+                Spinner s_shop_type = view.findViewById(R.id.filter_shop_type);
                 String shop_type_translation = s_shop_type.getSelectedItem().toString().trim();
                 if (shop_type_translation.equals(getString(R.string.All))) {
                     shop_type = null;
@@ -192,8 +191,8 @@ public class DialogFilterShop extends DialogFragment {
                 Collections.sort(shop_types);
                 shop_types.add(0, getString(R.string.All));
                 String[] types = shop_types.toArray(new String[shop_types.size()]);
-                Spinner spinner = (Spinner) v.findViewById(R.id.filter_shop_type);
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.shop_list_item, types);
+                Spinner spinner = v.findViewById(R.id.filter_shop_type);
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.shop_list_item, types);
                 spinner.setAdapter(adapter);
                 if (selected.isEmpty()) {
                     spinner.setSelection(0);

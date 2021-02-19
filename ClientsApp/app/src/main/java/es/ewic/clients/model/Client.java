@@ -57,15 +57,4 @@ public class Client implements Serializable {
     public void setEmail(String email) {
         this.email = email;
     }
-
-    @Override
-    public String toString() {
-        return "Client{" +
-                "idClient=" + idClient +
-                ", idGoogleLogin='" + idGoogleLogin + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", email='" + email + '\'' +
-                '}';
-    }
 }

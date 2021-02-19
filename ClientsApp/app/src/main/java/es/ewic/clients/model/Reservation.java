@@ -97,17 +97,4 @@ public class Reservation implements Serializable {
     public void setShopName(String shopName) {
         this.shopName = shopName;
     }
-
-    @Override
-    public String toString() {
-        return "Reservation{" +
-                "idReservation=" + idReservation +
-                ", date=" + date.getTime().toString() +
-                ", state='" + state + '\'' +
-                ", remarks='" + remarks + '\'' +
-                ", nClients='" + nClients + '\'' +
-                ", idGoogleLoginClient='" + idGoogleLoginClient + '\'' +
-                ", idShop=" + idShop +
-                '}';
-    }
 }

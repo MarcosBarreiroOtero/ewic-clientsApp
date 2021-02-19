@@ -46,11 +46,11 @@ public class LoginFragment extends Fragment {
     OnLogInSuccessListener mCallback;
 
     private GoogleSignInClient mGoogleSignInClient;
-    private int RC_SIGN_IN = 01;
+    private final int RC_SIGN_IN = 01;
 
 
     public interface OnLogInSuccessListener {
-        public void onLoadClientData(Client clientData);
+        void onLoadClientData(Client clientData);
     }
 
     public LoginFragment() {
@@ -58,8 +58,7 @@ public class LoginFragment extends Fragment {
     }
 
     public static LoginFragment newInstance() {
-        LoginFragment fragment = new LoginFragment();
-        return fragment;
+        return new LoginFragment();
     }
 
     @Override
@@ -172,31 +171,23 @@ public class LoginFragment extends Fragment {
                 @Override
                 public void onErrorResponse(VolleyError error) {
                     pd.dismiss();
+                    Snackbar snackbar;
                     if (error instanceof TimeoutError) {
-                        Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
-                        snackbar.setAction(R.string.retry, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                snackbar.dismiss();
-                                pd.show();
-                                registerClientBackEnd(account, pd);
-                            }
-                        });
-                        snackbar.show();
+                        snackbar = Snackbar.make(getView(), getString(R.string.error_connect_server), Snackbar.LENGTH_INDEFINITE);
                     } else {
                         // int responseCode = RequestUtils.getErrorCodeRequest(error);
                         // 400 client duplicate (should not happen)
-                        Snackbar snackbar = Snackbar.make(getView(), getString(R.string.error_server), Snackbar.LENGTH_INDEFINITE);
-                        snackbar.setAction(R.string.retry, new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                snackbar.dismiss();
-                                pd.show();
-                                registerClientBackEnd(account, pd);
-                            }
-                        });
-                        snackbar.show();
+                        snackbar = Snackbar.make(getView(), getString(R.string.error_server), Snackbar.LENGTH_INDEFINITE);
                     }
+                    snackbar.setAction(R.string.retry, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            snackbar.dismiss();
+                            pd.show();
+                            registerClientBackEnd(account, pd);
+                        }
+                    });
+                    snackbar.show();
                 }
             });
         } catch (JSONException e) {

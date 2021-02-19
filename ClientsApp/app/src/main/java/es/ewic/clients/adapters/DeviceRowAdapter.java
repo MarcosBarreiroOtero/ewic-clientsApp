@@ -18,8 +18,6 @@ public class DeviceRowAdapter extends BaseAdapter implements ListAdapter {
 
     private final List<BluetoothDevice> devices;
     private final Fragment fragment;
-    private final Resources resources;
-    private final String packageName;
 
     public DeviceRowAdapter(List<BluetoothDevice> devices, Fragment fragment, Resources resources, String packageName) {
         assert devices != null;
@@ -29,8 +27,6 @@ public class DeviceRowAdapter extends BaseAdapter implements ListAdapter {
 
         this.devices = devices;
         this.fragment = fragment;
-        this.resources = resources;
-        this.packageName = packageName;
     }
 
     @Override

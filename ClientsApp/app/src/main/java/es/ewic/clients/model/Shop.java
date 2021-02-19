@@ -75,20 +75,4 @@ public class Shop implements Serializable {
         return timetable;
     }
 
-    @Override
-    public String toString() {
-        return "Shop{" +
-                "idShop=" + idShop +
-                ", name='" + name + '\'' +
-                ", latitude=" + latitude +
-                ", longitude=" + longitude +
-                ", location='" + location + '\'' +
-                ", maxCapacity=" + maxCapacity +
-                ", actualCapacity=" + actualCapacity +
-                ", type='" + type + '\'' +
-                ", allowEntries=" + allowEntries +
-                ", idSeller=" + idSeller +
-                ", timetable=" + timetable +
-                '}';
-    }
 }

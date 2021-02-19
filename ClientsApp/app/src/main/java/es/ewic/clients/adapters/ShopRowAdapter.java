@@ -88,10 +88,10 @@ public class ShopRowAdapter extends BaseAdapter implements ListAdapter {
 
             if (shop_data.isAllowEntries()) {
                 shopOpen.setText(resources.getString(R.string.open));
-                shopOpen.setTextColor(resources.getColor(R.color.semaphore_green));
+                shopOpen.setTextColor(resources.getColor(R.color.semaphore_green, null));
             } else {
                 shopOpen.setText(resources.getString(R.string.close));
-                shopOpen.setTextColor(resources.getColor(R.color.semaphore_red));
+                shopOpen.setTextColor(resources.getColor(R.color.semaphore_red, null));
             }
 
             PercentageChartView percentageChartView = convertView.findViewById(R.id.shop_percentage);
@@ -116,10 +116,8 @@ public class ShopRowAdapter extends BaseAdapter implements ListAdapter {
         RequestUtils.sendStringRequest(fragment.getContext(), Request.Method.GET, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Log.e("HTTP", "ok " + response.length());
                 if (!response.isEmpty()) {
-                    String base64 = response;
-                    Bitmap map = ImageUtils.convert(base64);
+                    Bitmap map = ImageUtils.convert(response);
                     image.setImageBitmap(map);
                 } else {
                     image.setVisibility(View.GONE);
@@ -128,7 +126,6 @@ public class ShopRowAdapter extends BaseAdapter implements ListAdapter {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.e("HTTP", "ok");
                 image.setVisibility(View.GONE);
             }
         });

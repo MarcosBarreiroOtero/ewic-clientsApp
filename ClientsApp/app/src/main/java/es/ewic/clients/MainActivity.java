@@ -3,7 +3,6 @@ package es.ewic.clients;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -320,14 +319,12 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         if (clientData != null) {
             String search = (shopName == null ? "null" : shopName) + "@#" + (shopType == null ? "null" : shopType) + "@#" + (useLocation ? "true" : "false");
             if (search.equals(lastSearch)) {
-                Log.e("Filter", "Misma búsqueda");
                 return;
             } else {
                 lastSearch = search;
             }
 
             if (firstSearch) {
-                Log.e("Filter", "Primera búsqueda");
                 if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
                     getSupportFragmentManager().popBackStackImmediate();
                 } else {
