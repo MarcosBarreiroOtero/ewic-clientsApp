@@ -13,4 +13,4 @@ Para poder instalar de forma correcta esta aplicación es necesario seguir los p
 
 ## Defensa
 
-Para la defensa de este TFM se utilizará el APK ya configurado que se encuentra en el directorio raíz de este proyecto 
+Para la defensa de este TFM se utilizará el APK ([ewyc.apk](ewyc.apk)) ya configurado que se encuentra en el directorio raíz de este proyecto.
