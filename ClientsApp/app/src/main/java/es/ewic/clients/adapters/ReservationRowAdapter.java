@@ -39,10 +39,10 @@ public class ReservationRowAdapter extends BaseAdapter implements ListAdapter {
     private final Resources resources;
     private final String packageName;
 
-    private OnEditReservationListener mCallback;
+    private final OnEditReservationListener mCallback;
 
     public interface OnEditReservationListener {
-        public void editReservation(Reservation reservation);
+        void editReservation(Reservation reservation);
     }
 
 
@@ -130,10 +130,10 @@ public class ReservationRowAdapter extends BaseAdapter implements ListAdapter {
 
             switch (reservation.getState()) {
                 case "ACTIVE":
-                    reservationState.setTextColor(resources.getColor(R.color.semaphore_green));
+                    reservationState.setTextColor(resources.getColor(R.color.semaphore_green, null));
                     break;
                 case "WAITING":
-                    reservationState.setTextColor(resources.getColor(R.color.semaphore_green));
+                    reservationState.setTextColor(resources.getColor(R.color.semaphore_green, null));
                     reservation_edit_button.setVisibility(View.GONE);
                     break;
                 case "COMPLETED":
@@ -141,12 +141,8 @@ public class ReservationRowAdapter extends BaseAdapter implements ListAdapter {
                     reservation_cancel_button.setVisibility(View.GONE);
                     break;
                 case "NOT_APPEAR":
-                    reservationState.setTextColor(resources.getColor(R.color.semaphore_red));
-                    reservation_edit_button.setVisibility(View.GONE);
-                    reservation_cancel_button.setVisibility(View.GONE);
-                    break;
                 case "CANCELLED":
-                    reservationState.setTextColor(resources.getColor(R.color.semaphore_red));
+                    reservationState.setTextColor(resources.getColor(R.color.semaphore_red, null));
                     reservation_edit_button.setVisibility(View.GONE);
                     reservation_cancel_button.setVisibility(View.GONE);
                     break;
@@ -174,7 +170,7 @@ public class ReservationRowAdapter extends BaseAdapter implements ListAdapter {
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
             public void onShow(DialogInterface arg0) {
-                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.semaphore_red));
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(resources.getColor(R.color.semaphore_red, null));
             }
         });
         dialog.show();
@@ -189,7 +185,7 @@ public class ReservationRowAdapter extends BaseAdapter implements ListAdapter {
             public void onResponse(String response) {
                 TextView reservationState = view.findViewById(R.id.reservation_state);
                 reservationState.setText(resources.getString(R.string.CANCELLED));
-                reservationState.setTextColor(resources.getColor(R.color.semaphore_red));
+                reservationState.setTextColor(resources.getColor(R.color.semaphore_red, null));
                 ImageButton reservation_edit_button = view.findViewById(R.id.reservation_edit_button);
                 reservation_edit_button.setVisibility(View.GONE);
                 ImageButton reservation_cancel_button = view.findViewById(R.id.reservation_cancel_button);

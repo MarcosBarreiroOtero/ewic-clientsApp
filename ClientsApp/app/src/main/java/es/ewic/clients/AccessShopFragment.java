@@ -149,7 +149,7 @@ public class AccessShopFragment extends Fragment {
         bluetooth_exit_shop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                boolean cancelled = mBlueeToothConectionTask.cancel(true);
+                mBlueeToothConectionTask.cancel(true);
             }
         });
 
@@ -224,7 +224,6 @@ public class AccessShopFragment extends Fragment {
                 } else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
                     if (intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1)
                             == BluetoothAdapter.STATE_OFF) {
-                        Log.e("BLUETOOTH", "BLuetooth desactivado");
                         mBluetoothAdapter.cancelDiscovery();
                         if (mBlueeToothConectionTask != null) {
                             if (!mBlueeToothConectionTask.isCancelled()) {
@@ -324,18 +323,15 @@ public class AccessShopFragment extends Fragment {
                 OutputStream outputStream = mBluetoothSocket.getOutputStream();
                 outputStream.write(client.getIdGoogleLogin().getBytes());
 
-                final int BUFFER_SIZE = 1024;
                 byte[] buffer = new byte[1024];
-                int bytes = 0;
                 InputStream inputStream = mBluetoothSocket.getInputStream();
 
                 //First read
 
                 try {
-                    bytes = inputStream.read(buffer);
+                    inputStream.read(buffer);
 
                     String shopString = new String(buffer);
-                    Log.e("BLUETOOTH", "Nuevo:" + shopString.trim());
                     publishProgress(shopString);
                 } catch (IOException e) {
                     return getString(R.string.bluetooth_exit_not_connection);
@@ -344,13 +340,11 @@ public class AccessShopFragment extends Fragment {
                 while (true) {
                     //Check if async task isCancelled
                     if (isCancelled()) {
-                        Log.e("BLUETOOTH", "Cancelada");
                         return getString(R.string.bluetooth_exit_cancel);
                     }
 
                     //Check if socket is connected
                     try {
-                        //TODO revisar otro método
                         outputStream.flush();
                         outputStream.write(client.getIdGoogleLogin().getBytes());
                     } catch (IOException e) {

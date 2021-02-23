@@ -138,10 +138,10 @@ public class ShopInformationFragment extends Fragment implements OnMapReadyCallb
 
         TextView shop_open = parent.findViewById(R.id.shop_information_open);
         if (!shopInformation.isAllowEntries()) {
-            shop_open.setTextColor(getResources().getColor(R.color.semaphore_red));
+            shop_open.setTextColor(getResources().getColor(R.color.semaphore_red, null));
             shop_open.setText(getString(R.string.close));
         } else {
-            shop_open.setTextColor(getResources().getColor(R.color.semaphore_green));
+            shop_open.setTextColor(getResources().getColor(R.color.semaphore_green, null));
             shop_open.setText(getString(R.string.open));
 
             if (shopInformation.getTimetable().length() != 0) {

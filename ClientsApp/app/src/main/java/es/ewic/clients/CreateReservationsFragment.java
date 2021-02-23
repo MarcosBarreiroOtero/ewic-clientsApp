@@ -222,13 +222,13 @@ public class CreateReservationsFragment extends Fragment {
         AutoCompleteTextView act_shop = parent.findViewById(R.id.reservation_shop_input);
         if (reservation != null) {
             String[] shops = new String[]{reservation.getShopName()};
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.shop_list_item, shops);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.shop_list_item, shops);
             act_shop.setAdapter(adapter);
             act_shop.setText(reservation.getShopName());
             act_shop.setEnabled(false);
         } else if (shop != null) {
             String[] shops = new String[]{shop.getName()};
-            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.shop_list_item, shops);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.shop_list_item, shops);
             act_shop.setAdapter(adapter);
             act_shop.setText(shop.getName());
             act_shop.setEnabled(false);
@@ -412,7 +412,6 @@ public class CreateReservationsFragment extends Fragment {
 
     private void setAdapterHourInput(ConstraintLayout parent, Calendar date, JSONArray timetable) {
         List<String> hours = new ArrayList<>();
-        Log.e("TIMETABLE", timetable.toString());
         if (timetable.length() == 0) {
             Calendar start = Calendar.getInstance();
             start.set(Calendar.HOUR_OF_DAY, 0);
@@ -456,7 +455,6 @@ public class CreateReservationsFragment extends Fragment {
             }
         }
 
-        String[] hoursValues = hours.toArray(new String[hours.size()]);
         AutoCompleteTextView act_hours = parent.findViewById(R.id.reservation_hour_input);
         HourAutocompleteAdapter adapter = new HourAutocompleteAdapter(hours, CreateReservationsFragment.this);
         act_hours.setAdapter(adapter);
@@ -505,7 +503,7 @@ public class CreateReservationsFragment extends Fragment {
                     names.add(response.optJSONObject(i).optString("name"));
                 }
                 String[] shops = names.toArray(new String[names.size()]);
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.shop_list_item, shops);
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.shop_list_item, shops);
                 AutoCompleteTextView act_shop = parent.findViewById(R.id.reservation_shop_input);
                 act_shop.setAdapter(adapter);
             }
@@ -611,7 +609,7 @@ public class CreateReservationsFragment extends Fragment {
                     results.add((String) adapter.getItem(i));
                 }
                 if (results.size() == 0 ||
-                        results.indexOf(shop_input) == -1) {
+                        !results.contains(shop_input)) {
                     til_shop.setError(getString(R.string.error_shop_not_found));
                     return false;
                 }
@@ -648,7 +646,7 @@ public class CreateReservationsFragment extends Fragment {
                 results.add((String) adapter.getItem(i));
             }
             if (results.size() == 0 ||
-                    results.indexOf(hourInput) == -1) {
+                    !results.contains(hourInput)) {
                 til_hour.setError(getString(R.string.error_hour_invalid));
                 act_hour.setText("");
                 act_hour.requestFocus();
@@ -833,7 +831,6 @@ public class CreateReservationsFragment extends Fragment {
             String remarksInput = tiet_remarks.getText().toString().trim();
             String dateInput = tiet_date.getText().toString().trim();
             String hourInput = act_hour.getText().toString().trim();
-            String shopInput = act_shop.getText().toString().trim();
             Integer nClientsInput = Integer.parseInt(tiet_nClients.getText().toString().trim());
 
             Calendar date = DateUtils.parseDateLong(hourInput + " " + dateInput);

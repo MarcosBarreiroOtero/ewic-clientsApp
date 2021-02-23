@@ -18,7 +18,7 @@ public class HourAutocompleteAdapter extends BaseAdapter implements Filterable {
 
     private List<String> hoursList;
     private List<String> mOriginalValues; // Original Values
-    private Fragment fragment;
+    private final Fragment fragment;
 
     public HourAutocompleteAdapter(List<String> hoursList, Fragment fragment) {
         assert hoursList != null;
@@ -56,11 +56,11 @@ public class HourAutocompleteAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public Filter getFilter() {
-        Filter filter = new Filter() {
+        return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults results = new FilterResults();
-                List<String> FilteredArrList = new ArrayList<String>();
+                List<String> FilteredArrList = new ArrayList<>();
 
                 if (mOriginalValues == null) {
                     mOriginalValues = new ArrayList<>(hoursList);
@@ -95,6 +95,5 @@ public class HourAutocompleteAdapter extends BaseAdapter implements Filterable {
                 notifyDataSetChanged();
             }
         };
-        return filter;
     }
 }

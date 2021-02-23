@@ -42,18 +42,18 @@ public class FormUtils {
                     .progressBarThickness(10)
                     .startAngle(90)
                     .textStyle(Typeface.BOLD)
-                    .backgroundBarColor(resources.getColor(R.color.purple_500)).apply();
+                    .backgroundBarColor(resources.getColor(R.color.purple_500, null)).apply();
 
             percentageChartView.setProgress(percentage, false);
             percentageChartView.setAdaptiveColorProvider(new AdaptiveColorProvider() {
                 @Override
                 public int provideProgressColor(float progress) {
                     if (progress < 25) {
-                        return resources.getColor(R.color.semaphore_green);
+                        return resources.getColor(R.color.semaphore_green, null);
                     } else if (progress < 100) {
-                        return resources.getColor(R.color.semaphore_ambar);
+                        return resources.getColor(R.color.semaphore_ambar, null);
                     } else {
-                        return resources.getColor(R.color.semaphore_red);
+                        return resources.getColor(R.color.semaphore_red, null);
                     }
                 }
 
